@@ -311,4 +311,69 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching admin stats:', err);
         }
     }
+
+    // Account Page Logic
+    if (window.location.pathname.includes('account.html')) {
+        loadAccountData();
+    }
+
+    async function loadAccountData() {
+        try {
+            const res = await fetch('/api/auth/me');
+            if (!res.ok) return; // Should be handled by checkAuth
+
+            const user = await res.json();
+
+            // Populate Identity fields
+            document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('profile-role').textContent = user.role.toUpperCase();
+            document.getElementById('profile-joined').textContent = new Date(user.created_at).toLocaleDateString();
+
+            // Status Logic
+            const statusEl = document.getElementById('profile-sub-status');
+            const indicatorEl = document.getElementById('sub-status-indicator');
+            const manageBtn = document.getElementById('manage-billing-btn');
+            const subBtn = document.getElementById('account-subscribe-btn');
+
+            if (user.subscription_status === 'active') {
+                statusEl.textContent = 'ACTIVE';
+                statusEl.style.color = 'var(--accent)';
+                indicatorEl.style.background = 'var(--accent)';
+                indicatorEl.style.boxShadow = '0 0 10px var(--accent)';
+                manageBtn.style.display = 'block';
+                subBtn.style.display = 'none';
+            } else {
+                statusEl.textContent = 'INACTIVE';
+                statusEl.style.color = '#ff5252';
+                indicatorEl.style.background = '#ff5252';
+                manageBtn.style.display = 'none'; // Can't manage if not subbed usually, or maybe show it to view past invoices? Left as none for now.
+                subBtn.style.display = 'block';
+            }
+
+            // Wire Buttons
+            if (manageBtn) {
+                manageBtn.onclick = async () => {
+                    manageBtn.innerText = 'ACCESSING...';
+                    try {
+                        const portalRes = await fetch('/api/create-portal-session', { method: 'POST' });
+                        const data = await portalRes.json();
+                        if (data.url) window.location.href = data.url;
+                        else alert('Error accessing portal');
+                    } catch (e) {
+                        console.error(e);
+                        alert('Connection error');
+                    } finally {
+                        manageBtn.innerText = 'ACCESS BILLING PORTAL';
+                    }
+                };
+            }
+
+            if (subBtn) {
+                subBtn.addEventListener('click', startCheckout);
+            }
+
+        } catch (err) {
+            console.error('Account load error', err);
+        }
+    }
 });

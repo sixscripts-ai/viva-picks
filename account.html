@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account | Viva Picks</title>
+    <title>Account | Viva Picks</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -16,134 +16,108 @@
                 Viva Picks
             </div>
             <div class="nav-links">
-                <a href="dashboard.html">Dashboard</a>
-                <a href="account.html" style="color: #fff;">My Account</a>
-                <a href="#" id="logout-btn-nav" class="btn btn-outline"
-                    style="padding: 0.5rem 1rem; font-size: 0.8rem;">Logout</a>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 35px; height: 35px; background: #333; border-radius: 50%;"></div>
+                    <span>Welcome, User</span>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container" style="padding-top: 80px; min-height: 100vh;">
-        <h1 style="margin-bottom: 2rem;">My Account</h1>
+    <div class="dashboard-container container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 SIGNAL FEED</a></li>
+                <li><a href="account.html" class="active">💳 ACCOUNT STATUS</a></li>
+                <!-- <li><a href="#">📜 HISTORY logs</a></li> -->
+                <li id="admin-link" style="display: none;"><a href="admin.html"
+                        style="color: var(--primary); border-color: var(--primary);">🔒 OPERATOR PANEL</a></li>
+                <li><a href="index.html" onclick="document.cookie='token=; Max-Age=0'">🚪 TERMINATE SESSION</a></li>
+            </ul>
+        </aside>
 
-        <div style="display: grid; gap: 2rem;">
-            <!-- Profile Info -->
-            <div class="glass-panel" style="padding: 2rem;">
-                <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.5rem;">👤</span> Profile
-                </h2>
-                <div style="display: grid; gap: 1rem; color: var(--text-muted);">
-                    <div>
-                        <span style="display: block; font-size: 0.8rem; margin-bottom: 0.2rem;">Email Address</span>
-                        <span id="user-email"
-                            style="color: #fff; font-size: 1.1rem; font-weight: 500;">loading...</span>
-                    </div>
-                    <div>
-                        <span style="display: block; font-size: 0.8rem; margin-bottom: 0.2rem;">Member ID</span>
-                        <span id="user-id" style="color: #fff; font-family: monospace;">loading...</span>
+        <main class="main-content">
+            <h1 style="margin-bottom: 2rem;">OPERATIVE PROFILE</h1>
+
+            <div class="card-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+
+                <!-- Identity Card -->
+                <div class="glass-panel">
+                    <h3 style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">IDENTITY MATRIX</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div>
+                            <span
+                                style="display: block; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">CODE
+                                NAME (EMAIL)</span>
+                            <span id="profile-email" style="font-size: 1.2rem; font-weight: 700;">Loading...</span>
+                        </div>
+                        <div>
+                            <span
+                                style="display: block; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">CLEARANCE
+                                LEVEL</span>
+                            <span id="profile-role"
+                                style="font-family: var(--font-mono); color: var(--primary); border: 1px solid var(--primary); padding: 0.2rem 0.6rem; font-size: 0.8rem;">...</span>
+                        </div>
+                        <div>
+                            <span
+                                style="display: block; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">OPERATIVE
+                                SINCE</span>
+                            <span id="profile-joined" style="font-size: 1.1rem;">...</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Subscription Status -->
-            <div class="glass-panel" style="padding: 2rem;">
-                <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.5rem;">💳</span> Subscription
-                </h2>
+                <!-- Subscription Status Card -->
+                <div class="glass-panel">
+                    <h3 style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">ACCESS STATUS</h3>
 
-                <div
-                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <div>
-                        <div style="margin-bottom: 0.5rem; color: var(--text-muted);">Current Status</div>
-                        <div id="sub-status" style="font-size: 1.5rem; font-weight: 700;">loading...</div>
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div id="sub-status-indicator"
+                            style="display: inline-block; width: 15px; height: 15px; border-radius: 50%; background: #333; margin-right: 10px;">
+                        </div>
+                        <span id="profile-sub-status" style="font-size: 2rem; font-weight: 700;">CHECKING...</span>
                     </div>
 
-                    <button id="billing-btn" class="btn btn-primary">
-                        Manage Billing
-                    </button>
+                    <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
+                        Manage your billing, payment methods, and subscription tier via the secure portal.
+                    </p>
+
+                    <button id="manage-billing-btn" class="btn btn-primary" style="width: 100%;">ACCESS BILLING
+                        PORTAL</button>
+                    <!-- Fallback for inactive users -->
+                    <button id="account-subscribe-btn" class="btn btn-outline"
+                        style="width: 100%; display: none; margin-top: 1rem;">INITIATE SUBSCRIPTION</button>
                 </div>
 
-                <p id="billing-note"
-                    style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); display: none;">
-                    * You can update your payment method, view invoices, or cancel your subscription via the Stripe
-                    Customer Portal.
-                </p>
+                <!-- Notifications (Mock) -->
+                <div class="glass-panel" style="grid-column: 1/-1;">
+                    <h3 style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">COMMUNICATION
+                        PROTOCOLS</h3>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <div style="font-weight: 700;">EMAIL ALERTS</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Receive immediate intel on new
+                                signals.</div>
+                        </div>
+                        <div style="color: var(--accent); font-family: var(--font-mono);">[ACTIVE - LOCKED]</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-muted);">SMS ALERTS</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Direct to device text messages.
+                            </div>
+                        </div>
+                        <div
+                            style="color: var(--text-muted); font-family: var(--font-mono); border: 1px solid var(--border); padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+                            COMING SOON</div>
+                    </div>
+                </div>
+
             </div>
-        </div>
+        </main>
     </div>
-
     <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Load User Data
-            try {
-                const res = await fetch('/api/auth/me');
-                if (!res.ok) throw new Error('Auth failed');
-                const user = await res.json();
-
-                document.getElementById('user-email').textContent = user.email;
-                document.getElementById('user-id').textContent = user.id;
-
-                const statusEl = document.getElementById('sub-status');
-                if (user.role === 'admin') {
-                    statusEl.textContent = 'ADMINISTRATOR';
-                    statusEl.style.color = 'var(--primary)';
-                    document.getElementById('billing-btn').style.display = 'none';
-                } else if (user.subscriptionStatus === 'active') {
-                    statusEl.textContent = 'ACTIVE';
-                    statusEl.style.color = 'var(--accent)';
-                    document.getElementById('billing-note').style.display = 'block';
-                } else {
-                    statusEl.textContent = 'INACTIVE';
-                    statusEl.style.color = '#ff5252';
-                    document.getElementById('billing-btn').textContent = 'Subscribe Now';
-                }
-
-                // Handle Billing Button
-                document.getElementById('billing-btn').addEventListener('click', async () => {
-                    if (user.subscriptionStatus !== 'active' && user.role !== 'admin') {
-                        // Subscribe flow
-                        try {
-                            const res = await fetch('/api/create-checkout-session', { method: 'POST' });
-                            const data = await res.json();
-                            if (data.url) window.location.href = data.url;
-                        } catch (e) { alert('Error starting subscription'); }
-                    } else {
-                        // Portal flow
-                        const btn = document.getElementById('billing-btn');
-                        btn.textContent = 'Loading Portal...';
-                        btn.disabled = true;
-                        try {
-                            const res = await fetch('/api/create-portal-session', { method: 'POST' });
-                            const data = await res.json();
-                            if (data.url) {
-                                window.location.href = data.url;
-                            } else {
-                                alert(data.error || 'Could not access billing portal');
-                                btn.textContent = 'Manage Billing';
-                                btn.disabled = false;
-                            }
-                        } catch (e) {
-                            alert('Connection error');
-                            btn.textContent = 'Manage Billing';
-                            btn.disabled = false;
-                        }
-                    }
-                });
-
-            } catch (err) {
-                window.location.href = 'login.html';
-            }
-
-            // Logout
-            document.getElementById('logout-btn-nav').addEventListener('click', async (e) => {
-                e.preventDefault();
-                await fetch('/api/auth/logout', { method: 'POST' });
-                window.location.href = 'index.html';
-            })
-        });
-    </script>
 </body>
 
 </html>
