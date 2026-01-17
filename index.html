@@ -65,12 +65,10 @@
         /* The "Console" Interface */
         .console-wrapper {
             display: grid;
-            grid-template-columns: 80px 1fr;
-            /* Removed the sidebar column */
+            grid-template-columns: 80px 1fr 300px;
             gap: 2rem;
             width: 100%;
-            max-width: 900px;
-            /* Constrain width since sidebar is gone */
+            max-width: 1200px;
             position: relative;
         }
 
@@ -173,11 +171,41 @@
             cursor: pointer;
         }
 
+        /* Sidebar System Status */
+        .system-status {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .status-header {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #333;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+            color: #888;
+        }
+
+        .status-row span.val {
+            color: #fff;
+            font-weight: 700;
+        }
+
         /* Track Record Section */
         .track-record-section {
             width: 100%;
-            max-width: 900px;
-            /* Math the console width */
+            max-width: 1200px;
             margin-top: 6rem;
         }
 
@@ -275,7 +303,31 @@
                 </div>
             </div>
 
-            <!-- Sidebar Removed as requested -->
+            <!-- Sidebar Status -->
+            <div class="system-status">
+                <div class="status-header">SYSTEM STATUS</div>
+                <div class="status-row">
+                    <span>Active Signals:</span>
+                    <span class="val" style="color: #fff">4</span>
+                </div>
+                <div class="status-row">
+                    <span>24h Win Rate:</span>
+                    <span class="val" style="color: var(--accent)">82%</span>
+                </div>
+                <div class="status-row">
+                    <span>Total Members:</span>
+                    <span class="val">1,254</span>
+                </div>
+                <div class="status-row">
+                    <span>Server Load:</span>
+                    <span class="val" style="color: #22c55e">OPTIMAL</span>
+                </div>
+
+                <div style="margin-top: 2rem; border-top: 1px solid #333; padding-top: 1rem;">
+                    <a href="signup.html" class="btn btn-outline"
+                        style="width: 100%; text-align: center; font-size: 0.8rem;">UPGRADE TO PREMIUM INTEL</a>
+                </div>
+            </div>
         </div>
 
         <!-- Track Record (Populated) -->
