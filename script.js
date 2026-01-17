@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const picksContainer = document.getElementById('picks-container');
 
     // Auth Check for Protected Pages
-    const protectedPages = ['dashboard.html', 'admin.html', 'account.html'];
+    const protectedPages = ['dashboard.html', 'warroom.html', 'admin.html', 'account.html'];
     if (protectedPages.some(page => window.location.pathname.includes(page))) {
         checkAuth();
     }
@@ -76,8 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Dashboard Specifics
-            if (window.location.pathname.includes('dashboard.html')) {
+            // Dashboard / War Room Specifics
+            if (window.location.pathname.includes('dashboard.html') || window.location.pathname.includes('warroom.html')) {
                 const navUser = document.querySelector('.nav-links span');
                 if (navUser) navUser.textContent = `Welcome, ${user.role === 'admin' ? 'Admin' : 'Member'}`;
 
@@ -223,6 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, index * 100);
                 picksContainer.appendChild(card);
             });
+
+            if (picks.length > 0) {
+                const latest = picks[0];
+                const tickerItem = document.querySelector('.ticker-item:nth-child(2) span');
+                if (tickerItem) {
+                    tickerItem.textContent = `${latest.sport} // ${latest.matchup} [${latest.result || 'PENDING'}]`;
+                }
+            }
         } catch (error) {
             console.error('Error fetching picks:', error);
         }
