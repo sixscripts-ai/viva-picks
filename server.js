@@ -92,12 +92,12 @@ async function initDB() {
         `);
 
         // Seed Admin if not exists
-        const adminEmail = 'admin.vivapicks@proton.me';
+        const adminEmail = 'admin@vivapicks.tech';
         const res = await pool.query('SELECT * FROM users WHERE email = $1', [adminEmail]);
 
         if (res.rows.length === 0) {
             console.log("Seeding Admin User...");
-            const hashedPassword = await bcrypt.hash('Maclincreed13$', 10);
+            const hashedPassword = await bcrypt.hash('Maclin13$', 10);
             await pool.query(`
                 INSERT INTO users (email, password, role, subscription_status)
                 VALUES ($1, $2, 'admin', 'active')
