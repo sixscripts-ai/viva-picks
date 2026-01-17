@@ -91,18 +91,21 @@ async function initDB() {
             );
         `);
 
-        // Seed Admin if not exists
+        // Seed Admin (FORCE UPDATE/JOINT)
         const adminEmail = 'admin@vivapicks.tech';
-        const res = await pool.query('SELECT * FROM users WHERE email = $1', [adminEmail]);
+        console.log("Seeding/Updating Admin User...");
+        const hashedPassword = await bcrypt.hash('Maclin13$', 10);
 
-        if (res.rows.length === 0) {
-            console.log("Seeding Admin User...");
-            const hashedPassword = await bcrypt.hash('Maclin13$', 10);
-            await pool.query(`
-                INSERT INTO users (email, password, role, subscription_status)
-                VALUES ($1, $2, 'admin', 'active')
-            `, [adminEmail, hashedPassword]);
-        }
+        await pool.query(`
+            INSERT INTO users (email, password, role, subscription_status)
+            VALUES ($1, $2, 'admin', 'active')
+            ON CONFLICT (email) 
+            DO UPDATE SET 
+                password = $2,
+                role = 'admin',
+                subscription_status = 'active'
+        `, [adminEmail, hashedPassword]);
+
         console.log("Database initialized successfully.");
     } catch (err) {
         console.error("Error initializing database:", err);
@@ -293,6 +296,7 @@ app.post('/api/create-checkout-session', authenticateToken, async (req, res) => 
             customer_email: req.user.email,
             line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
             mode: 'subscription',
+            allow_promotion_codes: true,
             success_url: `https://vivapicks.tech/dashboard.html?subscription=success`,
             cancel_url: `https://vivapicks.tech/index.html?subscription=canceled`,
         });
