@@ -161,7 +161,7 @@ app.post('/api/auth/register', async (req, res) => {
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -187,7 +187,7 @@ app.post('/api/auth/login', async (req, res) => {
         res.json({ message: 'Logged in', role: user.role, token });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: err.message });
     }
 });
 
