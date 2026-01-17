@@ -229,6 +229,17 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
 });
 
 // PICKS: Get All
+app.delete('/api/auth/me', authenticateToken, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM users WHERE id = $1', [req.user.userId]);
+        res.clearCookie('token');
+        res.json({ message: 'Account deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete account' });
+    }
+});
+
 app.get('/api/picks', authenticateToken, async (req, res) => {
     try {
         const userRes = await pool.query('SELECT role, subscription_status FROM users WHERE id = $1', [req.user.id]);

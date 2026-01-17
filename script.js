@@ -387,6 +387,23 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
         if (subBtn) subBtn.addEventListener('click', startCheckout);
+
+        const deleteBtn = document.getElementById('delete-account-btn');
+        if (deleteBtn) {
+            deleteBtn.onclick = async () => {
+                if (!confirm('CRITICAL: Are you sure you want to PERMANENTLY terminate your account? All data will be wiped and active subscriptions will be orphaned. This action is irreversible.')) return;
+
+                try {
+                    const res = await fetch('/api/auth/me', { method: 'DELETE' });
+                    if (res.ok) {
+                        alert('Account terminated. Terminating session...');
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('Termination failed.');
+                    }
+                } catch (e) { alert('Connection error'); }
+            };
+        }
     }
 });
 
