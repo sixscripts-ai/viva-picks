@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Viva Picks</title>
+    <title>War Room | Viva Picks</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -24,11 +24,21 @@
         </div>
     </nav>
 
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker-item">SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span></div>
+            <div class="ticker-item">LATEST SIGNAL: <span>NBA // CELTICS -4.5 [PENDING]</span></div>
+            <div class="ticker-item">NET PROFIT (YTD): <span>+42.5 UNITS</span></div>
+            <div class="ticker-item">ALGORITHM CONFIDENCE: <span>94.2%</span></div>
+            <div class="ticker-item">MARKET VOLATILITY: <span>LEVEL 2 (LOW)</span></div>
+        </div>
+    </div>
+
     <div class="dashboard-container container">
         <aside class="sidebar">
             <ul class="sidebar-menu">
-                <li><a href="dashboard.html" class="active">📊 SIGNAL FEED</a></li>
-                <li><a href="warroom.html" style="color: var(--primary);">📡 WAR ROOM</a></li>
+                <li><a href="dashboard.html">📊 SIGNAL FEED</a></li>
+                <li><a href="warroom.html" class="active" style="color: var(--primary);">📡 WAR ROOM</a></li>
                 <li><a href="account.html">💳 ACCOUNT STATUS</a></li>
                 <!-- <li><a href="#">📜 HISTORY logs</a></li> -->
                 <li id="admin-link" style="display: none;"><a href="admin.html"

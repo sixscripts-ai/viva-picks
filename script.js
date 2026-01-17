@@ -206,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${pick.analysis}
                     </div>` : ''}
                     
+                    ${window.location.pathname.includes('warroom.html') ? `
                     <div class="pick-calc" style="grid-column: 1 / -1;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">EDGE CALCULATOR</span>
@@ -214,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 → PAYOUT: <span class="calc-result">$${calculateInitialPayout(100, pick.odds)}</span>
                             </div>
                         </div>
-                    </div>
+                    </div>` : ''}
                 `;
                 setTimeout(() => {
                     card.style.opacity = '1';
