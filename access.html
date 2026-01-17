@@ -92,6 +92,42 @@
             font-size: 0.9rem;
             line-height: 1.5;
         }
+
+        @media (max-width: 768px) {
+            .pricing-hero {
+                padding: 80px 0 40px;
+            }
+
+            .access-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .access-card h2 {
+                font-size: 2rem;
+            }
+
+            .access-card div {
+                font-size: 3rem !important;
+            }
+
+            .compare-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                text-align: left;
+            }
+
+            .compare-grid div {
+                border-bottom: 1px solid #111;
+                padding: 0.5rem 0;
+            }
+
+            .compare-grid div:nth-child(3n+1) {
+                background: #000;
+                color: white;
+                font-weight: bold;
+                margin-top: 1rem;
+            }
+        }
     </style>
 </head>
 

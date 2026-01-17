@@ -47,11 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Dashboard Logic
+    // Dashboard & Global Auth Logic
     const picksContainer = document.getElementById('picks-container');
 
-    // Auth Check
-    if (window.location.pathname.includes('dashboard.html') || window.location.pathname.includes('admin.html')) {
+    // Auth Check for Protected Pages
+    const protectedPages = ['dashboard.html', 'admin.html', 'account.html'];
+    if (protectedPages.some(page => window.location.pathname.includes(page))) {
         checkAuth();
     }
 
@@ -75,29 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // User Dashboard Logic
+            // Dashboard Specifics
             if (window.location.pathname.includes('dashboard.html')) {
                 const navUser = document.querySelector('.nav-links span');
                 if (navUser) navUser.textContent = `Welcome, ${user.role === 'admin' ? 'Admin' : 'Member'}`;
 
-                // Active Banner Check
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('subscription') === 'success') {
-                    const banner = document.createElement('div');
-                    banner.style.cssText = `
-                        background: var(--accent);
-                        color: #000;
-                        text-align: center;
-                        padding: 1rem;
-                        font-weight: 600;
-                        margin-bottom: 2rem;
-                        border-radius: 12px;
-                        animation: fadeIn 0.5s ease;
-                    `;
-                    banner.innerHTML = '🎉 Subscription Activated! Welcome to the Inner Circle.';
-                    document.querySelector('.main-content').prepend(banner);
-
-                    // Remove param from URL without refresh
+                    showSuccessBanner();
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
@@ -108,10 +94,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Account Specifics
+            if (window.location.pathname.includes('account.html')) {
+                renderAccountData(user);
+            }
+
+            // Admin Specifics
+            if (window.location.pathname.includes('admin.html')) {
+                fetchAdminStats();
+                fetchPicksHistory();
+            }
+
         } catch (err) {
             console.error('Auth Check Failed', err);
-            // window.location.href = 'login.html'; // Optional: Redirect on error
         }
+    }
+
+    function showSuccessBanner() {
+        const banner = document.createElement('div');
+        banner.style.cssText = `
+            background: var(--accent);
+            color: #000;
+            text-align: center;
+            padding: 1rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            animation: fadeIn 0.5s ease;
+        `;
+        banner.innerHTML = '🎉 Subscription Activated! Welcome to the Inner Circle.';
+        document.querySelector('.main-content').prepend(banner);
     }
 
     function showSubscriptionOverlay() {
@@ -126,27 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('sub-checkout-btn').addEventListener('click', startCheckout);
     }
 
-    // Index Page Logic
-    const joinBtn = document.getElementById('join-btn');
-    if (joinBtn) {
-        joinBtn.addEventListener('click', () => {
-            // Logic if needed for other buttons
-        });
-    }
-
-    const subCheckoutBtn = document.getElementById('sub-checkout-btn');
-    if (subCheckoutBtn) {
-        subCheckoutBtn.addEventListener('click', async () => {
-            // Check if user is logged in first
-            const res = await fetch('/api/auth/me');
-            if (res.status === 401 || res.status === 403) {
-                window.location.href = 'signup.html'; // Redirect to signup if not logged in
-            } else {
-                startCheckout();
-            }
-        });
-    }
-
     async function startCheckout() {
         try {
             const res = await fetch('/api/create-checkout-session', { method: 'POST' });
@@ -158,14 +149,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchPicks() {
+        if (!picksContainer) return;
         try {
             const res = await fetch('/api/picks');
-
             if (res.status === 403) {
                 showSubscriptionOverlay();
                 return;
             }
-
             const picks = await res.json();
 
             if (picks.length === 0) {
@@ -173,11 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            picksContainer.innerHTML = ''; // Clear loading state
-
+            picksContainer.innerHTML = '';
             picks.forEach((pick, index) => {
                 const card = document.createElement('div');
-                card.className = 'pick-card glass-panel visible'; // Add visible class immediately
+                card.className = 'pick-card glass-panel visible';
                 card.innerHTML = `
                     <div class="pick-header">
                         <span class="sport-tag">${pick.sport || 'General'}</span>
@@ -195,185 +184,254 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="pick-detail-item">
                             <span class="label">Units</span>
-                            <span class="value" style="color: var(--primary);">${pick.units}</span>
+                            <span class="value" style="color: var(--primary);">${pick.units || '1u'}</span>
                         </div>
                     </div>
                     ${pick.analysis ? `
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted);">
-                        Analysis: ${pick.analysis}
+                    <div style="grid-column: 1 / -1; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                        <strong style="color:white; display:block; margin-bottom: 0.5rem;">REPORT // ${pick.bet_type || 'INTEL'}</strong>
+                        ${pick.analysis}
                     </div>` : ''}
                 `;
-
-                // Add staggered animation delay
                 setTimeout(() => {
                     card.style.opacity = '1';
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
-
                 picksContainer.appendChild(card);
             });
-
         } catch (error) {
             console.error('Error fetching picks:', error);
-            picksContainer.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; color: #ff5252;">
-                    Error loading picks. Please ensure the backend server is running.<br>
-                    <small>npm start</small>
-                </div>`;
         }
     }
 
-    // Admin Form Logic
-    const adminForm = document.querySelector('form');
-    // Check if we are on the admin page
-    if (document.getElementById('users-table')) {
-        fetchAdminStats();
-    }
-
-    if (adminForm) {
-        adminForm.onsubmit = async (e) => {
-            e.preventDefault();
-
-            const submitBtn = adminForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = 'Sending...';
-            submitBtn.disabled = true;
-
-            const formData = {
-                sport: adminForm.querySelector('select').value,
-                time: adminForm.querySelector('input[type="datetime-local"]').value,
-                matchup: adminForm.querySelectorAll('input[type="text"]')[0].value,
-                pick: adminForm.querySelectorAll('input[type="text"]')[1].value,
-                odds: adminForm.querySelectorAll('input[type="text"]')[2].value,
-                units: adminForm.querySelectorAll('select')[1].value,
-                analysis: adminForm.querySelector('textarea').value
-            };
-
-            try {
-                const res = await fetch('/api/picks', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-
-                if (res.ok) {
-                    alert('Pick published successfully! Emails are being sent.');
-                    adminForm.reset();
-                } else {
-                    const err = await res.json();
-                    alert('Failed: ' + (err.error || 'Unknown error'));
-                }
-            } catch (err) {
-                alert('Backend error: ' + err.message);
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        };
-    }
-
+    // Admin List Rendering
     async function fetchAdminStats() {
+        const tbody = document.getElementById('users-table');
+        if (!tbody) return;
+
         try {
             const res = await fetch('/api/admin/users');
             if (!res.ok) return;
 
             const users = await res.json();
-            const tbody = document.getElementById('users-table');
-            const statTotal = document.getElementById('stat-total-users');
-            const statActive = document.getElementById('stat-active-subs');
-            const statRevenue = document.getElementById('stat-revenue');
 
-            // Update Stats
-            const total = users.length;
-            // Exclude admin from revenue calculation usually, but simplist count for now
-            const active = users.filter(u => u.subscription_status === 'active' && u.role !== 'admin').length;
-            const revenue = active * 29.99;
+            // Stats Update
+            const activeCount = users.filter(u => u.subscription_status === 'active' && u.role !== 'admin').length;
+            if (document.getElementById('stat-total-users')) document.getElementById('stat-total-users').textContent = users.length;
+            if (document.getElementById('stat-active-subs')) document.getElementById('stat-active-subs').textContent = activeCount;
+            if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = '$' + (activeCount * 29.99).toFixed(2);
 
-            statTotal.textContent = total;
-            statActive.textContent = active;
-            statRevenue.textContent = '$' + revenue.toFixed(2);
-
-            // Render Table
             tbody.innerHTML = '';
+
+            // Add Actions Header if missing
+            const thead = tbody.closest('table').querySelector('thead tr');
+            if (thead && thead.children.length === 4) {
+                const th = document.createElement('th');
+                th.textContent = 'ACTIONS';
+                thead.appendChild(th);
+            }
+
             users.forEach(user => {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = '1px solid var(--border)';
+                const isSubbed = user.subscription_status === 'active';
+                const isAdmin = user.role === 'admin';
+
                 tr.innerHTML = `
                     <td style="padding: 1rem;">${user.email}</td>
-                    <td style="padding: 1rem;">${user.role}</td>
-                    <td style="padding: 1rem; color: ${user.subscription_status === 'active' ? 'var(--accent)' : '#ff5252'};">${user.subscription_status}</td>
+                    <td style="padding: 1rem;">${user.role.toUpperCase()}</td>
+                    <td style="padding: 1rem; color: ${isSubbed ? 'var(--accent)' : '#ff5252'}; font-weight: bold;">
+                        ${user.subscription_status.toUpperCase()}
+                    </td>
                     <td style="padding: 1rem;">${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td style="padding: 1rem;">
+                        ${!isAdmin ? `
+                        <button onclick="toggleSub(${user.id}, '${user.subscription_status}')" class="btn-action ${isSubbed ? 'revoke' : 'grant'}">
+                            ${isSubbed ? 'REVOKE' : 'GRANT'}
+                        </button>
+                        <button onclick="deleteUser(${user.id})" class="btn-action delete">DEL</button>
+                        ` : '<span style="color:#444">SYSTEM</span>'}
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
-
-        } catch (err) {
-            console.error('Error fetching admin stats:', err);
-        }
+        } catch (err) { console.error(err); }
     }
 
-    // Account Page Logic
-    if (window.location.pathname.includes('account.html')) {
-        loadAccountData();
-    }
+    // Admin Signal History Fetch
+    async function fetchPicksHistory() {
+        const tbody = document.getElementById('picks-history-table');
+        if (!tbody) return;
 
-    async function loadAccountData() {
         try {
-            const res = await fetch('/api/auth/me');
-            if (!res.ok) return; // Should be handled by checkAuth
+            const res = await fetch('/api/picks');
+            const picks = await res.json();
+            tbody.innerHTML = '';
 
-            const user = await res.json();
+            picks.forEach(pick => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--border)';
+                tr.innerHTML = `
+                    <td style="padding: 1rem;">${pick.matchup}</td>
+                    <td style="padding: 1rem;">${pick.pick} (${pick.odds})</td>
+                    <td style="padding: 1rem;">${pick.bet_type || 'N/A'} // ${pick.units || '1u'}</td>
+                    <td style="padding: 1rem;">
+                        <button onclick='editPick(${JSON.stringify(pick)})' class="btn-action" style="background:#444; color:white; margin-right:5px;">EDIT</button>
+                        <button onclick="deletePick(${pick.id})" class="btn-action delete">DEL</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) { console.error(err); }
+    }
 
-            // Populate Identity fields
-            document.getElementById('profile-email').textContent = user.email;
-            document.getElementById('profile-role').textContent = user.role.toUpperCase();
-            document.getElementById('profile-joined').textContent = new Date(user.created_at).toLocaleDateString();
+    // Admin Pick Submission & Update
+    const adminForm = document.querySelector('form');
+    if (adminForm) {
+        adminForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.activeElement.id === 'update-btn' ? document.getElementById('update-btn') : document.getElementById('publish-btn');
+            const editingId = document.getElementById('editing-pick-id').value;
 
-            // Status Logic
-            const statusEl = document.getElementById('profile-sub-status');
-            const indicatorEl = document.getElementById('sub-status-indicator');
-            const manageBtn = document.getElementById('manage-billing-btn');
-            const subBtn = document.getElementById('account-subscribe-btn');
+            btn.disabled = true;
+            btn.textContent = editingId ? 'UPDATING...' : 'PUBLISHING...';
 
-            if (user.subscription_status === 'active') {
-                statusEl.textContent = 'ACTIVE';
-                statusEl.style.color = 'var(--accent)';
-                indicatorEl.style.background = 'var(--accent)';
-                indicatorEl.style.boxShadow = '0 0 10px var(--accent)';
-                manageBtn.style.display = 'block';
-                subBtn.style.display = 'none';
-            } else {
-                statusEl.textContent = 'INACTIVE';
-                statusEl.style.color = '#ff5252';
-                indicatorEl.style.background = '#ff5252';
-                manageBtn.style.display = 'none'; // Can't manage if not subbed usually, or maybe show it to view past invoices? Left as none for now.
-                subBtn.style.display = 'block';
+            const formData = {
+                sport: adminForm.querySelector('select').value,
+                time: adminForm.querySelector('input[type="datetime-local"]').value,
+                matchup: document.getElementById('matchup-input').value,
+                pick: document.getElementById('pick-input').value,
+                odds: document.getElementById('odds-input').value,
+                bet_type: document.getElementById('bet-type').value,
+                units: document.getElementById('units-select').value,
+                analysis: document.getElementById('analysis-input').value
+            };
+
+            try {
+                const url = editingId ? `/api/picks/${editingId}` : '/api/picks';
+                const method = editingId ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (res.ok) {
+                    alert(editingId ? 'Pick Updated.' : 'Pick Published & Emails Sent.');
+                    resetAdminForm();
+                    fetchPicksHistory();
+                } else {
+                    alert('Action failed.');
+                }
+            } catch (err) { alert(err.message); }
+            finally {
+                btn.disabled = false;
+                btn.textContent = editingId ? '💾 UPDATE EXISTING PICK' : '🚀 PUBLISH PICK & EMAIL SUBSCRIBERS';
             }
+        };
 
-            // Wire Buttons
-            if (manageBtn) {
-                manageBtn.onclick = async () => {
-                    manageBtn.innerText = 'ACCESSING...';
-                    try {
-                        const portalRes = await fetch('/api/create-portal-session', { method: 'POST' });
-                        const data = await portalRes.json();
-                        if (data.url) window.location.href = data.url;
-                        else alert('Error accessing portal');
-                    } catch (e) {
-                        console.error(e);
-                        alert('Connection error');
-                    } finally {
-                        manageBtn.innerText = 'ACCESS BILLING PORTAL';
-                    }
-                };
-            }
-
-            if (subBtn) {
-                subBtn.addEventListener('click', startCheckout);
-            }
-
-        } catch (err) {
-            console.error('Account load error', err);
+        // Handling secondary update button click if it exists
+        const updateBtn = document.getElementById('update-btn');
+        if (updateBtn) {
+            updateBtn.onclick = () => {
+                adminForm.dispatchEvent(new Event('submit'));
+            };
         }
+    }
+
+    function resetAdminForm() {
+        adminForm.reset();
+        document.getElementById('editing-pick-id').value = '';
+        document.getElementById('publish-btn').style.display = 'block';
+        document.getElementById('update-btn').style.display = 'none';
+    }
+
+    // Account Page Rendering
+    function renderAccountData(user) {
+        const emailEl = document.getElementById('profile-email');
+        if (!emailEl) return;
+
+        emailEl.textContent = user.email;
+        document.getElementById('profile-role').textContent = user.role.toUpperCase();
+        document.getElementById('profile-joined').textContent = new Date(user.created_at).toLocaleDateString();
+
+        const statusEl = document.getElementById('profile-sub-status');
+        const indicatorEl = document.getElementById('sub-status-indicator');
+        const manageBtn = document.getElementById('manage-billing-btn');
+        const subBtn = document.getElementById('account-subscribe-btn');
+
+        if (user.subscriptionStatus === 'active') {
+            statusEl.textContent = 'ACTIVE';
+            statusEl.style.color = 'var(--accent)';
+            indicatorEl.style.background = 'var(--accent)';
+            manageBtn.style.display = 'block';
+            subBtn.style.display = 'none';
+        } else {
+            statusEl.textContent = 'INACTIVE';
+            statusEl.style.color = '#ff5252';
+            indicatorEl.style.background = '#ff5252';
+            manageBtn.style.display = 'none';
+            subBtn.style.display = 'block';
+        }
+
+        if (manageBtn) {
+            manageBtn.onclick = async () => {
+                manageBtn.innerText = 'ACCESSING...';
+                try {
+                    const res = await fetch('/api/create-portal-session', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.url) window.location.href = data.url;
+                } catch (e) { alert('Error accessing portal'); }
+                finally { manageBtn.innerText = 'ACCESS BILLING PORTAL'; }
+            };
+        }
+        if (subBtn) subBtn.addEventListener('click', startCheckout);
     }
 });
+
+// GLOBAL ACTIONS for Admin (Defined outside module)
+function editPick(pick) {
+    document.getElementById('editing-pick-id').value = pick.id;
+    document.querySelector('form select').value = pick.sport;
+    document.querySelector('input[type="datetime-local"]').value = pick.time || '';
+    document.getElementById('matchup-input').value = pick.matchup;
+    document.getElementById('pick-input').value = pick.pick;
+    document.getElementById('odds-input').value = pick.odds;
+    document.getElementById('bet-type').value = pick.bet_type || 'Moneyline';
+    document.getElementById('units-select').value = pick.units || '1u';
+    document.getElementById('analysis-input').value = pick.analysis;
+
+    document.getElementById('publish-btn').style.display = 'none';
+    document.getElementById('update-btn').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function deletePick(pickId) {
+    if (!confirm('Permanently delete this signal?')) return;
+    try {
+        const res = await fetch(`/api/picks/${pickId}`, { method: 'DELETE' });
+        if (res.ok) window.location.reload();
+    } catch (e) { alert(e.message); }
+}
+
+async function toggleSub(userId, currentStatus) {
+    if (!confirm(`Change subscription status?`)) return;
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    try {
+        const res = await fetch(`/api/admin/users/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subscription_status: newStatus })
+        });
+        if (res.ok) window.location.reload();
+    } catch (e) { alert(e.message); }
+}
+
+async function deleteUser(userId) {
+    if (!confirm('Permanently delete this user?')) return;
+    try {
+        const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+        if (res.ok) window.location.reload();
+    } catch (e) { alert(e.message); }
+}

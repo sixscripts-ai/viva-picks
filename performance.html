@@ -4,59 +4,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance | Viva Picks</title>
+    <title>Historical Ledger | Viva Picks</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .stats-grid {
+        .ledger-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 20px;
+        }
+
+        .ledger-header {
+            border-left: 4px solid var(--primary);
+            padding-left: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .ledger-stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
-            margin-bottom: 4rem;
+            margin-bottom: 3rem;
         }
 
-        .stat-card {
-            background: var(--bg-card);
+        .record-card {
+            background: #0a0a0c;
             border: 1px solid var(--border);
-            padding: 2rem;
-            text-align: center;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: 4px;
         }
 
-        .stat-val {
-            font-size: 2.5rem;
+        .record-val {
+            font-size: 2rem;
             font-weight: 800;
-            color: white;
-            line-height: 1;
-            margin-bottom: 0.5rem;
+            color: #fff;
+            margin-bottom: 0.2rem;
         }
 
-        .stat-label {
+        .record-label {
             font-family: var(--font-mono);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .chart-placeholder {
+        .history-table {
             width: 100%;
-            height: 300px;
-            background: #000;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 4rem;
-            position: relative;
-            overflow: hidden;
-            background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
-            background-size: 50px 50px;
+            border-collapse: collapse;
+            font-size: 0.9rem;
         }
 
-        .line-graph {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        .history-table th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        .history-table td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-pill {
+            padding: 0.3rem 0.6rem;
+            border-radius: 2px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .status-win {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+
+        .status-loss {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .status-push {
+            background: rgba(156, 163, 175, 0.1);
+            color: #9ca3af;
+            border: 1px solid #9ca3af;
+        }
+
+        .bet-type-tag {
+            font-size: 0.7rem;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.1rem 0.4rem;
+            margin-top: 0.2rem;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .ledger-container {
+                padding: 60px 10px;
+            }
+
+            .ledger-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .ledger-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .history-table th:nth-child(3),
+            .history-table td:nth-child(3),
+            .history-table th:nth-child(4),
+            .history-table td:nth-child(4) {
+                display: none;
+            }
+
+            .record-val {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -80,123 +149,123 @@
         </div>
     </nav>
 
-    <div class="container" style="padding: 100px 0;">
-        <div style="margin-bottom: 4rem;">
-            <div style="font-family: var(--font-mono); color: var(--primary); margin-bottom: 1rem;">/// AUDITED LOGS
-            </div>
-            <h1 style="font-size: 3rem; margin-bottom: 1rem;">VERIFIED TRACK RECORD</h1>
-            <p style="color: var(--text-muted); max-width: 600px;">Every pick is timestamped and recorded. We maintain a
-                transparent history of every signal generated by the Viva protocol.</p>
+    <div class="ledger-container">
+        <div class="ledger-header">
+            <div
+                style="font-family: var(--font-mono); color: var(--primary); font-size: 0.8rem; margin-bottom: 0.5rem;">
+                [ ARCHIVE // AUDITED ]</div>
+            <h1 style="font-size: 3rem; margin-bottom: 1rem;">HISTORICAL RECORD</h1>
+            <p style="color: var(--text-muted); max-width: 600px;">A transparent look at the Viva Protocol's deployment
+                history. Every signal generated is fixed in this ledger once the event concludes.</p>
         </div>
 
-        <!-- Big Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-val" style="color: var(--accent);">+42.5u</div>
-                <div class="stat-label">Total Profit (YTD)</div>
+        <div class="ledger-stats">
+            <div class="record-card">
+                <div class="record-val">+42.5u</div>
+                <div class="record-label">Profit (YTD)</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-val">68.4%</div>
-                <div class="stat-label">Win Rate</div>
+            <div class="record-card">
+                <div class="record-val">68.4%</div>
+                <div class="record-label">Win Rate</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-val">+12.4%</div>
-                <div class="stat-label">ROI per Unit</div>
+            <div class="record-card">
+                <div class="record-val">1.94</div>
+                <div class="record-label">Avg Odds</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-val">2.1</div>
-                <div class="stat-label">Avg. Odds</div>
-            </div>
-        </div>
-
-        <!-- Equity Curve Mockup -->
-        <div class="chart-placeholder">
-            <svg class="line-graph" viewBox="0 0 1000 300" preserveAspectRatio="none">
-                <path d="M0,250 L100,230 L200,240 L300,180 L400,200 L500,150 L600,140 L700,100 L800,90 L900,60 L1000,40"
-                    fill="none" stroke="var(--primary)" stroke-width="4" />
-                <path
-                    d="M0,250 L100,230 L200,240 L300,180 L400,200 L500,150 L600,140 L700,100 L800,90 L900,60 L1000,40 L1000,300 L0,300 Z"
-                    fill="url(#grad)" style="opacity: 0.1;" />
-                <defs>
-                    <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:var(--primary);stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:var(--primary);stop-opacity:0" />
-                    </linearGradient>
-                </defs>
-            </svg>
-            <div
-                style="position: absolute; top: 20px; right: 20px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--primary);">
-                EQUITY CURVE (ALL SPORTS)</div>
-        </div>
-
-        <!-- The Table -->
-        <div style="background: #111; padding: 2rem; border-radius: 12px; border: 1px solid var(--border);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h3 style="font-size: 1.2rem;">RECENT LOGS</h3>
-                <div style="display: flex; gap: 1rem;">
-                    <span
-                        style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); border: 1px solid var(--border); padding: 0.3rem 0.8rem; border-radius: 4px;">MONTH:
-                        JAN 2024 ▼</span>
-                </div>
-            </div>
-            <div
-                style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem;">
-                <div>DATE</div>
-                <div>MATCHUP / PICK</div>
-                <div>ODDS</div>
-                <div>RESULT</div>
-            </div>
-            <!-- Rows -->
-            <div
-                style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; padding: 1.5rem 0; border-bottom: 1px solid var(--border); color: white; align-items: center;">
-                <div style="color: var(--text-muted);">Jan 15</div>
-                <div>
-                    <div style="font-weight: 700;">Packers vs Cowboys</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Packers ML (+220)</div>
-                </div>
-                <div>+220</div>
-                <div style="color: var(--accent); font-weight: 700;">WIN (+2.2u)</div>
-            </div>
-            <div
-                style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; padding: 1.5rem 0; border-bottom: 1px solid var(--border); color: white; align-items: center;">
-                <div style="color: var(--text-muted);">Jan 15</div>
-                <div>
-                    <div style="font-weight: 700;">Lions vs Rams</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Over 52.5 (-110)</div>
-                </div>
-                <div>-110</div>
-                <div style="color: #ef4444; font-weight: 700;">LOSS (-1.1u)</div>
-            </div>
-            <div
-                style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; padding: 1.5rem 0; border-bottom: 1px solid var(--border); color: white; align-items: center;">
-                <div style="color: var(--text-muted);">Jan 14</div>
-                <div>
-                    <div style="font-weight: 700;">Texans vs Browns</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Texans +2.5 (-105)</div>
-                </div>
-                <div>-105</div>
-                <div style="color: var(--accent); font-weight: 700;">WIN (+1.0u)</div>
-            </div>
-            <div
-                style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; padding: 1.5rem 0; border-bottom: 1px solid var(--border); color: white; align-items: center;">
-                <div style="color: var(--text-muted);">Jan 14</div>
-                <div>
-                    <div style="font-weight: 700;">Chiefs vs Dolphins</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Under 44 (-110)</div>
-                </div>
-                <div>-110</div>
-                <div style="color: var(--accent); font-weight: 700;">WIN (+1.0u)</div>
+            <div class="record-card">
+                <div class="record-val">12.2%</div>
+                <div class="record-label">Net Yield</div>
             </div>
         </div>
 
-        <div style="margin-top: 4rem; text-align: center;">
-            <p style="color: var(--text-muted); margin-bottom: 2rem;">Want to see every pick ever released? Join the
-                network.</p>
-            <a href="access.html" class="btn btn-primary">GET THE EDGE NOW</a>
+        <div class="glass-panel" style="padding: 0; overflow: hidden; border-radius: 8px;">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Event / Pick</th>
+                        <th>Bet Type</th>
+                        <th>Odds</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Recent Successes -->
+                    <tr>
+                        <td style="color: var(--text-muted);">Jan 15</td>
+                        <td>
+                            <div style="font-weight: 700; color: white;">Packers @ Cowboys</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Packers ML</div>
+                        </td>
+                        <td><span class="bet-type-tag">Moneyline</span></td>
+                        <td>+220</td>
+                        <td><span class="status-pill status-win">WIN</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--text-muted);">Jan 15</td>
+                        <td>
+                            <div style="font-weight: 700; color: white;">Lions @ Rams</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Over 52.5</div>
+                        </td>
+                        <td><span class="bet-type-tag">Over/Under</span></td>
+                        <td>-110</td>
+                        <td><span class="status-pill status-loss">LOSS</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--text-muted);">Jan 14</td>
+                        <td>
+                            <div style="font-weight: 700; color: white;">Texans @ Browns</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Texans +2.5</div>
+                        </td>
+                        <td><span class="bet-type-tag">Point Spread</span></td>
+                        <td>-105</td>
+                        <td><span class="status-pill status-win">WIN</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--text-muted);">Jan 14</td>
+                        <td>
+                            <div style="font-weight: 700; color: white;">Chiefs @ Dolphins</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Under 44</div>
+                        </td>
+                        <td><span class="bet-type-tag">Over/Under</span></td>
+                        <td>-110</td>
+                        <td><span class="status-pill status-win">WIN</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--text-muted);">Jan 13</td>
+                        <td>
+                            <div style="font-weight: 700; color: white;">Bucks @ Lakers</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Giannis Over 30.5 PTS</div>
+                        </td>
+                        <td><span class="bet-type-tag">Player Prop</span></td>
+                        <td>-115</td>
+                        <td><span class="status-pill status-win">WIN</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--text-muted);">Jan 12</td>
+                        <td>
+                            <div style="font-weight: 700; color: white;">Dolphins @ Raiders</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Raiders +7.5</div>
+                        </td>
+                        <td><span class="bet-type-tag">Point Spread</span></td>
+                        <td>-110</td>
+                        <td><span class="status-pill status-push">PUSH</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div
+            style="margin-top: 4rem; background: var(--bg-card); padding: 3rem; text-align: center; border-radius: 12px; border: 1px solid var(--border);">
+            <h3 style="margin-bottom: 1rem;">READY TO ACCESS LIVE INTEL?</h3>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">The record speaks for itself. Stop guessing and
+                start following the protocol.</p>
+            <a href="access.html" class="btn btn-primary" style="padding: 1rem 3rem;">INITIALIZE CONNECTION</a>
         </div>
     </div>
 
-    <footer style="padding: 3rem 0; border-top: 1px solid var(--border); margin-top: 0; background: var(--bg-card);">
+    <footer
+        style="padding: 3rem 0; border-top: 1px solid var(--border); margin-top: 100px; background: var(--bg-card);">
         <div class="container"
             style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
             <p>&copy; 2024 VIVA PICKS. ALL RIGHTS RESERVED.</p>

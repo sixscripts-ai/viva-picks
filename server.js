@@ -86,10 +86,13 @@ async function initDB() {
                 pick VARCHAR(255),
                 odds VARCHAR(50),
                 units VARCHAR(50),
+                bet_type VARCHAR(50),
                 analysis TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
+        // Ensure bet_type exists if table was created older
+        await pool.query(`ALTER TABLE picks ADD COLUMN IF NOT EXISTS bet_type VARCHAR(50);`);
 
         // Seed Admin (FORCE UPDATE/JOINT)
         const adminEmail = 'admin@vivapicks.tech';
@@ -245,14 +248,14 @@ app.get('/api/picks', authenticateToken, async (req, res) => {
 
 // PICKS: Create & Broadcast (Admin Only)
 app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
-    const { sport, time, matchup, pick, odds, units, analysis } = req.body;
+    const { sport, time, matchup, pick, odds, units, bet_type, analysis } = req.body;
 
     try {
         const result = await pool.query(`
-            INSERT INTO picks (sport, time, matchup, pick, odds, units, analysis)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO picks (sport, time, matchup, pick, odds, units, bet_type, analysis)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
-        `, [sport, time, matchup, pick, odds, units, analysis]);
+        `, [sport, time, matchup, pick, odds, units, bet_type, analysis]);
 
         const newPick = result.rows[0];
 
@@ -263,38 +266,124 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
         if (subscribers.length > 0) {
             console.log(`Broadcasting new pick to ${subscribers.length} subscribers...`);
             const emailContent = `
-                <h1>New Pick Released: ${newPick.sport}</h1>
-                <h2>${newPick.matchup}</h2>
-                <p><strong>Pick:</strong> ${newPick.pick} (${newPick.odds})</p>
-                <p><strong>Units:</strong> ${newPick.units}</p>
-                <p><strong>Analysis:</strong> ${newPick.analysis}</p>
-                <br>
-                <a href="https://vivapicks.tech/dashboard.html">View on Dashboard</a>
+                <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px;">
+                    <h1 style="color: #f97316;">VIVA PICKS: NEW INTEL</h1>
+                    <p style="color: #666;">New signal detected for <strong>${newPick.sport}</strong></p>
+                    <hr>
+                    <h2 style="margin: 0;">${newPick.matchup}</h2>
+                    <p style="font-size: 1.2rem; margin: 10px 0;"><strong>Pick:</strong> ${newPick.pick} (${newPick.odds})</p>
+                    <p><strong>Type:</strong> ${newPick.bet_type || 'General'}</p>
+                    <p><strong>Units:</strong> ${newPick.units || '1u'}</p>
+                    <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #f97316;">
+                        <strong>ANALYSIS:</strong><br>${newPick.analysis}
+                    </div>
+                    <br>
+                    <a href="https://vivapicks.tech/dashboard.html" style="background: #f97316; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">VIEW DASHBOARD</a>
+                </div>
             `;
 
             subscribers.forEach(sub => {
                 transporter.sendMail({
                     from: process.env.EMAIL_FROM,
                     to: sub.email,
-                    subject: `Viva Picks Alert: ${newPick.matchup}`,
+                    subject: `[VIVA PICKS] NEW INTEL: ${newPick.matchup}`,
                     html: emailContent
                 }).catch(err => console.error(`Failed to email ${sub.email}:`, err.message));
             });
         }
-        // ADMIN: Get User Stats
-        app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) => {
-            try {
-                const result = await pool.query('SELECT id, email, role, subscription_status, created_at FROM users ORDER BY created_at DESC');
-                res.json(result.rows);
-            } catch (err) {
-                console.error(err);
-                res.status(500).json({ error: err.message });
-            }
-        });
         res.status(201).json(newPick);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// ADMIN: Update Pick
+app.put('/api/picks/:id', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+    const { sport, time, matchup, pick, odds, units, bet_type, analysis } = req.body;
+    try {
+        const result = await pool.query(`
+            UPDATE picks 
+            SET sport = $1, time = $2, matchup = $3, pick = $4, odds = $5, units = $6, bet_type = $7, analysis = $8 
+            WHERE id = $9 RETURNING *
+        `, [sport, time, matchup, pick, odds, units, bet_type, analysis, id]);
+
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Pick not found' });
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ADMIN: Delete Pick
+app.delete('/api/picks/:id', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM picks WHERE id = $1', [id]);
+        res.json({ message: 'Pick deleted' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ADMIN: Get User Stats
+app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT id, email, role, subscription_status, created_at FROM users ORDER BY created_at DESC');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ADMIN: Update User
+app.put('/api/admin/users/:id', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+    const { role, subscription_status } = req.body; // Expect partial updates
+
+    try {
+        // Build dynamic query
+        const fields = [];
+        const values = [];
+        let idx = 1;
+
+        if (role) {
+            fields.push(`role = $${idx++}`);
+            values.push(role);
+        }
+        if (subscription_status) {
+            fields.push(`subscription_status = $${idx++}`);
+            values.push(subscription_status);
+        }
+
+        if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' });
+
+        values.push(id);
+        const query = `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`;
+
+        const result = await pool.query(query, values);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ADMIN: Delete User
+app.delete('/api/admin/users/:id', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM users WHERE id = $1', [id]);
+        res.json({ message: 'User deleted' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
     }
 });
 

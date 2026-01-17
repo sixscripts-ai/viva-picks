@@ -74,38 +74,71 @@
 
                     <div class="form-group">
                         <label>Matchup (e.g., Lakers vs Heat)</label>
-                        <input type="text" class="form-control" placeholder="Home vs Away">
+                        <input type="text" class="form-control" placeholder="Home vs Away" id="matchup-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pick</label>
+                        <input type="text" class="form-control" placeholder="e.g. Lakers -5" id="pick-input">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
                         <div class="form-group">
-                            <label>Pick</label>
-                            <input type="text" class="form-control" placeholder="e.g. Lakers -5">
-                        </div>
-                        <div class="form-group">
-                            <label>Odds</label>
-                            <input type="text" class="form-control" placeholder="-110">
+                            <label>Bet Type</label>
+                            <select id="bet-type" class="form-control">
+                                <option>Moneyline</option>
+                                <option>Point Spread</option>
+                                <option>Over/Under</option>
+                                <option>Player Prop</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Units</label>
-                            <select class="form-control">
-                                <option>1u (Standard)</option>
-                                <option>2u (Strong)</option>
-                                <option>3u (Big)</option>
-                                <option>4u (Whale)</option>
-                                <option>5u (MAX)</option>
+                            <select id="units-select" class="form-control">
+                                <option value="1u">1u (Standard)</option>
+                                <option value="2u">2u (Strong)</option>
+                                <option value="3u">3u (Big)</option>
+                                <option value="4u">4u (Whale)</option>
+                                <option value="5u">5u (MAX)</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Odds</label>
+                            <input type="text" class="form-control" placeholder="-110" id="odds-input">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Analysis / Writeup</label>
-                        <textarea class="form-control" rows="4" placeholder="Explain the edge..."></textarea>
+                        <textarea class="form-control" rows="4" placeholder="Explain the edge..."
+                            id="analysis-input"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">🚀 Publish Pick & Email
-                        Subscribers</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;" id="publish-btn">🚀 Publish Pick
+                        & Email Subscribers</button>
+                    <button type="button" id="update-btn" class="btn btn-outline"
+                        style="width: 100%; margin-top: 1rem; display: none;">💾 Update Existing Pick</button>
+                    <input type="hidden" id="editing-pick-id">
                 </form>
+            </div>
+
+            <h2 style="margin: 3rem 0 1.5rem 0;">Signal History / Book</h2>
+            <div class="glass-panel" style="padding: 0; overflow: hidden; margin-bottom: 3rem;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: rgba(255,255,255,0.05);">
+                        <tr>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">MATCHUP</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">PICK</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">PROFIT/STATUS</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="picks-history-table">
+                        <tr>
+                            <td colspan="4" style="padding: 1rem; text-align: center;">Loading history...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <h2 style="margin: 3rem 0 1.5rem 0;">User Database</h2>

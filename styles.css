@@ -301,9 +301,37 @@ nav .container {
 }
 
 /* Responsive */
+@media (max-width: 992px) {
+    .hero .container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .hero .container p {
+        margin: 0 auto 2rem auto;
+    }
+
+    .hero .container div {
+        justify-content: center;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .ledger-stats {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
 @media (max-width: 768px) {
     .dashboard-container {
         grid-template-columns: 1fr;
+    }
+
+    .nav-links {
+        display: none;
+        /* Hide standard links to keep clean on mobile or use a burger later */
     }
 
     .logo {
@@ -313,6 +341,18 @@ nav .container {
     .pick-card {
         grid-template-columns: 1fr;
         gap: 0.5rem;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ledger-stats {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
     }
 }
 
