@@ -162,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchPicks() {
+        console.log("/// INITIALIZING SIGNAL FEED FETCH...");
         if (!picksContainer) return;
         try {
             const res = await fetch('/api/picks');
@@ -229,6 +230,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tickerItem = document.querySelector('.ticker-item:nth-child(2) span');
                 if (tickerItem) {
                     tickerItem.textContent = `${latest.sport} // ${latest.matchup} [${latest.result || 'PENDING'}]`;
+                }
+
+                // Update general ticker stats
+                const profitItem = document.querySelector('.ticker-item:nth-child(3) span');
+                const settled = picks.filter(p => p.result);
+                let totalUnits = 0;
+                settled.forEach(p => {
+                    const u = parseFloat(p.units) || 0;
+                    const o = parseFloat(p.odds);
+                    if (p.result === 'WIN') totalUnits += (o > 0) ? (u * o / 100) : (u * 100 / Math.abs(o));
+                    else if (p.result === 'LOSS') totalUnits -= u;
+                });
+                if (profitItem) profitItem.textContent = (totalUnits >= 0 ? '+' : '') + totalUnits.toFixed(1) + ' UNITS';
+
+                // Update War Room specific stats
+                if (document.getElementById('war-active')) {
+                    document.getElementById('war-active').textContent = picks.filter(p => !p.result).length;
+                    document.getElementById('war-profit').textContent = (totalUnits >= 0 ? '+' : '') + totalUnits.toFixed(1) + 'u';
                 }
             }
         } catch (error) {
@@ -437,44 +456,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteBtn = document.getElementById('delete-account-btn');
         if (deleteBtn) {
             deleteBtn.onclick = async () => {
-                if (!confirm('CRITICAL: Are you sure you want to PERMANENTLY terminate your account? All data will be wiped and active subscriptions will be orphaned. This action is irreversible.')) return;
-
+                if (!confirm('CRITICAL: Are you sure you want to PERMANENTLY terminate your account?')) return;
                 try {
                     const res = await fetch('/api/auth/me', { method: 'DELETE' });
-                    if (res.ok) {
-                        alert('Account terminated. Terminating session...');
-                        window.location.href = 'index.html';
-                    } else {
-                        alert('Termination failed.');
-                    }
+                    if (res.ok) { window.location.href = 'index.html'; }
                 } catch (e) { alert('Connection error'); }
             };
         }
-
-        // Cookie Consent Logic
-        const banner = document.createElement('div');
-        banner.id = 'cookie-banner';
-        banner.innerHTML = `
-            <span>DATA CONSENT: We use cookies for intel optimization. <a href="privacy.html">DETAILS</a></span>
-            <button id="accept-cookies-btn">ACCEPT</button>
-        `;
-        document.body.appendChild(banner);
-
-        if (!localStorage.getItem("vp_cookie_consent")) {
-            banner.style.display = 'flex';
-            banner.style.alignItems = 'center';
-            banner.style.justifyContent = 'space-between';
-        }
-
-        document.getElementById('accept-cookies-btn').onclick = () => {
-            localStorage.setItem("vp_cookie_consent", "true");
-            banner.style.display = 'none';
-        };
-
-        // Initialize Performance Ledger if on page
-        loadPerformanceLedger();
-        loadHeroStats();
     }
+
+    // Cookie Consent Logic
+    const banner = document.createElement('div');
+    banner.id = 'cookie-banner';
+    banner.innerHTML = `
+        <span>DATA CONSENT: We use cookies for intel optimization. <a href="privacy.html">DETAILS</a></span>
+        <button id="accept-cookies-btn">ACCEPT</button>
+    `;
+    document.body.appendChild(banner);
+
+    if (!localStorage.getItem("vp_cookie_consent")) {
+        banner.style.display = 'flex';
+        banner.style.alignItems = 'center';
+        banner.style.justifyContent = 'space-between';
+    }
+
+    document.getElementById('accept-cookies-btn').onclick = () => {
+        localStorage.setItem("vp_cookie_consent", "true");
+        banner.style.display = 'none';
+    };
+
+    // Initialize Global UI Components
+    loadPerformanceLedger();
+    loadHeroStats();
 });
 
 // GLOBAL ACTIONS for Admin (Defined outside module)

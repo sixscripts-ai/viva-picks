@@ -48,7 +48,35 @@
         </aside>
 
         <main class="main-content">
-            <h1 style="margin-bottom: 2rem;">Today's Action</h1>
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <div class="glass-panel"
+                    style="padding: 1rem; text-align: center; border: 1px solid rgba(0, 243, 255, 0.2);">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">MODEL
+                        CONFIDENCE</div>
+                    <div id="war-confidence"
+                        style="font-size: 1.2rem; color: var(--primary); font-weight: 800; font-family: var(--font-mono);">
+                        94.2%</div>
+                </div>
+                <div class="glass-panel"
+                    style="padding: 1rem; text-align: center; border: 1px solid rgba(0, 243, 255, 0.2);">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">ACTIVE
+                        SIGNALS</div>
+                    <div id="war-active"
+                        style="font-size: 1.2rem; color: white; font-weight: 800; font-family: var(--font-mono);">0
+                    </div>
+                </div>
+                <div class="glass-panel"
+                    style="padding: 1rem; text-align: center; border: 1px solid rgba(0, 243, 255, 0.2);">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">NET PROFIT
+                    </div>
+                    <div id="war-profit"
+                        style="font-size: 1.2rem; color: var(--accent); font-weight: 800; font-family: var(--font-mono);">
+                        +0.0u</div>
+                </div>
+            </div>
+
+            <h1 style="margin-bottom: 2rem;">Tactical Intel Feed</h1>
 
             <div class="card-grid" id="picks-container">
                 <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
