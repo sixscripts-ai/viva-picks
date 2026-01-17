@@ -439,3 +439,62 @@ nav .container {
     color: var(--primary);
     text-decoration: underline;
 }
+
+/* Dashboard Ticker */
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: #111;
+    border-bottom: 2px solid var(--primary);
+    padding: 8px 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+}
+
+.ticker {
+    display: inline-block;
+    white-space: nowrap;
+    padding-right: 100%;
+    animation: ticker 30s linear infinite;
+}
+
+.ticker-item {
+    display: inline-block;
+    padding: 0 4rem;
+    color: var(--text-muted);
+}
+
+.ticker-item span {
+    color: var(--accent);
+    font-weight: 800;
+}
+
+@keyframes ticker {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
+}
+
+/* Enhanced Pick Card Utilities */
+.pick-calc {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+.calc-input {
+    background: #000;
+    border: 1px solid var(--border);
+    color: white;
+    padding: 4px 8px;
+    width: 60px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.calc-result {
+    color: var(--accent);
+    font-weight: 800;
+    font-family: var(--font-mono);
+}

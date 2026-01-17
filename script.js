@@ -205,6 +205,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <strong style="color:white; display:block; margin-bottom: 0.5rem;">REPORT // ${pick.bet_type || 'INTEL'}</strong>
                         ${pick.analysis}
                     </div>` : ''}
+                    
+                    <div class="pick-calc" style="grid-column: 1 / -1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">EDGE CALCULATOR</span>
+                            <div style="font-size: 0.8rem;">
+                                BET $<input type="number" value="100" class="calc-input" oninput="updatePayout(this, '${pick.odds}')">
+                                → PAYOUT: <span class="calc-result">$${calculateInitialPayout(100, pick.odds)}</span>
+                            </div>
+                        </div>
+                    </div>
                 `;
                 setTimeout(() => {
                     card.style.opacity = '1';
@@ -284,13 +294,25 @@ document.addEventListener('DOMContentLoaded', () => {
             picks.forEach(pick => {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = '1px solid var(--border)';
+                const hasResult = pick.result;
+
                 tr.innerHTML = `
                     <td style="padding: 1rem;">${pick.matchup}</td>
                     <td style="padding: 1rem;">${pick.pick} (${pick.odds})</td>
                     <td style="padding: 1rem;">${pick.bet_type || 'N/A'} // ${pick.units || '1u'}</td>
                     <td style="padding: 1rem;">
-                        <button onclick='editPick(${JSON.stringify(pick)})' class="btn-action" style="background:#444; color:white; margin-right:5px;">EDIT</button>
-                        <button onclick="deletePick(${pick.id})" class="btn-action delete">DEL</button>
+                        ${!hasResult ? `
+                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                            <button onclick='setResult(${pick.id}, "WIN")' class="btn-action grant" style="font-size: 10px; padding: 4px 8px;">WIN</button>
+                            <button onclick='setResult(${pick.id}, "LOSS")' class="btn-action delete" style="font-size: 10px; padding: 4px 8px;">LOSS</button>
+                            <button onclick='setResult(${pick.id}, "PUSH")' class="btn-action" style="font-size: 10px; padding: 4px 8px; background: #666; color: white;">PUSH</button>
+                        </div>
+                        ` : `<span class="status-pill status-${pick.result.toLowerCase()}" style="display:inline-block; margin-bottom: 5px;">${pick.result}</span>`}
+                        
+                        <div>
+                            <button onclick='editPick(${JSON.stringify(pick)})' class="btn-action" style="background:#444; color:white; margin-right:5px; padding: 4px 8px; font-size: 10px;">EDIT</button>
+                            <button onclick="deletePick(${pick.id})" class="btn-action delete" style="padding: 4px 8px; font-size: 10px;">DEL</button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -317,7 +339,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 odds: document.getElementById('odds-input').value,
                 bet_type: document.getElementById('bet-type').value,
                 units: document.getElementById('units-select').value,
-                analysis: document.getElementById('analysis-input').value
+                analysis: document.getElementById('analysis-input').value,
+                result: document.getElementById('editing-pick-result').value || null
             };
 
             try {
@@ -356,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetAdminForm() {
         adminForm.reset();
         document.getElementById('editing-pick-id').value = '';
+        document.getElementById('editing-pick-result').value = ''; // Added this line
         document.getElementById('publish-btn').style.display = 'block';
         document.getElementById('update-btn').style.display = 'none';
     }
@@ -437,6 +461,10 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem("vp_cookie_consent", "true");
             banner.style.display = 'none';
         };
+
+        // Initialize Performance Ledger if on page
+        loadPerformanceLedger();
+        loadHeroStats();
     }
 });
 
@@ -484,4 +512,150 @@ async function deleteUser(userId) {
         const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
         if (res.ok) window.location.reload();
     } catch (e) { alert(e.message); }
+}
+
+// EDGE CALCULATOR LOGIC
+function calculateInitialPayout(amount, odds) {
+    const numOdds = parseFloat(odds);
+    if (isNaN(numOdds)) return "0.00";
+    let multiplier = 0;
+    if (numOdds > 0) {
+        multiplier = (numOdds / 100) + 1;
+    } else {
+        multiplier = (100 / Math.abs(numOdds)) + 1;
+    }
+    return (amount * multiplier).toFixed(2);
+}
+
+function updatePayout(input, odds) {
+    const amount = parseFloat(input.value) || 0;
+    const resultSpan = input.parentElement.querySelector('.calc-result');
+    resultSpan.textContent = '$' + calculateInitialPayout(amount, odds);
+}
+
+async function setResult(pickId, result) {
+    if (!confirm(`Mark as ${result}?`)) return;
+    try {
+        // Fetch current pick data first to ensure we don't wipe other fields
+        const picksRes = await fetch('/api/picks');
+        const picks = await picksRes.json();
+        const pick = picks.find(p => p.id === pickId);
+
+        if (!pick) throw new Error("Pick not found");
+
+        const res = await fetch(`/api/picks/${pickId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...pick, result })
+        });
+
+        if (res.ok) window.location.reload();
+    } catch (e) { alert(e.message); }
+}
+
+async function loadPerformanceLedger() {
+    const tbody = document.getElementById('performance-ledger-body');
+    if (!tbody) return;
+
+    try {
+        const res = await fetch('/api/picks');
+        const picks = await res.json();
+        const settled = picks.filter(p => p.result);
+
+        let totalUnits = 0;
+        let winCount = 0;
+        let pushCount = 0;
+        let lossCount = 0;
+        let totalOdds = 0;
+
+        tbody.innerHTML = '';
+        settled.forEach(pick => {
+            const units = parseFloat(pick.units) || 0;
+            const odds = parseFloat(pick.odds);
+            let profit = 0;
+
+            if (pick.result === 'WIN') {
+                winCount++;
+                if (odds > 0) {
+                    profit = units * (odds / 100);
+                } else {
+                    profit = units * (100 / Math.abs(odds));
+                }
+            } else if (pick.result === 'LOSS') {
+                lossCount++;
+                profit = -units;
+            } else {
+                pushCount++;
+            }
+
+            totalUnits += profit;
+            totalOdds += (odds > 0 ? (odds / 100) + 1 : (100 / Math.abs(odds)) + 1);
+
+            const dateStr = new Date(pick.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color: var(--text-muted);">${dateStr}</td>
+                <td>
+                    <div style="font-weight: 700; color: white;">${pick.matchup}</div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: ${pick.pick}</div>
+                </td>
+                <td><span class="bet-type-tag">${pick.bet_type || 'INTEL'}</span></td>
+                <td>${pick.odds > 0 ? '+' + pick.odds : pick.odds}</td>
+                <td><span class="status-pill status-${pick.result.toLowerCase()}">${pick.result}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Update Stats
+        const totalGames = winCount + lossCount + pushCount;
+        const winRate = totalGames > 0 ? ((winCount / (winCount + lossCount)) * 100).toFixed(1) : 0;
+        const avgOdds = totalGames > 0 ? (totalOdds / totalGames).toFixed(2) : '0.00';
+
+        document.getElementById('stat-profit').textContent = (totalUnits > 0 ? '+' : '') + totalUnits.toFixed(1) + 'u';
+        document.getElementById('stat-winrate').textContent = winRate + '%';
+        document.getElementById('stat-avgodds').textContent = avgOdds;
+        document.getElementById('stat-total').textContent = totalGames;
+
+    } catch (e) {
+        console.error("Ledger error:", e);
+    }
+}
+
+async function loadHeroStats() {
+    const activeEl = document.getElementById('hero-active');
+    if (!activeEl) return;
+
+    try {
+        const res = await fetch('/api/picks');
+        const picks = await res.json();
+
+        const active = picks.filter(p => !p.result).length;
+        const settled = picks.filter(p => p.result);
+
+        // Calculate Profit & Winrate
+        let totalUnits = 0;
+        let winCount = 0;
+        let lossCount = 0;
+
+        settled.forEach(p => {
+            const units = parseFloat(p.units) || 0;
+            const odds = parseFloat(p.odds);
+            if (p.result === 'WIN') {
+                winCount++;
+                totalUnits += (odds > 0) ? (units * odds / 100) : (units * 100 / Math.abs(odds));
+            } else if (p.result === 'LOSS') {
+                lossCount++;
+                totalUnits -= units;
+            }
+        });
+
+        const winrate = (winCount + lossCount > 0) ? ((winCount / (winCount + lossCount)) * 100).toFixed(0) : 0;
+
+        activeEl.textContent = active;
+        document.getElementById('hero-winrate').textContent = winrate + '%';
+        document.getElementById('hero-profit').textContent = (totalUnits >= 0 ? '+' : '') + totalUnits.toFixed(1) + ' UNITS';
+    } catch (e) {
+        console.error("Hero stats error:", e);
+    }
 }

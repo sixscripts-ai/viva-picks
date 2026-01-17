@@ -91,8 +91,9 @@ async function initDB() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        // Ensure bet_type exists if table was created older
+        // Ensure columns exist if table was created older
         await pool.query(`ALTER TABLE picks ADD COLUMN IF NOT EXISTS bet_type VARCHAR(50);`);
+        await pool.query(`ALTER TABLE picks ADD COLUMN IF NOT EXISTS result VARCHAR(20);`);
 
         // Seed Admin (FORCE UPDATE/JOINT)
         const adminEmail = 'admin@vivapicks.tech';
@@ -319,13 +320,14 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
 // ADMIN: Update Pick
 app.put('/api/picks/:id', authenticateToken, requireAdmin, async (req, res) => {
     const { id } = req.params;
-    const { sport, time, matchup, pick, odds, units, bet_type, analysis } = req.body;
+    const { sport, time, matchup, pick, odds, units, bet_type, analysis, result: pickResult } = req.body;
     try {
-        const result = await pool.query(`
+        const query = `
             UPDATE picks 
-            SET sport = $1, time = $2, matchup = $3, pick = $4, odds = $5, units = $6, bet_type = $7, analysis = $8 
-            WHERE id = $9 RETURNING *
-        `, [sport, time, matchup, pick, odds, units, bet_type, analysis, id]);
+            SET sport = $1, time = $2, matchup = $3, pick = $4, odds = $5, units = $6, bet_type = $7, analysis = $8, result = $9
+            WHERE id = $10 RETURNING *
+        `;
+        const result = await pool.query(query, [sport, time, matchup, pick, odds, units, bet_type, analysis, pickResult, id]);
 
         if (result.rows.length === 0) return res.status(404).json({ error: 'Pick not found' });
         res.json(result.rows[0]);

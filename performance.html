@@ -161,20 +161,20 @@
 
         <div class="ledger-stats">
             <div class="record-card">
-                <div class="record-val">+42.5u</div>
-                <div class="record-label">Profit (YTD)</div>
+                <div class="record-val" id="stat-profit">...</div>
+                <div class="record-label">Net Profit (Units)</div>
             </div>
             <div class="record-card">
-                <div class="record-val">68.4%</div>
+                <div class="record-val" id="stat-winrate">...</div>
                 <div class="record-label">Win Rate</div>
             </div>
             <div class="record-card">
-                <div class="record-val">1.94</div>
+                <div class="record-val" id="stat-avgodds">...</div>
                 <div class="record-label">Avg Odds</div>
             </div>
             <div class="record-card">
-                <div class="record-val">12.2%</div>
-                <div class="record-label">Net Yield</div>
+                <div class="record-val" id="stat-total">...</div>
+                <div class="record-label">Total Signals</div>
             </div>
         </div>
 
@@ -189,68 +189,8 @@
                         <th>Result</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Recent Successes -->
-                    <tr>
-                        <td style="color: var(--text-muted);">Jan 15</td>
-                        <td>
-                            <div style="font-weight: 700; color: white;">Packers @ Cowboys</div>
-                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Packers ML</div>
-                        </td>
-                        <td><span class="bet-type-tag">Moneyline</span></td>
-                        <td>+220</td>
-                        <td><span class="status-pill status-win">WIN</span></td>
-                    </tr>
-                    <tr>
-                        <td style="color: var(--text-muted);">Jan 15</td>
-                        <td>
-                            <div style="font-weight: 700; color: white;">Lions @ Rams</div>
-                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Over 52.5</div>
-                        </td>
-                        <td><span class="bet-type-tag">Over/Under</span></td>
-                        <td>-110</td>
-                        <td><span class="status-pill status-loss">LOSS</span></td>
-                    </tr>
-                    <tr>
-                        <td style="color: var(--text-muted);">Jan 14</td>
-                        <td>
-                            <div style="font-weight: 700; color: white;">Texans @ Browns</div>
-                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Texans +2.5</div>
-                        </td>
-                        <td><span class="bet-type-tag">Point Spread</span></td>
-                        <td>-105</td>
-                        <td><span class="status-pill status-win">WIN</span></td>
-                    </tr>
-                    <tr>
-                        <td style="color: var(--text-muted);">Jan 14</td>
-                        <td>
-                            <div style="font-weight: 700; color: white;">Chiefs @ Dolphins</div>
-                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Under 44</div>
-                        </td>
-                        <td><span class="bet-type-tag">Over/Under</span></td>
-                        <td>-110</td>
-                        <td><span class="status-pill status-win">WIN</span></td>
-                    </tr>
-                    <tr>
-                        <td style="color: var(--text-muted);">Jan 13</td>
-                        <td>
-                            <div style="font-weight: 700; color: white;">Bucks @ Lakers</div>
-                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Giannis Over 30.5 PTS</div>
-                        </td>
-                        <td><span class="bet-type-tag">Player Prop</span></td>
-                        <td>-115</td>
-                        <td><span class="status-pill status-win">WIN</span></td>
-                    </tr>
-                    <tr>
-                        <td style="color: var(--text-muted);">Jan 12</td>
-                        <td>
-                            <div style="font-weight: 700; color: white;">Dolphins @ Raiders</div>
-                            <div style="color: var(--text-muted); font-size: 0.8rem;">Pick: Raiders +7.5</div>
-                        </td>
-                        <td><span class="bet-type-tag">Point Spread</span></td>
-                        <td>-110</td>
-                        <td><span class="status-pill status-push">PUSH</span></td>
-                    </tr>
+                <tbody id="performance-ledger-body">
+                    <!-- Dynamic Rows -->
                 </tbody>
             </table>
         </div>
