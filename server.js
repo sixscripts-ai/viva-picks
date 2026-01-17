@@ -281,7 +281,16 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
                 }).catch(err => console.error(`Failed to email ${sub.email}:`, err.message));
             });
         }
-
+        // ADMIN: Get User Stats
+        app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) => {
+            try {
+                const result = await pool.query('SELECT id, email, role, subscription_status, created_at FROM users ORDER BY created_at DESC');
+                res.json(result.rows);
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ error: err.message });
+            }
+        });
         res.status(201).json(newPick);
     } catch (err) {
         console.error(err);

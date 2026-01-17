@@ -220,9 +220,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Admin Form Logic
     const adminForm = document.querySelector('form');
+    // Check if we are on the admin page
+    if (document.getElementById('users-table')) {
+        fetchAdminStats();
+    }
+
     if (adminForm) {
         adminForm.onsubmit = async (e) => {
             e.preventDefault();
+
+            const submitBtn = adminForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Sending...';
+            submitBtn.disabled = true;
+
             const formData = {
                 sport: adminForm.querySelector('select').value,
                 time: adminForm.querySelector('input[type="datetime-local"]').value,
@@ -239,15 +250,60 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
+
                 if (res.ok) {
-                    alert('Pick published successfully!');
+                    alert('Pick published successfully! Emails are being sent.');
                     adminForm.reset();
                 } else {
-                    alert('Failed to publish pick');
+                    const err = await res.json();
+                    alert('Failed: ' + (err.error || 'Unknown error'));
                 }
             } catch (err) {
-                alert('Backend error. Is server running?');
+                alert('Backend error: ' + err.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         };
+    }
+
+    async function fetchAdminStats() {
+        try {
+            const res = await fetch('/api/admin/users');
+            if (!res.ok) return;
+
+            const users = await res.json();
+            const tbody = document.getElementById('users-table');
+            const statTotal = document.getElementById('stat-total-users');
+            const statActive = document.getElementById('stat-active-subs');
+            const statRevenue = document.getElementById('stat-revenue');
+
+            // Update Stats
+            const total = users.length;
+            // Exclude admin from revenue calculation usually, but simplist count for now
+            const active = users.filter(u => u.subscription_status === 'active' && u.role !== 'admin').length;
+            const revenue = active * 29.99;
+
+            statTotal.textContent = total;
+            statActive.textContent = active;
+            statRevenue.textContent = '$' + revenue.toFixed(2);
+
+            // Render Table
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--border)';
+                tr.innerHTML = `
+                    <td style="padding: 1rem;">${user.email}</td>
+                    <td style="padding: 1rem;">${user.role}</td>
+                    <td style="padding: 1rem; color: ${user.subscription_status === 'active' ? 'var(--accent)' : '#ff5252'};">${user.subscription_status}</td>
+                    <td style="padding: 1rem;">${new Date(user.created_at).toLocaleDateString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+        } catch (err) {
+            console.error('Error fetching admin stats:', err);
+        }
     }
 });

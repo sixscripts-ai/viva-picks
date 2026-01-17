@@ -32,10 +32,29 @@
         </aside>
 
         <main class="main-content">
+            <!-- Stats Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Total Users</h3>
+                    <div id="stat-total-users" style="font-size: 2.5rem; font-weight: 700; color: white;">-</div>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Active Subs</h3>
+                    <div id="stat-active-subs" style="font-size: 2.5rem; font-weight: 700; color: var(--accent);">-
+                    </div>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Est. Revenue
+                    </h3>
+                    <div id="stat-revenue" style="font-size: 2.5rem; font-weight: 700; color: #4ade80;">-</div>
+                </div>
+            </div>
+
             <h1 style="margin-bottom: 2rem;">Post New Pick</h1>
 
             <div class="glass-panel" style="padding: 2rem; max-width: 800px;">
-                <form onsubmit="event.preventDefault(); alert('Pick Published Successfully! (Demo)');">
+                <!-- Form Content (Keeping as is, handled by script.js) -->
+                <form onsubmit="event.preventDefault();">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="form-group">
                             <label>Sport</label>
@@ -84,41 +103,26 @@
                         <textarea class="form-control" rows="4" placeholder="Explain the edge..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">🚀 Publish Pick</button>
-                    <button type="button" class="btn btn-outline" style="width: 100%; margin-top: 10px;">Save
-                        Draft</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">🚀 Publish Pick & Email
+                        Subscribers</button>
                 </form>
             </div>
 
-            <h2 style="margin: 3rem 0 1.5rem 0;">Recent Users</h2>
+            <h2 style="margin: 3rem 0 1.5rem 0;">User Database</h2>
             <div class="glass-panel" style="padding: 0; overflow: hidden;">
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead style="background: rgba(255,255,255,0.05);">
                         <tr>
-                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">User</th>
-                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Plan</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Email</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Role</th>
                             <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Status</th>
                             <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Joined</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr style="border-bottom: 1px solid var(--border);">
-                            <td style="padding: 1rem;">alex_winner</td>
-                            <td style="padding: 1rem;">Monthly</td>
-                            <td style="padding: 1rem; color: var(--accent);">Active</td>
-                            <td style="padding: 1rem;">2 mins ago</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid var(--border);">
-                            <td style="padding: 1rem;">vegas_dave_clone</td>
-                            <td style="padding: 1rem;">Annual</td>
-                            <td style="padding: 1rem; color: var(--accent);">Active</td>
-                            <td style="padding: 1rem;">1 hour ago</td>
-                        </tr>
+                    <tbody id="users-table">
+                        <!-- Dynamic Content -->
                         <tr>
-                            <td style="padding: 1rem;">paper_hands_99</td>
-                            <td style="padding: 1rem;">Monthly</td>
-                            <td style="padding: 1rem; color: #ff5252;">Past Due</td>
-                            <td style="padding: 1rem;">3 days ago</td>
+                            <td colspan="4" style="padding: 1rem; text-align: center;">Loading users...</td>
                         </tr>
                     </tbody>
                 </table>
