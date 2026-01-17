@@ -176,6 +176,16 @@
                     <li class="feature-item"><span>[✓]</span> PRIVATE COMMUNITY ACCESS</li>
                 </ul>
 
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; font-size: 0.8rem; color: var(--text-muted); text-align: left;">
+                        <input type="checkbox" id="checkout-opt-in" required style="margin-top: 0.2rem;">
+                        <span>I understand that this is a recurring subscription. I agree to receive emails and accept
+                            the <a href="privacy.html" target="_blank" style="color: var(--primary);">Privacy Policy</a>
+                            and <a href="terms.html" target="_blank" style="color: var(--primary);">Terms</a>.</span>
+                    </label>
+                </div>
+
                 <button id="checkout-btn" class="btn btn-primary"
                     style="width: 100%; padding: 1.5rem; font-size: 1.1rem;">DEPLOY CAPITAL →</button>
                 <div
@@ -224,6 +234,11 @@
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
             checkoutBtn.addEventListener('click', async () => {
+                const optIn = document.getElementById('checkout-opt-in');
+                if (!optIn.checked) {
+                    alert('Please agree to the Terms and Privacy Policy to proceed.');
+                    return;
+                }
                 const btn = checkoutBtn;
                 btn.innerText = 'PROCESSING...';
                 btn.disabled = true;

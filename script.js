@@ -131,11 +131,24 @@ document.addEventListener('DOMContentLoaded', () => {
         picksContainer.innerHTML = `
             <div class="glass-panel" style="grid-column: 1/-1; text-align: center; padding: 3rem; border: 1px solid var(--primary);">
                 <h2 style="margin-bottom: 1rem;">Subscription Required</h2>
-                <p style="color: var(--text-muted); margin-bottom: 2rem;">Unlock the full power of our AI models and daily picks.</p>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Unlock the full power of our AI models and daily picks.</p>
+                <div style="margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; font-size: 0.8rem; color: var(--text-muted); text-align: left;">
+                        <input type="checkbox" id="dash-checkout-opt-in" required style="margin-top: 0.2rem;">
+                        <span>I understand this is a recurring subscription. I agree to receive emails and accept the <a href="privacy.html" target="_blank" style="color: var(--primary);">Privacy Policy</a> and <a href="terms.html" target="_blank" style="color: var(--primary);">Terms</a>.</span>
+                    </label>
+                </div>
                 <button id="sub-checkout-btn" class="btn btn-primary">Subscribe for $29.99/mo</button>
             </div>
         `;
-        document.getElementById('sub-checkout-btn').addEventListener('click', startCheckout);
+        document.getElementById('sub-checkout-btn').addEventListener('click', () => {
+            const optIn = document.getElementById('dash-checkout-opt-in');
+            if (!optIn.checked) {
+                alert('Please agree to the Terms and Privacy Policy to proceed.');
+                return;
+            }
+            startCheckout();
+        });
     }
 
     async function startCheckout() {
