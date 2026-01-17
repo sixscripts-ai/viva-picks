@@ -4,226 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viva Picks | Dark Intel</title>
+    <title>Viva Picks | Dark Intel Sports Signals</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Specific overrides for strict pixel matching of the Mockup */
-        body {
-            background-color: #0b0c10;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Hero Text */
-        .hero-text {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .hero-text h1 {
-            font-size: 4rem;
-            line-height: 1;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
-            color: #fff;
-        }
-
-        .hero-text .subtitle {
-            font-family: var(--font-mono);
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .cta-btn {
-            background: #f97316;
-            color: #000;
-            padding: 0.8rem 2rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            border-radius: 4px;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 1rem;
-            font-family: var(--font-heading);
-            letter-spacing: 1px;
-        }
-
-        /* The "Console" Interface */
-        .console-wrapper {
-            display: grid;
-            grid-template-columns: 80px 1fr 300px;
-            gap: 2rem;
-            width: 100%;
-            max-width: 1200px;
-            position: relative;
-        }
-
-        /* Timeline / Connector Line */
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 2rem;
-        }
-
-        .timeline-line {
-            width: 1px;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .timeline-icon {
-            width: 24px;
-            height: 24px;
-            background: #f97316;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        /* Signal List */
-        .signal-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .signal-item {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 1.5rem;
-            position: relative;
-            transition: transform 0.2s;
-        }
-
-        /* The "Active" Highlight Item */
-        .signal-item.active-highlight {
-            border: 1px solid #f97316;
-            box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
-        }
-
-        .signal-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        .status-badge {
-            color: #f97316;
-            font-weight: 700;
-        }
-
-        .status-badge.win {
-            color: #22c55e;
-        }
-
-        .status-badge.loss {
-            color: #ef4444;
-        }
-
-        .signal-content {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 0.5rem;
-        }
-
-        .signal-meta {
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: #888;
-        }
-
-        .view-btn {
-            background: rgba(249, 115, 22, 0.2);
-            color: #f97316;
-            border: 1px solid #f97316;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            float: right;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-
-        /* Sidebar System Status */
-        .system-status {
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 1.5rem;
-            height: fit-content;
-        }
-
-        .status-header {
-            font-family: var(--font-heading);
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #333;
-        }
-
-        .status-row {
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            margin-bottom: 0.8rem;
-            color: #888;
-        }
-
-        .status-row span.val {
-            color: #fff;
-            font-weight: 700;
-        }
-
-        /* Track Record Section */
-        .track-record-section {
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 6rem;
-        }
-
-        .table-row {
-            display: grid;
-            grid-template-columns: 1fr 2fr 1fr 1fr;
-            padding: 1rem;
-            border-bottom: 1px solid #333;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-        }
-
-        .table-header {
-            color: #888;
-            border-bottom: 2px solid #333;
-            font-weight: 700;
-        }
-    </style>
 </head>
 
 <body>
@@ -234,148 +16,165 @@
                 VIVA PICKS
             </div>
             <div class="nav-links">
-                <a href="#console">Intel Console</a>
-                <a href="#track-record">Performance</a>
+                <a href="index.html" class="active">Intel</a>
+                <a href="performance.html">Performance</a>
+                <a href="access.html">Access</a>
             </div>
-            <a href="login.html" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">LOGIN</a>
+            <div style="display: flex; gap: 1rem;">
+                <a href="login.html" class="btn btn-outline" style="border: none;">LOG IN</a>
+                <a href="access.html" class="btn btn-primary">GET ACCESS</a>
+            </div>
         </div>
     </nav>
 
-    <div class="main-container">
-        <!-- Hero Text -->
-        <div class="hero-text">
-            <h1>WE FIND THE EDGE.<br>YOU PLACE THE BET.</h1>
-            <div class="subtitle">Confidential Intelligence. Real-time Alerts. Serious Bettors Only.</div>
-            <a href="signup.html" class="cta-btn">GET ACCESS NOW</a>
-        </div>
-
-        <!-- The Interface -->
-        <div class="console-wrapper" id="console">
-            <!-- Timeline Decorator -->
-            <div class="timeline">
-                <div class="timeline-icon">▼</div>
-                <div class="timeline-line"></div>
-            </div>
-
-            <!-- Signal List -->
-            <div class="signal-list">
-
-                <!-- Active Signal (Orange Border) -->
-                <div class="signal-item active-highlight">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span class="status-badge">☣ NEW SIGNAL: PENDING ACTION</span>
-                    </div>
-                    <div class="signal-header">
-                        [12:45 PM] PENDING - NFL: Chiefs vs Bills
-                    </div>
-                    <div class="signal-content">
-                        PICK: CHIEFS -2.5 (Odds: -110)
-                        <button class="view-btn" onclick="window.location.href='signup.html'">VIEW ANALYSIS</button>
-                    </div>
-                    <div class="signal-meta">Confidence: HIGH | Status: Awaiting Kickoff</div>
+    <header class="hero">
+        <div class="container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+            <div class="animate-fade-in">
+                <div
+                    style="color: var(--primary); font-family: var(--font-mono); margin-bottom: 1rem; font-size: 0.9rem;">
+                    /// SYSTEM STATUS: ONLINE</div>
+                <h1 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem;">WE FIND THE EDGE.<br><span
+                        class="text-gradient-primary">YOU PLACE THE BET.</span></h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin-bottom: 2rem;">
+                    Confidential intelligence. Real-time alerts. Serious bettors only. Stop guessing and start executing
+                    with institutional-grade signals.
+                </p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="access.html" class="btn btn-primary">JOIN THE NETWORK</a>
+                    <a href="performance.html" class="btn btn-outline">VIEW PERFORMANCE</a>
                 </div>
 
-                <!-- Past Won Signal -->
-                <div class="signal-item" style="border-left: 3px solid #22c55e;">
-                    <div class="signal-header">
-                        <span class="status-badge win">[10:30 AM] WIN - NBA</span>
-                    </div>
-                    <div class="signal-content">Warriors +4 (Odds: -105)</div>
-                    <div class="signal-meta">Result: Warriors by 7 | Payout: $195 (on $100)</div>
-                </div>
-
-                <!-- Past Loss Signal -->
-                <div class="signal-item" style="border-left: 3px solid #ef4444;">
-                    <div class="signal-header">
-                        <span class="status-badge loss">[09:15 AM] LOSS - MLB</span>
-                    </div>
-                    <div class="signal-content">Red Sox Over 9.5 (Odds: -115)</div>
-                    <div class="signal-meta">Result: Total Runs 8 | Status: Completed</div>
-                </div>
-
-                <!-- Past Won Signal -->
-                <div class="signal-item" style="border-left: 3px solid #22c55e;">
-                    <div class="signal-header">
-                        <span class="status-badge win">[YESTERDAY] WIN - UFC</span>
-                    </div>
-                    <div class="signal-content">Adesanya by KO/TKO (Odds: +150)</div>
-                    <div class="signal-meta">Result: KO Round 2</div>
+                <div
+                    style="margin-top: 3rem; display: flex; gap: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+                    <div>ACTIVE SIGNALS: <span style="color: white;">4</span></div>
+                    <div>WIN RATE (24H): <span style="color: var(--accent);">82%</span></div>
+                    <div>YIELD: <span style="color: white;">+4.2u</span></div>
                 </div>
             </div>
 
-            <!-- Sidebar Status -->
-            <div class="system-status">
-                <div class="status-header">SYSTEM STATUS</div>
-                <div class="status-row">
-                    <span>Active Signals:</span>
-                    <span class="val" style="color: #fff">4</span>
+            <!-- Signal Feed Visualization -->
+            <div class="glass-panel"
+                style="padding: 0; max-width: 500px; max-height: 500px; overflow: hidden; border: 1px solid var(--border);">
+                <div
+                    style="background: #111; padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-family: var(--font-mono); color: var(--primary); font-size: 0.8rem;">[LIVE
+                        FEED]</span>
+                    <div
+                        style="width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 5px var(--accent);">
+                    </div>
                 </div>
-                <div class="status-row">
-                    <span>24h Win Rate:</span>
-                    <span class="val" style="color: var(--accent)">82%</span>
-                </div>
-                <div class="status-row">
-                    <span>Total Members:</span>
-                    <span class="val">1,254</span>
-                </div>
-                <div class="status-row">
-                    <span>Server Load:</span>
-                    <span class="val" style="color: #22c55e">OPTIMAL</span>
-                </div>
+                <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem;">
 
-                <div style="margin-top: 2rem; border-top: 1px solid #333; padding-top: 1rem;">
-                    <a href="signup.html" class="btn btn-outline"
-                        style="width: 100%; text-align: center; font-size: 0.8rem;">UPGRADE TO PREMIUM INTEL</a>
+                    <!-- Signal Item 1 -->
+                    <div
+                        style="background: #000; border: 1px solid var(--border); padding: 1rem; border-left: 3px solid var(--accent);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span class="sport-tag">NBA</span>
+                            <span style="color: var(--accent); font-size: 0.8rem; font-weight: 700;">WIN ✓</span>
+                        </div>
+                        <div style="color: white; font-weight: 700; margin-bottom: 0.2rem;">Celtics -4.5 vs Heat</div>
+                        <div style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.8rem;">Odds:
+                            -110 | Units: 2u</div>
+                    </div>
+
+                    <!-- Signal Item 2 -->
+                    <div
+                        style="background: #000; border: 1px solid var(--border); padding: 1rem; border-left: 3px solid var(--primary);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span class="sport-tag">NFL</span>
+                            <span style="color: var(--primary); font-size: 0.8rem; font-weight: 700;">PENDING ⏳</span>
+                        </div>
+                        <div style="color: white; font-weight: 700; margin-bottom: 0.2rem;">Bills ML vs Chiefs</div>
+                        <div style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.8rem;">Odds:
+                            +130 | Units: 3u (Whale)</div>
+                    </div>
+
+                    <!-- Signal Item 3 -->
+                    <div
+                        style="background: #000; border: 1px solid var(--border); padding: 1rem; border-left: 3px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span class="sport-tag">NHL</span>
+                            <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700;">CLOSED
+                                🔒</span>
+                        </div>
+                        <div style="color: white; font-weight: 700; margin-bottom: 0.2rem;">Oilers Over 6.5</div>
+                        <div style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.8rem;">Odds:
+                            -105 | Result: PUSH</div>
+                    </div>
+
                 </div>
             </div>
         </div>
+    </header>
 
-        <!-- Track Record (Populated) -->
-        <div class="track-record-section" id="track-record">
-            <h2 style="margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem;">VERIFIED TRACK RECORD
-                (L30 DAYS)</h2>
-
-            <div class="table-row table-header">
-                <div>DATE</div>
-                <div>MATCHUP / PICK</div>
-                <div>ODDS</div>
-                <div>RESULT</div>
+    <section id="intel" style="padding: 100px 0;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 4rem;">
+                <h2>OPERATIONAL CAPABILITIES</h2>
+                <div style="width: 50px; height: 3px; background: var(--primary); margin: 1rem auto;"></div>
+            </div>
+            <div class="card-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="glass-panel">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">01 // ALGORITHMIC EDGE</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Proprietary models processing 1M+ data
+                        points daily. We identify mispriced lines before the public moves them.</p>
+                </div>
+                <div class="glass-panel">
+                    <h3 style="color: white; margin-bottom: 1rem;">02 // DISCIPLINED CAPITAL</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Strict unit management protocols. We don't
+                        just pick winners; we manage risk like a hedge fund.</p>
+                </div>
+                <div class="glass-panel">
+                    <h3 style="color: white; margin-bottom: 1rem;">03 // INSTANT EXECUTION</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Time is money. Signals are deployed
+                        instantly to your dashboard and email the second value is detected.</p>
+                </div>
             </div>
 
-            <!-- Mock Data Rows -->
-            <div class="table-row">
-                <div style="color:#888;">Jan 15</div>
-                <div>Packers vs Cowboys (Packers ML)</div>
-                <div style="color: var(--accent);">+220</div>
-                <div style="color: var(--accent);">WIN (+2.2u)</div>
-            </div>
-            <div class="table-row">
-                <div style="color:#888;">Jan 15</div>
-                <div>Lions vs Rams (Over 52.5)</div>
-                <div style="color: #fff;">-110</div>
-                <div style="color: #ef4444;">LOSS (-1.1u)</div>
-            </div>
-            <div class="table-row">
-                <div style="color:#888;">Jan 14</div>
-                <div>Texans vs Browns (Texans +2.5)</div>
-                <div style="color: #fff;">-105</div>
-                <div style="color: var(--accent);">WIN (+1.0u)</div>
-            </div>
-            <div class="table-row">
-                <div style="color:#888;">Jan 14</div>
-                <div>Chiefs vs Dolphins (Under 44)</div>
-                <div style="color: #fff;">-110</div>
-                <div style="color: var(--accent);">WIN (+1.0u)</div>
-            </div>
-            <div class="table-row">
-                <div style="color:#888;">Jan 13</div>
-                <div>Knicks vs Grizzlies (Knicks -8)</div>
-                <div style="color: #fff;">-110</div>
-                <div style="color: var(--accent);">WIN (+1.0u)</div>
+            <div style="text-align: center; margin-top: 4rem;">
+                <a href="access.html" class="btn btn-primary" style="padding: 1.2rem 3rem;">APPLY FOR MEMBERSHIP</a>
             </div>
         </div>
+    </section>
 
-    </div>
+    <section style="padding: 100px 0; background: var(--bg-card); border-top: 1px solid var(--border);">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;">
+                <div>
+                    <h2 style="margin-bottom: 2rem;">THE VIVA PROTOCOL</h2>
+                    <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem;">
+                        Our system isn't about guessing. It's about math. We deploy institutional-grade intelligence to
+                        identify discrepancies in the betting market. When the algorithm confirms an edge of 5% or
+                        greater, a signal is broadcast.
+                    </p>
+                    <ul
+                        style="list-style: none; color: white; display: flex; flex-direction: column; gap: 1rem; font-family: var(--font-mono); font-size: 0.9rem;">
+                        <li><span style="color: var(--primary);">[+]</span> Real-time Odds Comparison</li>
+                        <li><span style="color: var(--primary);">[+]</span> Expected Value (+EV) Calculation</li>
+                        <li><span style="color: var(--primary);">[+]</span> Sharp Money Tracking</li>
+                        <li><span style="color: var(--primary);">[+]</span> 24/7 Model Monitoring</li>
+                    </ul>
+                </div>
+                <div class="glass-panel" style="padding: 3rem; text-align: center;">
+                    <div style="font-size: 4rem; font-weight: 800; color: var(--accent); line-height: 1;">68%</div>
+                    <div style="color: var(--text-muted); font-family: var(--font-mono); margin-top: 1rem;">LIFETIME WIN
+                        RATE</div>
+                    <div style="margin: 2rem 0; border-top: 1px solid var(--border);"></div>
+                    <a href="performance.html"
+                        style="color: var(--primary); font-family: var(--font-mono); text-decoration: none; font-size: 0.9rem;">VIEW
+                        FULL PERFORMANCE HISTORY →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="padding: 3rem 0; border-top: 1px solid var(--border); margin-top: 0; background: var(--bg-card);">
+        <div class="container"
+            style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            <p>&copy; 2024 VIVA PICKS. ALL RIGHTS RESERVED.</p>
+            <p style="margin-top: 1rem;">INFORMATION FOR ENTERTAINMENT PURPOSES ONLY. 21+</p>
+        </div>
+    </footer>
 </body>
 
 </html>
