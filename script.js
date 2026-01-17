@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="glass-panel" style="grid-column: 1/-1; text-align: center; padding: 3rem; border: 1px solid var(--primary);">
                 <h2 style="margin-bottom: 1rem;">Subscription Required</h2>
                 <p style="color: var(--text-muted); margin-bottom: 2rem;">Unlock the full power of our AI models and daily picks.</p>
-                <button id="sub-checkout-btn" class="btn btn-primary">Subscribe for $49/mo</button>
+                <button id="sub-checkout-btn" class="btn btn-primary">Subscribe for $29.99/mo</button>
             </div>
         `;
         document.getElementById('sub-checkout-btn').addEventListener('click', startCheckout);
