@@ -402,3 +402,40 @@ nav .container {
     font-family: var(--font-mono);
     line-height: 1.6;
 }
+
+/* Tiny Cookie Banner */
+#cookie-banner {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(10, 10, 15, 0.95);
+    border: 1px solid var(--border);
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 300px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+#cookie-banner button {
+    background: var(--primary);
+    color: #000;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-left: 10px;
+    text-transform: uppercase;
+}
+
+#cookie-banner a {
+    color: var(--primary);
+    text-decoration: underline;
+}

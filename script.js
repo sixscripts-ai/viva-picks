@@ -404,6 +404,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (e) { alert('Connection error'); }
             };
         }
+
+        // Cookie Consent Logic
+        const banner = document.createElement('div');
+        banner.id = 'cookie-banner';
+        banner.innerHTML = `
+            <span>DATA CONSENT: We use cookies for intel optimization. <a href="privacy.html">DETAILS</a></span>
+            <button id="accept-cookies-btn">ACCEPT</button>
+        `;
+        document.body.appendChild(banner);
+
+        if (!localStorage.getItem("vp_cookie_consent")) {
+            banner.style.display = 'flex';
+            banner.style.alignItems = 'center';
+            banner.style.justifyContent = 'space-between';
+        }
+
+        document.getElementById('accept-cookies-btn').onclick = () => {
+            localStorage.setItem("vp_cookie_consent", "true");
+            banner.style.display = 'none';
+        };
     }
 });
 
