@@ -65,9 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const user = await res.json();
 
-            // Admin Page Protection
-            if (window.location.pathname.includes('admin.html') && user.role !== 'admin') {
-                window.location.href = 'dashboard.html';
+            // Admin Page Protection & Link Visibility
+            const adminLink = document.getElementById('admin-link');
+            if (user.role === 'admin') {
+                if (adminLink) adminLink.style.display = 'block';
+            } else {
+                if (window.location.pathname.includes('admin.html')) {
+                    window.location.href = 'dashboard.html';
+                }
             }
 
             // User Dashboard Logic

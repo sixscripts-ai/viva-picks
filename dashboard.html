@@ -27,12 +27,12 @@
     <div class="dashboard-container container">
         <aside class="sidebar">
             <ul class="sidebar-menu">
-                <li><a href="#" class="active">📊 Today's Picks</a></li>
-                <li><a href="account.html">💳 My Account</a></li>
-                <li><a href="#">📜 History</a></li>
-                <li><a href="#">⚙️ Settings</a></li>
-                <li><a href="admin.html" style="color: #ff5252; margin-top: 2rem;">🔒 Admin Panel</a></li>
-                <li><a href="index.html" style="margin-top: auto;">🚪 Logout</a></li>
+                <li><a href="#" class="active">📊 SIGNAL FEED</a></li>
+                <li><a href="account.html">💳 ACCOUNT STATUS</a></li>
+                <!-- <li><a href="#">📜 HISTORY logs</a></li> -->
+                <li id="admin-link" style="display: none;"><a href="admin.html"
+                        style="color: var(--primary); border-color: var(--primary);">🔒 OPERATOR PANEL</a></li>
+                <li><a href="index.html" onclick="document.cookie='token=; Max-Age=0'">🚪 TERMINATE SESSION</a></li>
             </ul>
         </aside>
 
