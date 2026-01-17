@@ -278,7 +278,14 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
                         <strong>ANALYSIS:</strong><br>${newPick.analysis}
                     </div>
                     <br>
+                    <br>
                     <a href="https://vivapicks.tech/dashboard.html" style="background: #f97316; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">VIEW DASHBOARD</a>
+                    <hr style="margin-top: 30px; border: 0; border-top: 1px solid #ddd;">
+                    <p style="font-size: 0.75rem; color: #999; text-align: center;">
+                        You are receiving this because you opted in at VivaPicks.tech.<br>
+                        <a href="https://vivapicks.tech/account.html" style="color: #999;">Manage Subscription</a> | 
+                        <a href="https://vivapicks.tech/privacy.html" style="color: #999;">Privacy Policy</a>
+                    </p>
                 </div>
             `;
 

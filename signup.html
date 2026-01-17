@@ -42,10 +42,14 @@
                         required>
                 </div>
 
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="confirm-password" class="form-control" placeholder="Confirm password"
-                        required>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); text-transform: none; font-family: var(--font-body);">
+                        <input type="checkbox" id="opt-in" required style="margin-top: 0.3rem;">
+                        <span>I agree to receive tactical alerts & emails, and I accept the <a href="privacy.html"
+                                target="_blank" style="color: var(--primary); text-decoration: underline;">Privacy
+                                Policy</a>.</span>
+                    </label>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
@@ -98,6 +102,14 @@
             }
         });
     </script>
+    <footer style="padding: 3rem 0; border-top: 1px solid var(--border); background: var(--bg-card); margin-top: auto;">
+        <div class="container"
+            style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
+            <p style="margin-top: 1rem;"><a href="privacy.html"
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a></p>
+        </div>
+    </footer>
 </body>
 
 </html>
