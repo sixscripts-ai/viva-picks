@@ -263,17 +263,23 @@
 
             try {
                 const response = await fetch('/api/create-checkout-session', { method: 'POST' });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = 'signup.html';
+                    return;
+                }
+
                 const data = await response.json();
                 if (data.url) {
                     window.location.href = data.url;
                 } else {
-                    alert('Error creating checkout session');
+                    alert('Error creating checkout session: ' + (data.error || 'Unknown error'));
                     btn.innerText = originalText;
                     btn.disabled = false;
                 }
             } catch (err) {
                 console.error(err);
-                alert('Connection error');
+                alert('Connection error. Please ensure you are logged in or try again.');
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
