@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo" style="text-decoration: none;">
+                <div class="logo-icon">V</div>
+                Viva Picks
+            </a>
+            <div class="nav-links">
+                <a href="login.html">Log In</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container"
+        style="flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 80px;">
+        <div class="glass-panel" style="width: 100%; max-width: 400px; padding: 2.5rem;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Create Account</h1>
+                <p style="color: var(--text-muted);">Join the community and start winning.</p>
+            </div>
+
+            <form id="signup-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Create a strong password"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirm-password" class="form-control" placeholder="Confirm password"
+                        required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+
+            <div id="error-msg" style="color: #ff5252; text-align: center; margin-top: 1rem; display: none;"></div>
+
+            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                Already have an account? <a href="login.html" style="color: var(--accent); text-decoration: none;">Log
+                    In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorDiv = document.getElementById('error-msg');
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = "Passwords do not match";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Auto login or redirect to login
+                    alert('Account created! Please log in.');
+                    window.location.href = 'login.html';
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Server connection error';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

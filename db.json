@@ -1,0 +1,15 @@
+{
+  "picks": [
+    {
+      "id": 1,
+      "sport": "NBA",
+      "time": "7:30 PM EST",
+      "matchup": "Lakers vs. Celtics",
+      "pick": "Celtics -4.5",
+      "odds": "-110",
+      "units": "4u",
+      "analysis": "Celtics home court advantage combined with Lakers fatigue on back-to-back creates a strong edge."
+    }
+  ],
+  "users": []
+}

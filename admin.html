@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon" style="background: #ff5252;">A</div>
+                Viva Admin
+            </div>
+            <div class="nav-links">
+                <a href="dashboard.html">View User Dashboard</a>
+                <a href="index.html">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active">📝 Post Picks</a></li>
+                <li><a href="#">👥 Manage Users</a></li>
+                <li><a href="#">💰 Revenue</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <h1 style="margin-bottom: 2rem;">Post New Pick</h1>
+
+            <div class="glass-panel" style="padding: 2rem; max-width: 800px;">
+                <form onsubmit="event.preventDefault(); alert('Pick Published Successfully! (Demo)');">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label>Sport</label>
+                            <select class="form-control">
+                                <option>NBA</option>
+                                <option>NFL</option>
+                                <option>MLB</option>
+                                <option>NHL</option>
+                                <option>UFC</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="datetime-local" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Matchup (e.g., Lakers vs Heat)</label>
+                        <input type="text" class="form-control" placeholder="Home vs Away">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label>Pick</label>
+                            <input type="text" class="form-control" placeholder="e.g. Lakers -5">
+                        </div>
+                        <div class="form-group">
+                            <label>Odds</label>
+                            <input type="text" class="form-control" placeholder="-110">
+                        </div>
+                        <div class="form-group">
+                            <label>Units</label>
+                            <select class="form-control">
+                                <option>1u (Standard)</option>
+                                <option>2u (Strong)</option>
+                                <option>3u (Big)</option>
+                                <option>4u (Whale)</option>
+                                <option>5u (MAX)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Analysis / Writeup</label>
+                        <textarea class="form-control" rows="4" placeholder="Explain the edge..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">🚀 Publish Pick</button>
+                    <button type="button" class="btn btn-outline" style="width: 100%; margin-top: 10px;">Save
+                        Draft</button>
+                </form>
+            </div>
+
+            <h2 style="margin: 3rem 0 1.5rem 0;">Recent Users</h2>
+            <div class="glass-panel" style="padding: 0; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: rgba(255,255,255,0.05);">
+                        <tr>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">User</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Plan</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Status</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">alex_winner</td>
+                            <td style="padding: 1rem;">Monthly</td>
+                            <td style="padding: 1rem; color: var(--accent);">Active</td>
+                            <td style="padding: 1rem;">2 mins ago</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">vegas_dave_clone</td>
+                            <td style="padding: 1rem;">Annual</td>
+                            <td style="padding: 1rem; color: var(--accent);">Active</td>
+                            <td style="padding: 1rem;">1 hour ago</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;">paper_hands_99</td>
+                            <td style="padding: 1rem;">Monthly</td>
+                            <td style="padding: 1rem; color: #ff5252;">Past Due</td>
+                            <td style="padding: 1rem;">3 days ago</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
