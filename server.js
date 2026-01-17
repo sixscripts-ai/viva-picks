@@ -16,7 +16,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'viva_secret_key_change_me';
 // PostgreSQL Pool Setup
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: { rejectUnauthorized: false }
 });
 
 // Middleware
