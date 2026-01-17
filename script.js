@@ -121,6 +121,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('sub-checkout-btn').addEventListener('click', startCheckout);
     }
 
+    // Index Page Logic
+    const joinBtn = document.getElementById('join-btn');
+    if (joinBtn) {
+        joinBtn.addEventListener('click', () => {
+            // Logic if needed for other buttons
+        });
+    }
+
+    const subCheckoutBtn = document.getElementById('sub-checkout-btn');
+    if (subCheckoutBtn) {
+        subCheckoutBtn.addEventListener('click', async () => {
+            // Check if user is logged in first
+            const res = await fetch('/api/auth/me');
+            if (res.status === 401 || res.status === 403) {
+                window.location.href = 'signup.html'; // Redirect to signup if not logged in
+            } else {
+                startCheckout();
+            }
+        });
+    }
+
     async function startCheckout() {
         try {
             const res = await fetch('/api/create-checkout-session', { method: 'POST' });
