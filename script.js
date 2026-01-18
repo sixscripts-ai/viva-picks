@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const picksContainer = document.getElementById('picks-container');
 
     // Auth Check for Protected Pages
-    const protectedPages = ['dashboard.html', 'warroom.html', 'admin.html', 'account.html'];
+    const protectedPages = ['dashboard', 'warroom', 'admin', 'account'];
     if (protectedPages.some(page => window.location.pathname.includes(page))) {
         checkAuth();
     }
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch('/api/auth/me');
             if (res.status === 401 || res.status === 403) {
-                window.location.href = 'login.html';
+                window.location.href = 'login';
                 return;
             }
 
@@ -71,13 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (user.role === 'admin') {
                 if (adminLink) adminLink.style.display = 'block';
             } else {
-                if (window.location.pathname.includes('admin.html')) {
-                    window.location.href = 'dashboard.html';
+                if (window.location.pathname.includes('admin')) {
+                    window.location.href = 'dashboard';
                 }
             }
 
             // Dashboard / War Room Specifics
-            if (window.location.pathname.includes('dashboard.html') || window.location.pathname.includes('warroom.html')) {
+            if (window.location.pathname.includes('dashboard') || window.location.pathname.includes('warroom')) {
                 const navUser = document.querySelector('.nav-links span');
                 if (navUser) navUser.textContent = `Welcome, ${user.role === 'admin' ? 'Admin' : 'Member'}`;
 
@@ -95,12 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Account Specifics
-            if (window.location.pathname.includes('account.html')) {
+            if (window.location.pathname.includes('account')) {
                 renderAccountData(user);
             }
 
             // Admin Specifics
-            if (window.location.pathname.includes('admin.html')) {
+            if (window.location.pathname.includes('admin')) {
                 fetchAdminStats();
                 fetchPicksHistory();
             }
@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!confirm('CRITICAL: Are you sure you want to PERMANENTLY terminate your account?')) return;
                 try {
                     const res = await fetch('/api/auth/me', { method: 'DELETE' });
-                    if (res.ok) { window.location.href = 'index.html'; }
+                    if (res.ok) { window.location.href = '/'; }
                 } catch (e) { alert('Connection error'); }
             };
         }
@@ -871,7 +871,7 @@ function renderCards(picks) {
                 ${pick.analysis}
             </div>` : ''}
             
-            ${window.location.pathname.includes('warroom.html') && !pick.result ? `
+            ${window.location.pathname.includes('warroom') && !pick.result ? `
             <div class="pick-calc" style="grid-column: 1 / -1; border-top: 1px solid #333; margin-top: 10px; padding-top: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">EDGE CALCULATOR</span>
@@ -894,16 +894,16 @@ if (getLinesBtn) {
     getLinesBtn.onclick = async () => {
         const sport = document.getElementById('sport-select').value;
         const btn = getLinesBtn;
-        
+
         btn.disabled = true;
         btn.textContent = 'Fetching...';
-        
+
         try {
             const res = await fetch(`/api/admin/odds/${sport}`);
             const data = await res.json();
-            
+
             if (!res.ok) throw new Error(data.error || 'Failed to fetch');
-            
+
             if (data.length === 0) {
                 alert('No lines found for ' + sport + ' today.');
                 return;
@@ -912,12 +912,12 @@ if (getLinesBtn) {
             // Create Modal
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center;';
-            
+
             const modal = document.createElement('div');
             modal.style.cssText = 'background:#1a1a1a; padding:20px; border:1px solid #333; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; border-radius:8px;';
-            
+
             modal.innerHTML = '<h3 style="margin-top:0; color:#fff;">Select Game</h3><p style="color:#888; font-size:12px;">Click to auto-fill form</p>';
-            
+
             data.forEach(game => {
                 const item = document.createElement('div');
                 item.style.cssText = 'padding:10px; border-bottom:1px solid #333; cursor:pointer; color:#eee;';
@@ -926,44 +926,44 @@ if (getLinesBtn) {
                     <div style="font-size:12px; color:#888;">${new Date(game.time).toLocaleString()}</div>
                     <div style="font-size:12px; color:#f97316;">${game.home_team}: ${game.home_odds} | ${game.away_team}: ${game.away_odds}</div>
                 `;
-                
+
                 item.onmouseover = () => item.style.backgroundColor = '#333';
                 item.onmouseout = () => item.style.backgroundColor = 'transparent';
-                
+
                 item.onclick = () => {
                     // Auto-Fill
                     const timeInput = document.querySelector('input[type="datetime-local"]');
                     // Format time for datetime-local input (YYYY-MM-DDTHH:mm)
                     const date = new Date(game.time);
                     date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-                    timeInput.value = date.toISOString().slice(0,16);
-                    
+                    timeInput.value = date.toISOString().slice(0, 16);
+
                     document.getElementById('matchup-input').value = game.matchup;
-                    
+
                     // Ask which side (Simple confirm/prompt)
                     // Defaults to Pick Input asking user to type, but let's pre-fill odds if possible.
                     // Actually, just fill the odds input with "See Analysis" or let user pick.
                     // Let's just fill Matchup and Time. Odds varies by pick side.
                     // BUT user wants odds logic.
                     // Let's prompt: "Pick Home or Away?"
-                    
+
                     // For now, simple fill
                     alert('Time and Matchup filled! Please type the specific pick and odds manually based on the lines shown.');
-                    
+
                     document.body.removeChild(overlay);
                 };
                 modal.appendChild(item);
             });
-            
+
             const closeBtn = document.createElement('button');
             closeBtn.textContent = 'Close';
             closeBtn.style.cssText = 'margin-top:10px; padding:5px 10px; background:#444; color:white; border:none; width:100%; cursor:pointer;';
             closeBtn.onclick = () => document.body.removeChild(overlay);
             modal.appendChild(closeBtn);
-            
+
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
-            
+
         } catch (err) {
             alert(err.message);
         } finally {

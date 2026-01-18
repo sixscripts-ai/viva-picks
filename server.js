@@ -48,6 +48,17 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
 });
 
 app.use(express.json());
+
+// Clean URL Routes
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(__dirname, 'signup.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
+app.get('/warroom', (req, res) => res.sendFile(path.join(__dirname, 'warroom.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/account', (req, res) => res.sendFile(path.join(__dirname, 'account.html')));
+app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+
 app.use(express.static('.'));
 
 // Email Transporter
