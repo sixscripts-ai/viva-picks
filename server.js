@@ -17,10 +17,9 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'viva_secret_key_change_me';
 
 // PostgreSQL Pool Setup
-const isLocal = process.env.DATABASE_URL && process.env.DATABASE_URL.includes('localhost');
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: isLocal ? false : { rejectUnauthorized: false }
+    ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false }
 });
 
 // Middleware
