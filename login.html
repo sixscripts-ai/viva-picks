@@ -76,6 +76,13 @@
             btn.disabled = true;
             btn.textContent = 'AUTHENTICATING...';
 
+            if (window.location.protocol === 'file:') {
+                alert('CRITICAL: You are opening the HTML file directly. You MUST navigate to http://localhost:3000/login.html in your browser for the login to function.');
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+                return;
+            }
+
             try {
                 console.log('Fetching auth endpoint...');
                 const res = await fetch('/api/auth/login', {
@@ -100,6 +107,8 @@
                     errorDiv.style.display = 'block';
                 }
             } catch (err) {
+                console.error('Fetch error:', err);
+                alert('CONNECTION ERROR: ' + err.message);
                 errorDiv.textContent = 'Server connection error';
                 errorDiv.style.display = 'block';
             } finally {

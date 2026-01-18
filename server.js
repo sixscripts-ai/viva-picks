@@ -17,9 +17,12 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'viva_secret_key_change_me';
 
 // PostgreSQL Pool Setup
+const isLocal = process.env.DATABASE_URL && process.env.DATABASE_URL.includes('localhost');
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: isLocal ? false : { rejectUnauthorized: false },
+    connectionTimeoutMillis: 5000,
+    query_timeout: 5000
 });
 
 // Middleware
@@ -134,6 +137,9 @@ async function handleCheckoutSuccess(session) {
 }
 
 // --- Auth Middleware ---
+// Health Check
+app.get('/api/ping', (req, res) => res.json({ status: 'online' }));
+
 function authenticateToken(req, res, next) {
     const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
     if (!token) return res.sendStatus(401);
@@ -181,10 +187,21 @@ app.post('/api/auth/login', async (req, res) => {
     console.log(`/// LOGIN ATTEMPT: ${email}`);
 
     try {
+        console.log(`/// DB QUERY START: Finding user ${email}...`);
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        console.log(`/// DB QUERY SUCCESS: User found? ${!!result.rows[0]}`);
         const user = result.rows[0];
 
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!user) {
+            console.log('/// LOGIN FAILED: User not found.');
+            return res.status(400).json({ error: 'Invalid credentials' });
+        }
+
+        console.log('/// VERIFYING PASSWORD...');
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log(`/// PASSWORD MATCH: ${isMatch}`);
+
+        if (!isMatch) {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
