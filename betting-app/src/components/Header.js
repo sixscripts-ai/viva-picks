@@ -14,6 +14,7 @@ const Header = ({ wallet, cacheInfo, onRefreshOdds, refreshing }) => {
         navigate('/auth');
     };
 
+    console.log("Current User State:", user); // Debugging
     return (
         <header className="bg-[#0A0A0A] border-b border-[#333333] px-6 py-4">
             <div className="flex items-center justify-between">
@@ -22,7 +23,7 @@ const Header = ({ wallet, cacheInfo, onRefreshOdds, refreshing }) => {
                         <span className="text-[#39FF14] neon-text">VIVA</span> PICKS
                     </h1>
                     <span className="font-mono text-xs text-[#39FF14] bg-[#39FF14]/10 px-2 py-1 border border-[#39FF14]/30 hidden sm:inline-block">
-                        SYSTEM: {user ? 'ONLINE' : 'GUEST'}
+                        SYSTEM: {user && user.username ? 'ONLINE' : 'GUEST'}
                     </span>
                 </Link>
                 <div className="flex items-center gap-6">
@@ -44,7 +45,7 @@ const Header = ({ wallet, cacheInfo, onRefreshOdds, refreshing }) => {
                         </button>
                     )}
 
-                    {user ? (
+                    {user && user.username ? (
                         <div className="flex items-center gap-4">
                             <div className="text-right">
                                 <p className="font-mono text-xs text-[#808080] uppercase">{user.username}</p>
