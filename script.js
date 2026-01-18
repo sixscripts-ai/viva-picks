@@ -460,7 +460,54 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Global UI Components
     loadPerformanceLedger();
     loadHeroStats();
+    updateTicker();
+    setInterval(updateTicker, 60000); // Update every minute
 });
+
+async function updateTicker() {
+    const ticker = document.getElementById('live-ticker');
+    if (!ticker) return;
+
+    try {
+        // Fetch a couple of sports to fill the ticker
+        const [nbaRes, ncaabRes] = await Promise.all([
+            fetch('/api/public/lines/NBA'),
+            fetch('/api/public/lines/NCAAB')
+        ]);
+
+        const nba = await nbaRes.json();
+        const ncaab = await ncaabRes.json();
+
+        let items = [
+            'SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span>',
+            'MARKET SENTIMENT: <span>BULLISH</span>'
+        ];
+
+        // Add NBA Money Lines
+        if (nba.data && nba.data.length > 0) {
+            nba.data.slice(0, 4).forEach(g => {
+                items.push(`NBA: <span>${g.away_team} (${g.away_money}) @ ${g.home_team} (${g.home_money})</span>`);
+            });
+        }
+
+        // Add NCAAB Spreads
+        if (ncaab.data && ncaab.data.length > 0) {
+            ncaab.data.slice(0, 4).forEach(g => {
+                items.push(`NCAAB: <span>${g.away_team} (${g.away_spread}) @ ${g.home_team} (${g.home_spread})</span>`);
+            });
+        }
+
+        if (items.length > 2) {
+            ticker.innerHTML = items.map(i => `<div class="ticker-item">${i}</div>`).join('');
+
+            // Adjust animation speed based on content length
+            const duration = Math.max(30, items.length * 5); // 5 sec per item, min 30s
+            ticker.style.animationDuration = `${duration}s`;
+        }
+    } catch (e) {
+        console.error("Ticker update failed", e);
+    }
+}
 
 // GLOBAL ACTIONS for Admin (Defined outside module)
 function editPick(pick) {
