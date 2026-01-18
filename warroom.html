@@ -50,6 +50,35 @@
         </aside>
 
         <main class="main-content">
+            <!-- Tactical Intel Feed (Moved to Top) -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <h1 style="margin: 0;">Tactical Intel Feed</h1>
+
+                <!-- Sport Filters -->
+                <div class="filter-chips" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="filter-btn active" onclick="filterPicks('ALL')"
+                        style="padding: 5px 12px; font-size: 0.8rem; background: var(--primary); color:black; border:none; border-radius: 4px; cursor: pointer; font-weight: bold;">ALL</button>
+                    <button class="filter-btn" onclick="filterPicks('NBA')"
+                        style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">NBA</button>
+                    <button class="filter-btn" onclick="filterPicks('NFL')"
+                        style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">NFL</button>
+                    <button class="filter-btn" onclick="filterPicks('MLB')"
+                        style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">MLB</button>
+                    <button class="filter-btn" onclick="filterPicks('SOCCER')"
+                        style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">SOCCER</button>
+                    <button class="filter-btn" onclick="filterPicks('UFC')"
+                        style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">UFC</button>
+                </div>
+            </div>
+
+            <div class="card-grid" id="picks-container" style="margin-bottom: 2rem;">
+                <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
+                    Loading picks from server...
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
             <div
                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                 <div class="glass-panel"
@@ -77,127 +106,108 @@
                         +0.0u</div>
                 </div>
             </div>
-    </div>
 
-    <!-- Performance Chart -->
-    <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(0, 243, 255, 0.1);">
-        <h2
-            style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 1px;">
-            PERFORMANCE VECTOR (YTD)</h2>
-        <div style="height: 300px; width: 100%;">
-            <canvas id="profitChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Calculators Grid -->
-    <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <!-- Parlay Calculator -->
-        <div class="glass-panel" style="padding: 1.5rem; border: 1px solid rgba(0, 243, 255, 0.1);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h3 style="color: var(--primary); font-family: var(--font-mono); margin:0; font-size:1rem;">PARLAY
-                    BUILDER</h3>
-                <button onclick="resetParlay()"
-                    style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem;">RESET</button>
-            </div>
-
-            <div id="parlay-legs">
-                <div class="parlay-leg" style="display:flex; margin-bottom:10px;">
-                    <input type="number" placeholder="-110" class="form-control parlay-input"
-                        style="background:#111; color:white; border:1px solid #333; padding:8px;"
-                        oninput="calcParlay()">
-                </div>
-                <div class="parlay-leg" style="display:flex; margin-bottom:10px;">
-                    <input type="number" placeholder="-110" class="form-control parlay-input"
-                        style="background:#111; color:white; border:1px solid #333; padding:8px;"
-                        oninput="calcParlay()">
+            <!-- Performance Chart -->
+            <div class="glass-panel"
+                style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(0, 243, 255, 0.1);">
+                <h2
+                    style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 1px;">
+                    PERFORMANCE VECTOR (YTD)</h2>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="profitChart"></canvas>
                 </div>
             </div>
-            <button onclick="addParlayLeg()" class="btn btn-outline"
-                style="width:100%; margin-bottom:1.5rem; font-size:0.8rem; padding:8px;">+ ADD LEG</button>
 
-            <div style="border-top:1px solid #333; padding-top:1rem;">
-                <label style="font-size:0.7rem; color:#888; display:block; margin-bottom:5px;">WAGER ($)</label>
-                <input type="number" id="parlay-wager" value="100" class="form-control"
-                    style="background:#111; color:white; border:1px solid #333; padding:8px; width:100%; margin-bottom:1rem;"
-                    oninput="calcParlay()">
+            <!-- Calculators Grid -->
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <!-- Parlay Calculator -->
+                <div class="glass-panel" style="padding: 1.5rem; border: 1px solid rgba(0, 243, 255, 0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h3 style="color: var(--primary); font-family: var(--font-mono); margin:0; font-size:1rem;">
+                            PARLAY
+                            BUILDER</h3>
+                        <button onclick="resetParlay()"
+                            style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem;">RESET</button>
+                    </div>
 
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                    <span style="color:#888; font-size:0.9rem;">TOTAL ODDS:</span>
-                    <span id="parlay-odds" style="color:white; font-family:var(--font-mono);">+264</span>
+                    <div id="parlay-legs">
+                        <div class="parlay-leg" style="display:flex; margin-bottom:10px;">
+                            <input type="number" placeholder="-110" class="form-control parlay-input"
+                                style="background:#111; color:white; border:1px solid #333; padding:8px;"
+                                oninput="calcParlay()">
+                        </div>
+                        <div class="parlay-leg" style="display:flex; margin-bottom:10px;">
+                            <input type="number" placeholder="-110" class="form-control parlay-input"
+                                style="background:#111; color:white; border:1px solid #333; padding:8px;"
+                                oninput="calcParlay()">
+                        </div>
+                    </div>
+                    <button onclick="addParlayLeg()" class="btn btn-outline"
+                        style="width:100%; margin-bottom:1.5rem; font-size:0.8rem; padding:8px;">+ ADD LEG</button>
+
+                    <div style="border-top:1px solid #333; padding-top:1rem;">
+                        <label style="font-size:0.7rem; color:#888; display:block; margin-bottom:5px;">WAGER ($)</label>
+                        <input type="number" id="parlay-wager" value="100" class="form-control"
+                            style="background:#111; color:white; border:1px solid #333; padding:8px; width:100%; margin-bottom:1rem;"
+                            oninput="calcParlay()">
+
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                            <span style="color:#888; font-size:0.9rem;">TOTAL ODDS:</span>
+                            <span id="parlay-odds" style="color:white; font-family:var(--font-mono);">+264</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:#888; font-size:0.9rem;">PAYOUT:</span>
+                            <span id="parlay-payout"
+                                style="color:var(--accent); font-weight:bold; font-family:var(--font-mono); font-size:1.1rem;">$364.46</span>
+                        </div>
+                    </div>
                 </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="color:#888; font-size:0.9rem;">PAYOUT:</span>
-                    <span id="parlay-payout"
-                        style="color:var(--accent); font-weight:bold; font-family:var(--font-mono); font-size:1.1rem;">$364.46</span>
+
+                <!-- Odds Converter -->
+                <div class="glass-panel" style="padding: 1.5rem; border: 1px solid rgba(0, 243, 255, 0.1);">
+                    <h3
+                        style="color: var(--primary); font-family: var(--font-mono); margin:0 0 1rem 0; font-size:1rem;">
+                        ODDS
+                        CONVERTER</h3>
+
+                    <div class="form-group" style="margin-bottom:1rem;">
+                        <label style="font-size:0.7rem; color:#888; display:block; margin-bottom:5px;">AMERICAN
+                            ODDS</label>
+                        <input type="number" id="conv-american" placeholder="-110" class="form-control"
+                            style="background:#111; color:white; border:1px solid #333; padding:8px; width:100%;"
+                            oninput="convertOdds('american')">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem;">
+                        <label style="font-size:0.7rem; color:#888; display:block; margin-bottom:5px;">DECIMAL
+                            ODDS</label>
+                        <input type="number" id="conv-decimal" placeholder="1.91" class="form-control"
+                            style="background:#111; color:white; border:1px solid #333; padding:8px; width:100%;"
+                            oninput="convertOdds('decimal')">
+                    </div>
+
+                    <div
+                        style="padding:1rem; background:rgba(255, 255, 255, 0.05); border-radius:4px; border:1px solid #333;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="color:#888; font-size:0.9rem;">IMPLIED PROBABILTY:</span>
+                            <span id="conv-prob"
+                                style="color:var(--text-muted); font-family:var(--font-mono);">52.4%</span>
+                        </div>
+                        <!-- <div style="display:flex; justify-content:space-between;">
+                            <span style="color:#888; font-size:0.9rem;">FRACTIONAL (APPROX):</span>
+                            <span id="conv-fraction" style="color:white; font-family:var(--font-mono);">10/11</span>
+                        </div> -->
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Odds Converter -->
-        <div class="glass-panel" style="padding: 1.5rem; border: 1px solid rgba(0, 243, 255, 0.1);">
-            <h3 style="color: var(--primary); font-family: var(--font-mono); margin:0 0 1rem 0; font-size:1rem;">ODDS
-                CONVERTER</h3>
-
-            <div class="form-group" style="margin-bottom:1rem;">
-                <label style="font-size:0.7rem; color:#888; display:block; margin-bottom:5px;">AMERICAN ODDS</label>
-                <input type="number" id="conv-american" placeholder="-110" class="form-control"
-                    style="background:#111; color:white; border:1px solid #333; padding:8px; width:100%;"
-                    oninput="convertOdds('american')">
+            <div class="disclaimer-banner">
+                // RESULTS DISCLAIMER: SPORTS BETTING INVOLVES SIGNIFICANT RISK. ALL PICKS ARE FOR ENTERTAINMENT AND
+                INFORMATION PURPOSES ONLY. PAST PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS. VIVA PICKS IS NOT A
+                GAMBLING PLATFORM AND DOES NOT ACCEPT WAGERS. PLEASE BET RESPONSIBLY.
             </div>
-
-            <div class="form-group" style="margin-bottom:1.5rem;">
-                <label style="font-size:0.7rem; color:#888; display:block; margin-bottom:5px;">DECIMAL ODDS</label>
-                <input type="number" id="conv-decimal" placeholder="1.91" class="form-control"
-                    style="background:#111; color:white; border:1px solid #333; padding:8px; width:100%;"
-                    oninput="convertOdds('decimal')">
-            </div>
-
-            <div style="padding:1rem; background:rgba(255, 255, 255, 0.05); border-radius:4px; border:1px solid #333;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="color:#888; font-size:0.9rem;">IMPLIED PROBABILTY:</span>
-                    <span id="conv-prob" style="color:var(--text-muted); font-family:var(--font-mono);">52.4%</span>
-                </div>
-                <!-- <div style="display:flex; justify-content:space-between;">
-                    <span style="color:#888; font-size:0.9rem;">FRACTIONAL (APPROX):</span>
-                    <span id="conv-fraction" style="color:white; font-family:var(--font-mono);">10/11</span>
-                </div> -->
-            </div>
-        </div>
-    </div>
-
-    <div
-        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
-        <h1 style="margin: 0;">Tactical Intel Feed</h1>
-
-        <!-- Sport Filters -->
-        <div class="filter-chips" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 5px;">
-            <button class="filter-btn active" onclick="filterPicks('ALL')"
-                style="padding: 5px 12px; font-size: 0.8rem; background: var(--primary); color:black; border:none; border-radius: 4px; cursor: pointer; font-weight: bold;">ALL</button>
-            <button class="filter-btn" onclick="filterPicks('NBA')"
-                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">NBA</button>
-            <button class="filter-btn" onclick="filterPicks('NFL')"
-                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">NFL</button>
-            <button class="filter-btn" onclick="filterPicks('MLB')"
-                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">MLB</button>
-            <button class="filter-btn" onclick="filterPicks('SOCCER')"
-                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">SOCCER</button>
-            <button class="filter-btn" onclick="filterPicks('UFC')"
-                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">UFC</button>
-        </div>
-    </div>
-
-    <div class="card-grid" id="picks-container">
-        <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
-            Loading picks from server...
-        </div>
-    </div>
-    <div class="disclaimer-banner">
-        // RESULTS DISCLAIMER: SPORTS BETTING INVOLVES SIGNIFICANT RISK. ALL PICKS ARE FOR ENTERTAINMENT AND
-        INFORMATION PURPOSES ONLY. PAST PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS. VIVA PICKS IS NOT A
-        GAMBLING PLATFORM AND DOES NOT ACCEPT WAGERS. PLEASE BET RESPONSIBLY.
-    </div>
-    </main>
+        </main>
     </div>
     <script src="script.js"></script>
     <footer
