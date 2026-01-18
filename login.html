@@ -67,11 +67,17 @@
     <script>
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('Login form submitted...');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('error-msg');
+            const btn = e.target.querySelector('button');
+
+            btn.disabled = true;
+            btn.textContent = 'AUTHENTICATING...';
 
             try {
+                console.log('Fetching auth endpoint...');
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -79,8 +85,10 @@
                 });
 
                 const data = await res.json();
+                console.log('Response data:', data);
 
                 if (res.ok) {
+                    alert('Login Success! Redirecting...');
                     // Redirect based on role
                     if (data.role === 'admin') {
                         window.location.href = 'admin.html';
@@ -94,6 +102,9 @@
             } catch (err) {
                 errorDiv.textContent = 'Server connection error';
                 errorDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
             }
         });
     </script>

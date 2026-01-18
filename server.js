@@ -178,6 +178,7 @@ app.post('/api/auth/register', async (req, res) => {
 // AUTH: Login
 app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
+    console.log(`/// LOGIN ATTEMPT: ${email}`);
 
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
