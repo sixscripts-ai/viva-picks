@@ -124,7 +124,7 @@
             const status = document.getElementById('lines-status');
 
             currentSport = sport;
-            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem;"><div class="ticker-item"><span>LOADING MARKET DATA...</span></div></div>';
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem;" class="loading-pulse"><div class="ticker-item"><span>LOADING MARKET DATA...</span></div></div>';
             status.textContent = 'Fetching...';
 
             try {
