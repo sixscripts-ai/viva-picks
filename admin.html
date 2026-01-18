@@ -69,24 +69,28 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="form-group">
                             <label>Sport</label>
-                            <select class="form-control">
-                                <option>NBA</option>
-                                <option>NFL</option>
-                                <option>MLB</option>
-                                <option>NHL</option>
-                                <option>UFC</option>
-                                <option>NCAAF</option>
-                                <option>NCAAB</option>
-                                <option>WNBA</option>
-                                <option>SOCCER</option>
-                                <option>EPL</option>
-                                <option>MLS</option>
-                                <option>TENNIS</option>
-                                <option>GOLF</option>
-                                <option>BOXING</option>
-                                <option>F1</option>
-                                <option>ESPORTS</option>
-                            </select>
+                            <div style="display: flex; gap: 10px;">
+                                <select class="form-control" id="sport-select">
+                                    <option>NBA</option>
+                                    <option>NFL</option>
+                                    <option>MLB</option>
+                                    <option>NHL</option>
+                                    <option>UFC</option>
+                                    <option>NCAAF</option>
+                                    <option>NCAAB</option>
+                                    <option>WNBA</option>
+                                    <option>SOCCER</option>
+                                    <option>EPL</option>
+                                    <option>MLS</option>
+                                    <option>TENNIS</option>
+                                    <option>GOLF</option>
+                                    <option>BOXING</option>
+                                    <option>F1</option>
+                                    <option>ESPORTS</option>
+                                </select>
+                                <button type="button" class="btn btn-outline" id="get-lines-btn"
+                                    style="padding: 0 15px; white-space: nowrap;">Get Lines</button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Time</label>

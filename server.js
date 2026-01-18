@@ -478,6 +478,71 @@ app.put('/api/picks/:id', authenticateToken, requireAdmin, async (req, res) => {
     }
 });
 
+// ADMIN: Get Odds for Auto-Fill
+app.get('/api/admin/odds/:sport', authenticateToken, requireAdmin, async (req, res) => {
+    const { sport } = req.params;
+    const apiKey = process.env.ODDS_API_KEY;
+
+    // Map common names to API keys
+    const sportKeys = {
+        'NBA': 'basketball_nba',
+        'NFL': 'americanfootball_nfl',
+        'MLB': 'baseball_mlb',
+        'NHL': 'icehockey_nhl',
+        'UFC': 'mma_mixed_martial_arts',
+        'NCAAF': 'americanfootball_ncaaf',
+        'NCAAB': 'basketball_ncaab',
+        'WNBA': 'basketball_wnba',
+        'MLS': 'soccer_usa_mls',
+        'EPL': 'soccer_epl',
+    };
+
+    const sportKey = sportKeys[sport];
+    if (!sportKey) return res.status(400).json({ error: 'Sport not supported for auto-odds' });
+
+    try {
+        // Fetching from DraftKings as a standard reference
+        const url = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${apiKey}&regions=us&markets=h2h&oddsFormat=american&bookmakers=draftkings`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch odds');
+
+        // Simplify data
+        const games = data.map(game => {
+            const book = game.bookmakers[0];
+
+            // Basic game info
+            const matchup = `${game.away_team} @ ${game.home_team}`;
+            let homeOdds = 'N/A';
+            let awayOdds = 'N/A';
+
+            if (book) {
+                const outcomes = book.markets[0].outcomes;
+                const home = outcomes.find(o => o.name === game.home_team);
+                const away = outcomes.find(o => o.name === game.away_team);
+                if (home) homeOdds = home.price > 0 ? `+${home.price}` : home.price;
+                if (away) awayOdds = away.price > 0 ? `+${away.price}` : away.price;
+            }
+
+            return {
+                matchup: matchup,
+                time: game.commence_time,
+                description: `${matchup} (${awayOdds} / ${homeOdds})`,
+                home_team: game.home_team,
+                away_team: game.away_team,
+                home_odds: homeOdds,
+                away_odds: awayOdds
+            };
+        });
+
+        res.json(games);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ADMIN: Delete Pick
 app.delete('/api/picks/:id', authenticateToken, requireAdmin, async (req, res) => {
     const { id } = req.params;
