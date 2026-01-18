@@ -574,7 +574,7 @@ app.get('/api/public/lines/:sport', async (req, res) => {
 
     // Simple Cache Check
     const now = Date.now();
-    const CACHE_TTL = 60 * 60 * 1000; // 1 Hour
+    const CACHE_TTL = 8 * 60 * 60 * 1000; // 8 Hours
     if (oddsCache[sport] && (now - oddsCache[sport].timestamp < CACHE_TTL)) {
         return res.json({ source: 'cache', data: oddsCache[sport].data });
     }
