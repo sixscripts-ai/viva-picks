@@ -16,9 +16,13 @@
                 Viva Picks
             </div>
             <div class="nav-links">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 35px; height: 35px; background: #333; border-radius: 50%;"></div>
-                    <span>Welcome, User</span>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 35px; height: 35px; background: #333; border-radius: 50%;"></div>
+                        <span>Welcome, User</span>
+                    </div>
+                    <button onclick="logout()" class="btn btn-outline"
+                        style="padding: 5px 15px; font-size: 0.7rem; border-color: #333; color: #888;">LOGOUT</button>
                 </div>
             </div>
         </div>
@@ -34,7 +38,6 @@
                 <!-- <li><a href="#">📜 HISTORY logs</a></li> -->
                 <li id="admin-link" style="display: none;"><a href="admin"
                         style="color: var(--primary); border-color: var(--primary);">🔒 OPERATOR PANEL</a></li>
-                <li><a href="/" onclick="document.cookie='token=; Max-Age=0'">🚪 TERMINATE SESSION</a></li>
             </ul>
         </aside>
 
@@ -60,8 +63,8 @@
             style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
             <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
             <p style="margin-top: 1rem;"><a href="privacy"
-                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a
-                    href="terms" style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
             </p>
         </div>
     </footer>

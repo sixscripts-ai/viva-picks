@@ -1074,3 +1074,8 @@ function convertOdds(source) {
         probDisplay.textContent = prob.toFixed(1) + '%';
     }
 }
+
+function logout() {
+    document.cookie = 'token=; Max-Age=0; path=/';
+    window.location.href = '/';
+}

@@ -16,8 +16,12 @@
                 Viva Admin
             </div>
             <div class="nav-links">
-                <a href="dashboard">View User Dashboard</a>
-                <a href="/">Logout</a>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="dashboard" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none;">View
+                        User Dashboard</a>
+                    <button onclick="logout()" class="btn btn-outline"
+                        style="padding: 5px 15px; font-size: 0.7rem; border-color: #333; color: #888;">LOGOUT</button>
+                </div>
             </div>
         </div>
     </nav>
