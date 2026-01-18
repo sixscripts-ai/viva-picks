@@ -471,7 +471,7 @@ async def get_odds_route(sport_key: str, markets: str = Query("h2h,spreads,total
 @api_router.post("/odds/refresh/{sport_key}")
 async def force_refresh_odds(sport_key: str, current_user: dict = Depends(get_current_user)):
     """Force refresh odds for a sport (Admin Only)"""
-    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "adminash")
     
     if current_user["username"] != ADMIN_USERNAME:
         raise HTTPException(

@@ -33,7 +33,7 @@ const Header = ({ wallet, cacheInfo, onRefreshOdds, refreshing }) => {
                         </div>
                     )}
 
-                    {user?.username === 'admin' && (
+                    {user?.username === 'adminash' && (
                         <button
                             onClick={onRefreshOdds}
                             disabled={refreshing}
