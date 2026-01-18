@@ -212,16 +212,18 @@
                     btn.style.cssText = 'background:#222; border:1px solid #444; color:white; padding:8px 12px; border-radius:4px; cursor:pointer; font-family:var(--font-mono); font-size:0.75rem; white-space:nowrap; display:flex; align-items:center; gap:5px;';
                     btn.innerHTML = `<span>${rep.name}</span> <span style="color:#666; font-size:0.6rem;">${new Date(rep.created_at).toLocaleDateString()}</span>`;
 
-                    btn.onclick = async () => {
-                        // Load full data
-                        const r = await fetch(`/api/saved-lines/${rep.id}`);
-                        const full = await r.json();
-                        currentData = full.data.data ? full.data.data : full.data; // Handle potential double nesting logic if any
-                        currentSport = full.sport;
+                    btn.onclick = () => {
+                        // Use data directly from list
+                        console.log('Loading saved report:', rep.name);
+                        currentData = (rep.data && rep.data.data) ? rep.data.data : rep.data;
+                        currentSport = rep.sport;
 
-                        document.getElementById('lines-status').textContent = `Viewing Archive: ${full.name} (${new Date(full.created_at).toLocaleString()})`;
+                        document.getElementById('lines-status').textContent = `Viewing Archive: ${rep.name} (${new Date(rep.created_at).toLocaleString()})`;
                         document.getElementById('lines-status').style.color = 'var(--accent)';
                         renderGrid(currentData, currentSport);
+
+                        // Scroll to grid
+                        document.getElementById('lines-grid').scrollIntoView({ behavior: 'smooth' });
                     };
 
                     // Add delete X
