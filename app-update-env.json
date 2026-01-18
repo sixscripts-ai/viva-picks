@@ -1,0 +1,17 @@
+{
+    "spec": {
+        "services": [
+            {
+                "name": "viva-picks",
+                "envs": [
+                    {
+                        "key": "SMTP_PORT",
+                        "value": "587",
+                        "scope": "RUN_AND_BUILD_TIME",
+                        "type": "SECRET"
+                    }
+                ]
+            }
+        ]
+    }
+}
