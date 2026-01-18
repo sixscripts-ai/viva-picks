@@ -20,9 +20,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'viva_secret_key_change_me';
 const isLocal = process.env.DATABASE_URL && process.env.DATABASE_URL.includes('localhost');
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: isLocal ? false : { rejectUnauthorized: false },
-    connectionTimeoutMillis: 5000,
-    query_timeout: 5000
+    ssl: isLocal ? false : { rejectUnauthorized: false }
 });
 
 // Middleware
