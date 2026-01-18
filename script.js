@@ -972,3 +972,105 @@ if (getLinesBtn) {
         }
     };
 }
+
+// --- CALCULATORS LOGIC ---
+
+// Parlay Calculator
+function addParlayLeg() {
+    const container = document.getElementById('parlay-legs');
+    const div = document.createElement('div');
+    div.className = 'parlay-leg';
+    div.style.cssText = 'display:flex; margin-bottom:10px; position:relative;';
+    div.innerHTML = `
+        <input type="number" placeholder="-110" class="form-control parlay-input" style="background:#111; color:white; border:1px solid #333; padding:8px; width:100%;" oninput="calcParlay()">
+        <button onclick="this.parentElement.remove(); calcParlay();" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#555; cursor:pointer;">×</button>
+    `;
+    container.appendChild(div);
+}
+
+function resetParlay() {
+    const container = document.getElementById('parlay-legs');
+    container.innerHTML = `
+        <div class="parlay-leg" style="display:flex; margin-bottom:10px;">
+            <input type="number" placeholder="-110" class="form-control parlay-input" style="background:#111; color:white; border:1px solid #333; padding:8px;" oninput="calcParlay()">
+        </div>
+        <div class="parlay-leg" style="display:flex; margin-bottom:10px;">
+            <input type="number" placeholder="-110" class="form-control parlay-input" style="background:#111; color:white; border:1px solid #333; padding:8px;" oninput="calcParlay()">
+        </div>
+    `;
+    calcParlay();
+}
+
+function calcParlay() {
+    const inputs = document.querySelectorAll('.parlay-input');
+    const wagerInput = document.getElementById('parlay-wager');
+    const oddsDisplay = document.getElementById('parlay-odds');
+    const payoutDisplay = document.getElementById('parlay-payout');
+    
+    let totalDecimalObj = 1;
+    let validLegs = 0;
+    
+    inputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val) && val !== 0) {
+            validLegs++;
+            let decimal = 0;
+            if (val > 0) decimal = (val / 100) + 1;
+            else decimal = (100 / Math.abs(val)) + 1;
+            totalDecimalObj *= decimal;
+        }
+    });
+
+    if (validLegs === 0) {
+        oddsDisplay.textContent = '-';
+        payoutDisplay.textContent = '-';
+        return;
+    }
+
+    // Convert Total Decimal back to American
+    let totalAmerican = 0;
+    if (totalDecimalObj >= 2) {
+        totalAmerican = Math.round((totalDecimalObj - 1) * 100);
+        totalAmerican = '+' + totalAmerican;
+    } else {
+        totalAmerican = Math.round(-100 / (totalDecimalObj - 1));
+    }
+
+    const wager = parseFloat(wagerInput.value) || 0;
+    const payout = (wager * totalDecimalObj).toFixed(2);
+
+    oddsDisplay.textContent = totalAmerican;
+    payoutDisplay.textContent = '$' + payout;
+}
+
+// Odds Converter
+function convertOdds(source) {
+    const americanInput = document.getElementById('conv-american');
+    const decimalInput = document.getElementById('conv-decimal');
+    const probDisplay = document.getElementById('conv-prob');
+    
+    if (source === 'american') {
+        const val = parseFloat(americanInput.value);
+        if (isNaN(val) || val === 0) return;
+        
+        let decimal = 0;
+        if (val > 0) decimal = (val / 100) + 1;
+        else decimal = (100 / Math.abs(val)) + 1;
+        
+        decimalInput.value = decimal.toFixed(2);
+        const prob = (1 / decimal) * 100;
+        probDisplay.textContent = prob.toFixed(1) + '%';
+        
+    } else {
+        const val = parseFloat(decimalInput.value);
+        if (isNaN(val) || val <= 1) return;
+        
+        let american = 0;
+        if (val >= 2) american = Math.round((val - 1) * 100);
+        else american = Math.round(-100 / (val - 1));
+        
+        americanInput.value = american > 0 ? '+' + american : american;
+        const prob = (1 / val) * 100;
+        probDisplay.textContent = prob.toFixed(1) + '%';
+    }
+}
