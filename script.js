@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const picksContainer = document.getElementById('picks-container');
 
     // Auth Check for Protected Pages
-    const protectedPages = ['dashboard', 'warroom', 'admin', 'account'];
+    const protectedPages = ['dashboard', 'warroom', 'admin', 'account', 'linetracker'];
     if (protectedPages.some(page => window.location.pathname.includes(page))) {
         checkAuth();
     }
@@ -1006,10 +1006,10 @@ function calcParlay() {
     const wagerInput = document.getElementById('parlay-wager');
     const oddsDisplay = document.getElementById('parlay-odds');
     const payoutDisplay = document.getElementById('parlay-payout');
-    
+
     let totalDecimalObj = 1;
     let validLegs = 0;
-    
+
     inputs.forEach(input => {
         const val = parseFloat(input.value);
         if (!isNaN(val) && val !== 0) {
@@ -1048,27 +1048,27 @@ function convertOdds(source) {
     const americanInput = document.getElementById('conv-american');
     const decimalInput = document.getElementById('conv-decimal');
     const probDisplay = document.getElementById('conv-prob');
-    
+
     if (source === 'american') {
         const val = parseFloat(americanInput.value);
         if (isNaN(val) || val === 0) return;
-        
+
         let decimal = 0;
         if (val > 0) decimal = (val / 100) + 1;
         else decimal = (100 / Math.abs(val)) + 1;
-        
+
         decimalInput.value = decimal.toFixed(2);
         const prob = (1 / decimal) * 100;
         probDisplay.textContent = prob.toFixed(1) + '%';
-        
+
     } else {
         const val = parseFloat(decimalInput.value);
         if (isNaN(val) || val <= 1) return;
-        
+
         let american = 0;
         if (val >= 2) american = Math.round((val - 1) * 100);
         else american = Math.round(-100 / (val - 1));
-        
+
         americanInput.value = american > 0 ? '+' + american : american;
         const prob = (1 / val) * 100;
         probDisplay.textContent = prob.toFixed(1) + '%';
