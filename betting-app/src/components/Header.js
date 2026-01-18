@@ -33,14 +33,16 @@ const Header = ({ wallet, cacheInfo, onRefreshOdds, refreshing }) => {
                         </div>
                     )}
 
-                    <button
-                        onClick={onRefreshOdds}
-                        disabled={refreshing}
-                        className="font-mono text-xs px-3 py-2 bg-[#111111] border border-[#333333] text-[#808080] hover:border-[#39FF14]/50 hover:text-[#39FF14] disabled:opacity-50 transition-all hidden sm:block"
-                        title="Refresh odds (uses API calls)"
-                    >
-                        {refreshing ? 'REFRESHING...' : 'REFRESH ODDS'}
-                    </button>
+                    {user?.username === 'admin' && (
+                        <button
+                            onClick={onRefreshOdds}
+                            disabled={refreshing}
+                            className="font-mono text-xs px-3 py-2 bg-[#111111] border border-[#333333] text-[#808080] hover:border-[#39FF14]/50 hover:text-[#39FF14] disabled:opacity-50 transition-all hidden sm:block"
+                            title="Refresh odds (Admin Only)"
+                        >
+                            {refreshing ? 'REFRESHING...' : 'REFRESH ODDS'}
+                        </button>
+                    )}
 
                     {user ? (
                         <div className="flex items-center gap-4">

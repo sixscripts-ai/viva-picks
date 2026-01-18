@@ -468,6 +468,39 @@ async def get_odds_route(sport_key: str, markets: str = Query("h2h,spreads,total
     
     return {"odds": odds_data, "cached": False, "sport_key": sport_key}
 
+@api_router.post("/odds/refresh/{sport_key}")
+async def force_refresh_odds(sport_key: str, current_user: dict = Depends(get_current_user)):
+    """Force refresh odds for a sport (Admin Only)"""
+    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+    
+    if current_user["username"] != ADMIN_USERNAME:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Admin privileges required to force refresh"
+        )
+
+    markets = "h2h,spreads,totals"
+    cache_key = f"odds_{sport_key}_{markets}"
+    
+    # Delete existing cache
+    await db_manager.execute_write("DELETE FROM odds_cache WHERE cache_key = ?", (cache_key,))
+    
+    # Fetch fresh data
+    odds_data = await fetch_odds_from_api(sport_key, markets)
+    
+    # Cache for 24 hours
+    await db_manager.execute_write("""
+        INSERT OR REPLACE INTO odds_cache (cache_key, data, cached_at, expires_at)
+        VALUES (?, ?, ?, ?)
+    """, (
+        cache_key,
+        json.dumps(odds_data),
+        datetime.now(timezone.utc).isoformat(),
+        (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+    ))
+    
+    return {"odds": odds_data, "refreshed": True, "sport_key": sport_key, "games_count": len(odds_data)}
+
 @api_router.get("/odds/all/preview")
 async def get_all_odds_preview():
     """Get a preview of odds (Public)"""
