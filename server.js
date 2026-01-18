@@ -26,6 +26,7 @@ const pool = new Pool({
 app.use(cors());
 app.use(cookieParser());
 
+
 // Stripe Webhook needs raw body
 app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
     const sig = request.headers['stripe-signature'];
@@ -170,6 +171,35 @@ app.post('/api/auth/register', async (req, res) => {
             INSERT INTO users (email, password)
             VALUES ($1, $2)
         `, [email, hashedPassword]);
+
+        // Send Welcome Email
+        const welcomeHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; padding: 20px; border: 1px solid #333; background: #111; color: #fff;">
+                <h1 style="color: #f97316; margin-bottom: 20px;">WELCOME TO THE INNER CIRCLE</h1>
+                <p>You have successfully secured your access to <strong>Viva Picks</strong>.</p>
+                <p>We provide high-frequency sports betting intel powered by advanced algorithmic modeling.</p>
+                <div style="background: #222; padding: 15px; margin: 20px 0; border-left: 4px solid #f97316;">
+                    <strong>NEXT STEPS:</strong>
+                    <ul style="padding-left: 20px;">
+                        <li>Log in to your Dashboard</li>
+                        <li>Activate your Subscription for full access</li>
+                        <li>Watch for daily signals</li>
+                    </ul>
+                </div>
+                <a href="https://vivapicks.tech/login.html" style="background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">ACCESS DASHBOARD</a>
+                <p style="margin-top: 30px; font-size: 0.8rem; color: #666;">
+                    System Message // Automated Generation<br>
+                    Viva Picks Intelligence
+                </p>
+            </div>
+        `;
+
+        transporter.sendMail({
+            from: process.env.EMAIL_FROM,
+            to: email,
+            subject: 'Welcome to VivaPicks',
+            html: welcomeHtml
+        }).catch(err => console.error('Welcome email failed:', err));
 
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
@@ -457,6 +487,35 @@ app.post('/api/create-portal-session', authenticateToken, async (req, res) => {
         res.json({ url: session.url });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ADMIN: Test Email
+app.post('/api/admin/test-email', authenticateToken, requireAdmin, async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+
+    try {
+        console.log(`Sending test email to ${email}...`);
+        await transporter.sendMail({
+            from: process.env.EMAIL_FROM,
+            to: email,
+            subject: 'System Test // Viva Picks',
+            html: `
+                <div style="font-family: sans-serif; padding: 20px; background: #f4f4f4;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h2 style="color: #22c55e; margin-top: 0;">✔ SYSTEM CHECK PASSED</h2>
+                        <p>This is a verification email from the Viva Picks backend.</p>
+                        <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                        <p><strong>Relay:</strong> ${process.env.SMTP_HOST}</p>
+                    </div>
+                </div>
+            `
+        });
+        res.json({ message: 'Test email sent successfully' });
+    } catch (err) {
+        console.error('Test email failed:', err);
+        res.status(500).json({ error: err.message, stack: err.stack });
     }
 });
 

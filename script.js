@@ -681,3 +681,46 @@ async function loadHeroStats() {
         console.error("Hero stats error:", e);
     }
 }
+
+async function testEmailRelay() {
+    const email = document.getElementById('test-email-input').value;
+    const status = document.getElementById('test-email-status');
+    const btn = document.querySelector('button[onclick="testEmailRelay()"]');
+
+    if (!email) {
+        alert('Please enter an email address');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'SENDING...';
+    status.textContent = 'Processing request...';
+    status.style.color = 'var(--text-muted)';
+
+    try {
+        const res = await fetch('/api/admin/test-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            status.textContent = '✔ Email Sent Successfully';
+            status.style.color = '#4ade80'; // Green
+            alert(`SUCCESS: Email sent to ${email}. Check your inbox (and spam folder).`);
+        } else {
+            status.textContent = '✖ Failed: ' + data.error;
+            status.style.color = '#ff5252'; // Red
+            console.error(data);
+        }
+    } catch (err) {
+        status.textContent = '✖ Network Error';
+        status.style.color = '#ff5252';
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Test Email Relay';
+    }
+}
