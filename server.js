@@ -324,26 +324,58 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
         if (subscribers.length > 0) {
             console.log(`Broadcasting new pick to ${subscribers.length} subscribers...`);
             const emailContent = `
-                <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px;">
-                    <h1 style="color: #f97316;">VIVA PICKS: NEW INTEL</h1>
-                    <p style="color: #666;">New signal detected for <strong>${newPick.sport}</strong></p>
-                    <hr>
-                    <h2 style="margin: 0;">${newPick.matchup}</h2>
-                    <p style="font-size: 1.2rem; margin: 10px 0;"><strong>Pick:</strong> ${newPick.pick} (${newPick.odds})</p>
-                    <p><strong>Type:</strong> ${newPick.bet_type || 'General'}</p>
-                    <p><strong>Units:</strong> ${newPick.units || '1u'}</p>
-                    <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #f97316;">
-                        <strong>ANALYSIS:</strong><br>${newPick.analysis}
+                <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #000000; color: #ffffff; border: 1px solid #333333;">
+                    <!-- HEADER -->
+                    <div style="background-color: #111111; padding: 20px; text-align: center; border-bottom: 2px solid #f97316;">
+                        <h1 style="color: #f97316; margin: 0; font-size: 24px; letter-spacing: 2px;">VIVA PICKS</h1>
+                        <p style="color: #888; font-size: 10px; margin: 5px 0 0 0; letter-spacing: 1px;">INTELLIGENCE ACQUIRED</p>
                     </div>
-                    <br>
-                    <br>
-                    <a href="https://vivapicks.tech/dashboard.html" style="background: #f97316; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">VIEW DASHBOARD</a>
-                    <hr style="margin-top: 30px; border: 0; border-top: 1px solid #ddd;">
-                    <p style="font-size: 0.75rem; color: #999; text-align: center;">
-                        You are receiving this because you opted in at VivaPicks.tech.<br>
-                        <a href="https://vivapicks.tech/account.html" style="color: #999;">Manage Subscription</a> | 
-                        <a href="https://vivapicks.tech/privacy.html" style="color: #999;">Privacy Policy</a>
-                    </p>
+
+                    <!-- MAIN CONTENT -->
+                    <div style="padding: 30px 20px;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <span style="background-color: #f97316; color: #000; padding: 4px 8px; font-weight: bold; font-size: 11px; border-radius: 2px;">${newPick.sport} SIGNAL</span>
+                        </div>
+
+                        <h2 style="margin: 0 0 10px 0; font-size: 20px; text-align: center; color: #ffffff;">${newPick.matchup}</h2>
+                        <div style="text-align: center; color: #888; font-size: 14px; margin-bottom: 25px;">${new Date(newPick.time).toLocaleString()}</div>
+
+                        <div style="background-color: #111; border: 1px solid #333; padding: 20px; margin-bottom: 25px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 15px;">
+                                <span style="color: #888;">PICK</span>
+                                <span style="color: #f97316; font-weight: bold; font-size: 18px;">${newPick.pick}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: #888;">ODDS</span>
+                                <span style="color: #fff;">${newPick.odds}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: #888;">UNITS</span>
+                                <span style="color: #fff;">${newPick.units || '1u'}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #888;">TYPE</span>
+                                <span style="color: #fff;">${newPick.bet_type || 'Standard'}</span>
+                            </div>
+                        </div>
+
+                        <div style="background-color: #1a1a1a; padding: 15px; font-size: 14px; line-height: 1.5; color: #ccc; border-left: 3px solid #f97316;">
+                            <strong style="color: #fff; display: block; margin-bottom: 5px;">ANALYSIS:</strong>
+                            ${newPick.analysis}
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="https://vivapicks.tech/dashboard.html" style="background-color: #f97316; color: #000000; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block;">ACCESS WAR ROOM</a>
+                        </div>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div style="background-color: #111; padding: 20px; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #333;">
+                        <p style="margin-bottom: 10px;">VIVA PICKS &copy; 2026</p>
+                        <a href="https://vivapicks.tech/account.html" style="color: #666; text-decoration: none;">Manage Subscription</a>
+                         &bull; 
+                        <a href="https://vivapicks.tech/privacy.html" style="color: #666; text-decoration: none;">Privacy</a>
+                    </div>
                 </div>
             `;
 
