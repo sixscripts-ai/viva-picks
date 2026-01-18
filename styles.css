@@ -119,12 +119,12 @@ nav .container {
     padding: 0.8rem 1.5rem;
     border-radius: 2px;
     /* Sharp corners for Intel look */
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
     cursor: pointer;
     transition: 0.3s;
-    font-family: var(--font-heading);
-    letter-spacing: 1px;
+    font-family: var(--font-body);
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     display: inline-block;
     border: 1px solid transparent;
@@ -201,8 +201,10 @@ nav .container {
     border-left: 2px solid transparent;
     transition: 0.3s;
     background: var(--bg-card);
-    font-family: var(--font-heading);
-    letter-spacing: 1px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
 }
 
 .sidebar-menu a:hover,
