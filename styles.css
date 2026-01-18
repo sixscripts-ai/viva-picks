@@ -421,7 +421,7 @@ nav .container {
 .btn-action {
     padding: 0.4rem 0.8rem;
     font-size: 0.75rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     text-transform: uppercase;
     font-weight: 700;
     border-radius: 4px;
