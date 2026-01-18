@@ -11,12 +11,15 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import httpx
 import aiosqlite
+import libsql_client
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# SQLite database path
+# SQLite Config
 DB_PATH = ROOT_DIR / "dark_intel.db"
+TURSO_URL = os.environ.get("TURSO_DATABASE_URL")
+TURSO_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
 
 # The Odds API config
 ODDS_API_KEY = os.environ.get('ODDS_API_KEY', '')
@@ -30,63 +33,108 @@ api_router = APIRouter(prefix="/api")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# ==================== DATABASE ABSTRACTION ====================
+
+class DatabaseManager:
+    """
+    Abstracts the difference between local aiosqlite and remote Turso/libsql.
+    """
+    def __init__(self):
+        self.is_turso = bool(TURSO_URL and "turso.io" in TURSO_URL)
+        if self.is_turso:
+            logger.info(f"Using Turso Database: {TURSO_URL}")
+        else:
+            logger.info(f"Using Local SQLite: {DB_PATH}")
+
+    async def execute(self, query: str, params: tuple = ()):
+        """Execute a query and return (rows, lastrowid). Handles both clients."""
+        if self.is_turso:
+            async with libsql_client.create_client(TURSO_URL, auth_token=TURSO_TOKEN) as client:
+                rs = await client.execute(query, params)
+                # Convert rows to dict-like objects for compatibility
+                columns = rs.columns
+                rows = [dict(zip(columns, row)) for row in rs.rows]
+                return rows
+        else:
+            async with aiosqlite.connect(DB_PATH) as db:
+                db.row_factory = aiosqlite.Row
+                async with db.execute(query, params) as cursor:
+                    rows = await cursor.fetchall()
+                    # Convert aiosqlite.Row to dict for consistency
+                    return [dict(row) for row in rows]
+
+    async def execute_write(self, query: str, params: tuple = ()):
+        """Execute a write operation (INSERT/UPDATE/DELETE)."""
+        if self.is_turso:
+            async with libsql_client.create_client(TURSO_URL, auth_token=TURSO_TOKEN) as client:
+                await client.execute(query, params)
+        else:
+            async with aiosqlite.connect(DB_PATH) as db:
+                await db.execute(query, params)
+                await db.commit()
+
+    async def fetch_one(self, query: str, params: tuple = ()):
+        """Fetch a single row."""
+        rows = await self.execute(query, params)
+        return rows[0] if rows else None
+
+db_manager = DatabaseManager()
+
 # ==================== DATABASE INITIALIZATION ====================
 
 async def init_db():
     """Initialize SQLite database with required tables"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        # Wallet table
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS wallet (
-                id TEXT PRIMARY KEY DEFAULT 'main_wallet',
-                balance REAL DEFAULT 1000.0,
-                total_wagered REAL DEFAULT 0.0,
-                total_won REAL DEFAULT 0.0,
-                total_lost REAL DEFAULT 0.0,
-                updated_at TEXT
-            )
-        """)
-        
-        # Bets table
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS bets (
-                id TEXT PRIMARY KEY,
-                event_id TEXT,
-                sport_key TEXT,
-                sport_title TEXT,
-                home_team TEXT,
-                away_team TEXT,
-                selected_team TEXT,
-                bet_type TEXT,
-                odds REAL,
-                amount REAL,
-                potential_payout REAL,
-                status TEXT DEFAULT 'pending',
-                created_at TEXT,
-                commence_time TEXT
-            )
-        """)
-        
-        # Odds cache table
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS odds_cache (
-                cache_key TEXT PRIMARY KEY,
-                data TEXT,
-                cached_at TEXT,
-                expires_at TEXT
-            )
-        """)
-        
-        # Initialize wallet if not exists
-        cursor = await db.execute("SELECT * FROM wallet WHERE id = 'main_wallet'")
-        row = await cursor.fetchone()
-        if not row:
-            await db.execute("""
-                INSERT INTO wallet (id, balance, total_wagered, total_won, total_lost, updated_at)
-                VALUES ('main_wallet', 1000.0, 0.0, 0.0, 0.0, ?)
-            """, (datetime.now(timezone.utc).isoformat(),))
-        
-        await db.commit()
+    
+    # Wallet table
+    await db_manager.execute_write("""
+        CREATE TABLE IF NOT EXISTS wallet (
+            id TEXT PRIMARY KEY DEFAULT 'main_wallet',
+            balance REAL DEFAULT 1000.0,
+            total_wagered REAL DEFAULT 0.0,
+            total_won REAL DEFAULT 0.0,
+            total_lost REAL DEFAULT 0.0,
+            updated_at TEXT
+        )
+    """)
+    
+    # Bets table
+    await db_manager.execute_write("""
+        CREATE TABLE IF NOT EXISTS bets (
+            id TEXT PRIMARY KEY,
+            event_id TEXT,
+            sport_key TEXT,
+            sport_title TEXT,
+            home_team TEXT,
+            away_team TEXT,
+            selected_team TEXT,
+            bet_type TEXT,
+            odds REAL,
+            amount REAL,
+            potential_payout REAL,
+            status TEXT DEFAULT 'pending',
+            created_at TEXT,
+            commence_time TEXT
+        )
+    """)
+    
+    # Odds cache table
+    await db_manager.execute_write("""
+        CREATE TABLE IF NOT EXISTS odds_cache (
+            cache_key TEXT PRIMARY KEY,
+            data TEXT,
+            cached_at TEXT,
+            expires_at TEXT
+        )
+    """)
+    
+    # Initialize wallet if not exists
+    row = await db_manager.fetch_one("SELECT * FROM wallet WHERE id = 'main_wallet'")
+    if not row:
+        await db_manager.execute_write("""
+            INSERT INTO wallet (id, balance, total_wagered, total_won, total_lost, updated_at)
+            VALUES ('main_wallet', 1000.0, 0.0, 0.0, 0.0, ?)
+        """, (datetime.now(timezone.utc).isoformat(),))
+    
     logger.info("Database initialized successfully")
 
 # ==================== MODELS ====================
@@ -199,29 +247,24 @@ async def fetch_available_sports() -> List[Dict]:
 
 async def get_wallet() -> dict:
     """Get wallet from database"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM wallet WHERE id = 'main_wallet'")
-        row = await cursor.fetchone()
-        if row:
-            return dict(row)
-        return {
-            "id": "main_wallet",
-            "balance": 1000.0,
-            "total_wagered": 0.0,
-            "total_won": 0.0,
-            "total_lost": 0.0,
-            "updated_at": datetime.now(timezone.utc).isoformat()
-        }
+    row = await db_manager.fetch_one("SELECT * FROM wallet WHERE id = 'main_wallet'")
+    if row:
+        return row
+    return {
+        "id": "main_wallet",
+        "balance": 1000.0,
+        "total_wagered": 0.0,
+        "total_won": 0.0,
+        "total_lost": 0.0,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
 
 async def update_wallet_db(updates: dict):
     """Update wallet in database"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        updates["updated_at"] = datetime.now(timezone.utc).isoformat()
-        set_clause = ", ".join([f"{k} = ?" for k in updates.keys()])
-        values = list(updates.values())
-        await db.execute(f"UPDATE wallet SET {set_clause} WHERE id = 'main_wallet'", values)
-        await db.commit()
+    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+    set_clause = ", ".join([f"{k} = ?" for k in updates.keys()])
+    values = list(updates.values())
+    await db_manager.execute_write(f"UPDATE wallet SET {set_clause} WHERE id = 'main_wallet'", values)
 
 # ==================== ROUTES ====================
 
@@ -264,33 +307,28 @@ async def get_odds_route(
     cache_key = f"odds_{sport_key}_{markets}"
     
     # Check cache first
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM odds_cache WHERE cache_key = ?", (cache_key,))
-        row = await cursor.fetchone()
-        
-        if row and row["expires_at"]:
-            expires_at = datetime.fromisoformat(row["expires_at"].replace('Z', '+00:00'))
-            if expires_at > datetime.now(timezone.utc):
-                logger.info(f"Returning cached odds for {sport_key}")
-                cached_data = json.loads(row["data"]) if row["data"] else []
-                return {"odds": cached_data, "cached": True, "sport_key": sport_key}
+    row = await db_manager.fetch_one("SELECT * FROM odds_cache WHERE cache_key = ?", (cache_key,))
+    
+    if row and row["expires_at"]:
+        expires_at = datetime.fromisoformat(row["expires_at"].replace('Z', '+00:00'))
+        if expires_at > datetime.now(timezone.utc):
+            logger.info(f"Returning cached odds for {sport_key}")
+            cached_data = json.loads(row["data"]) if row["data"] else []
+            return {"odds": cached_data, "cached": True, "sport_key": sport_key}
     
     # Fetch fresh data
     odds_data = await fetch_odds_from_api(sport_key, markets)
     
     # Cache the response for 24 hours
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("""
-            INSERT OR REPLACE INTO odds_cache (cache_key, data, cached_at, expires_at)
-            VALUES (?, ?, ?, ?)
-        """, (
-            cache_key,
-            json.dumps(odds_data),
-            datetime.now(timezone.utc).isoformat(),
-            (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
-        ))
-        await db.commit()
+    await db_manager.execute_write("""
+        INSERT OR REPLACE INTO odds_cache (cache_key, data, cached_at, expires_at)
+        VALUES (?, ?, ?, ?)
+    """, (
+        cache_key,
+        json.dumps(odds_data),
+        datetime.now(timezone.utc).isoformat(),
+        (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+    ))
     
     return {"odds": odds_data, "cached": False, "sport_key": sport_key}
 
@@ -346,18 +384,16 @@ async def place_bet(bet: BetCreate):
     bet_id = str(uuid.uuid4())
     created_at = datetime.now(timezone.utc).isoformat()
     
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("""
-            INSERT INTO bets (id, event_id, sport_key, sport_title, home_team, away_team,
-                            selected_team, bet_type, odds, amount, potential_payout, status,
-                            created_at, commence_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
-        """, (
-            bet_id, bet.event_id, bet.sport_key, bet.sport_title, bet.home_team,
-            bet.away_team, bet.selected_team, bet.bet_type, bet.odds, bet.amount,
-            bet.potential_payout, created_at, bet.commence_time
-        ))
-        await db.commit()
+    await db_manager.execute_write("""
+        INSERT INTO bets (id, event_id, sport_key, sport_title, home_team, away_team,
+                        selected_team, bet_type, odds, amount, potential_payout, status,
+                        created_at, commence_time)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+    """, (
+        bet_id, bet.event_id, bet.sport_key, bet.sport_title, bet.home_team,
+        bet.away_team, bet.selected_team, bet.bet_type, bet.odds, bet.amount,
+        bet.potential_payout, created_at, bet.commence_time
+    ))
     
     # Deduct from wallet
     new_balance = wallet.get("balance", 1000.0) - bet.amount
@@ -380,60 +416,43 @@ async def place_bet(bet: BetCreate):
 @api_router.get("/bets")
 async def get_bets(status: Optional[str] = None):
     """Get all bets, optionally filtered by status"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        if status:
-            cursor = await db.execute(
-                "SELECT * FROM bets WHERE status = ? ORDER BY created_at DESC LIMIT 100",
-                (status,)
-            )
-        else:
-            cursor = await db.execute("SELECT * FROM bets ORDER BY created_at DESC LIMIT 100")
-        rows = await cursor.fetchall()
-        bets = [dict(row) for row in rows]
+    if status:
+        bets = await db_manager.execute(
+            "SELECT * FROM bets WHERE status = ? ORDER BY created_at DESC LIMIT 100",
+            (status,)
+        )
+    else:
+        bets = await db_manager.execute("SELECT * FROM bets ORDER BY created_at DESC LIMIT 100")
     return {"bets": bets, "count": len(bets)}
 
 @api_router.get("/bets/active")
 async def get_active_bets():
     """Get all pending bets"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute(
-            "SELECT * FROM bets WHERE status = 'pending' ORDER BY created_at DESC LIMIT 100"
-        )
-        rows = await cursor.fetchall()
-        bets = [dict(row) for row in rows]
+    bets = await db_manager.execute(
+        "SELECT * FROM bets WHERE status = 'pending' ORDER BY created_at DESC LIMIT 100"
+    )
     return {"bets": bets, "count": len(bets)}
 
 @api_router.get("/bets/history")
 async def get_bet_history():
     """Get settled bets"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute(
-            "SELECT * FROM bets WHERE status IN ('won', 'lost') ORDER BY created_at DESC LIMIT 100"
-        )
-        rows = await cursor.fetchall()
-        bets = [dict(row) for row in rows]
+    bets = await db_manager.execute(
+        "SELECT * FROM bets WHERE status IN ('won', 'lost') ORDER BY created_at DESC LIMIT 100"
+    )
     return {"bets": bets, "count": len(bets)}
 
 @api_router.patch("/bets/{bet_id}/settle")
 async def settle_bet(bet_id: str, result: str = Query(..., enum=["won", "lost"])):
     """Settle a bet as won or lost"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM bets WHERE id = ?", (bet_id,))
-        bet = await cursor.fetchone()
-        
-        if not bet:
-            raise HTTPException(status_code=404, detail="Bet not found")
-        
-        bet = dict(bet)
-        if bet.get("status") != "pending":
-            raise HTTPException(status_code=400, detail="Bet already settled")
-        
-        await db.execute("UPDATE bets SET status = ? WHERE id = ?", (result, bet_id))
-        await db.commit()
+    bet = await db_manager.fetch_one("SELECT * FROM bets WHERE id = ?", (bet_id,))
+    
+    if not bet:
+        raise HTTPException(status_code=404, detail="Bet not found")
+    
+    if bet.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="Bet already settled")
+    
+    await db_manager.execute_write("UPDATE bets SET status = ? WHERE id = ?", (result, bet_id))
     
     wallet = await get_wallet()
     
@@ -451,20 +470,15 @@ async def settle_bet(bet_id: str, result: str = Query(..., enum=["won", "lost"])
 @api_router.delete("/bets/{bet_id}")
 async def cancel_bet(bet_id: str):
     """Cancel a pending bet and refund"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM bets WHERE id = ?", (bet_id,))
-        bet = await cursor.fetchone()
-        
-        if not bet:
-            raise HTTPException(status_code=404, detail="Bet not found")
-        
-        bet = dict(bet)
-        if bet.get("status") != "pending":
-            raise HTTPException(status_code=400, detail="Can only cancel pending bets")
-        
-        await db.execute("DELETE FROM bets WHERE id = ?", (bet_id,))
-        await db.commit()
+    bet = await db_manager.fetch_one("SELECT * FROM bets WHERE id = ?", (bet_id,))
+    
+    if not bet:
+        raise HTTPException(status_code=404, detail="Bet not found")
+    
+    if bet.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="Can only cancel pending bets")
+    
+    await db_manager.execute_write("DELETE FROM bets WHERE id = ?", (bet_id,))
     
     wallet = await get_wallet()
     refund_amount = bet.get("amount", 0)
@@ -479,18 +493,17 @@ async def get_stats():
     """Get betting statistics"""
     wallet = await get_wallet()
     
-    async with aiosqlite.connect(DB_PATH) as db:
-        cursor = await db.execute("SELECT COUNT(*) FROM bets")
-        total_bets = (await cursor.fetchone())[0]
-        
-        cursor = await db.execute("SELECT COUNT(*) FROM bets WHERE status = 'pending'")
-        pending_bets = (await cursor.fetchone())[0]
-        
-        cursor = await db.execute("SELECT COUNT(*) FROM bets WHERE status = 'won'")
-        won_bets = (await cursor.fetchone())[0]
-        
-        cursor = await db.execute("SELECT COUNT(*) FROM bets WHERE status = 'lost'")
-        lost_bets = (await cursor.fetchone())[0]
+    total_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets")
+    total_bets = total_bets_row["count"] if total_bets_row else 0
+    
+    pending_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets WHERE status = 'pending'")
+    pending_bets = pending_bets_row["count"] if pending_bets_row else 0
+    
+    won_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets WHERE status = 'won'")
+    won_bets = won_bets_row["count"] if won_bets_row else 0
+    
+    lost_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets WHERE status = 'lost'")
+    lost_bets = lost_bets_row["count"] if lost_bets_row else 0
     
     win_rate = (won_bets / (won_bets + lost_bets) * 100) if (won_bets + lost_bets) > 0 else 0
     
@@ -510,44 +523,37 @@ async def force_refresh_odds(sport_key: str):
     cache_key = f"odds_{sport_key}_{markets}"
     
     # Delete existing cache
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("DELETE FROM odds_cache WHERE cache_key = ?", (cache_key,))
-        await db.commit()
+    await db_manager.execute_write("DELETE FROM odds_cache WHERE cache_key = ?", (cache_key,))
     
     # Fetch fresh data
     odds_data = await fetch_odds_from_api(sport_key, markets)
     
     # Cache for 24 hours
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("""
-            INSERT OR REPLACE INTO odds_cache (cache_key, data, cached_at, expires_at)
-            VALUES (?, ?, ?, ?)
-        """, (
-            cache_key,
-            json.dumps(odds_data),
-            datetime.now(timezone.utc).isoformat(),
-            (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
-        ))
-        await db.commit()
+    await db_manager.execute_write("""
+        INSERT OR REPLACE INTO odds_cache (cache_key, data, cached_at, expires_at)
+        VALUES (?, ?, ?, ?)
+    """, (
+        cache_key,
+        json.dumps(odds_data),
+        datetime.now(timezone.utc).isoformat(),
+        (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+    ))
     
     return {"odds": odds_data, "refreshed": True, "sport_key": sport_key, "games_count": len(odds_data)}
 
 @api_router.get("/cache/status")
 async def get_cache_status():
     """Get cache status for all sports"""
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM odds_cache")
-        rows = await cursor.fetchall()
-        
-        status = []
-        for row in rows:
-            sport_key = row["cache_key"].replace("odds_", "").replace("_h2h,spreads,totals", "")
-            status.append({
-                "sport_key": sport_key,
-                "cached_at": row["cached_at"],
-                "expires_at": row["expires_at"]
-            })
+    rows = await db_manager.execute("SELECT * FROM odds_cache")
+    
+    status = []
+    for row in rows:
+        sport_key = row["cache_key"].replace("odds_", "").replace("_h2h,spreads,totals", "")
+        status.append({
+            "sport_key": sport_key,
+            "cached_at": row["cached_at"],
+            "expires_at": row["expires_at"]
+        })
     return {"cache_entries": status, "count": len(status)}
 
 # Include router
