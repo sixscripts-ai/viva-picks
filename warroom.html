@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>War Room | Viva Picks</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -75,20 +76,50 @@
                         +0.0u</div>
                 </div>
             </div>
+    </div>
 
-            <h1 style="margin-bottom: 2rem;">Tactical Intel Feed</h1>
+    <!-- Performance Chart -->
+    <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(0, 243, 255, 0.1);">
+        <h2
+            style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 1px;">
+            PERFORMANCE VECTOR (YTD)</h2>
+        <div style="height: 300px; width: 100%;">
+            <canvas id="profitChart"></canvas>
+        </div>
+    </div>
 
-            <div class="card-grid" id="picks-container">
-                <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
-                    Loading picks from server...
-                </div>
-            </div>
-            <div class="disclaimer-banner">
-                // RESULTS DISCLAIMER: SPORTS BETTING INVOLVES SIGNIFICANT RISK. ALL PICKS ARE FOR ENTERTAINMENT AND
-                INFORMATION PURPOSES ONLY. PAST PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS. VIVA PICKS IS NOT A
-                GAMBLING PLATFORM AND DOES NOT ACCEPT WAGERS. PLEASE BET RESPONSIBLY.
-            </div>
-        </main>
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+        <h1 style="margin: 0;">Tactical Intel Feed</h1>
+
+        <!-- Sport Filters -->
+        <div class="filter-chips" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 5px;">
+            <button class="filter-btn active" onclick="filterPicks('ALL')"
+                style="padding: 5px 12px; font-size: 0.8rem; background: var(--primary); color:black; border:none; border-radius: 4px; cursor: pointer; font-weight: bold;">ALL</button>
+            <button class="filter-btn" onclick="filterPicks('NBA')"
+                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">NBA</button>
+            <button class="filter-btn" onclick="filterPicks('NFL')"
+                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">NFL</button>
+            <button class="filter-btn" onclick="filterPicks('MLB')"
+                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">MLB</button>
+            <button class="filter-btn" onclick="filterPicks('SOCCER')"
+                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">SOCCER</button>
+            <button class="filter-btn" onclick="filterPicks('UFC')"
+                style="padding: 5px 12px; font-size: 0.8rem; background: #222; color: #888; border: 1px solid #444; border-radius: 4px; cursor: pointer;">UFC</button>
+        </div>
+    </div>
+
+    <div class="card-grid" id="picks-container">
+        <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
+            Loading picks from server...
+        </div>
+    </div>
+    <div class="disclaimer-banner">
+        // RESULTS DISCLAIMER: SPORTS BETTING INVOLVES SIGNIFICANT RISK. ALL PICKS ARE FOR ENTERTAINMENT AND
+        INFORMATION PURPOSES ONLY. PAST PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS. VIVA PICKS IS NOT A
+        GAMBLING PLATFORM AND DOES NOT ACCEPT WAGERS. PLEASE BET RESPONSIBLY.
+    </div>
+    </main>
     </div>
     <script src="script.js"></script>
     <footer

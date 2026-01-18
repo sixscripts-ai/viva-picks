@@ -171,82 +171,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             const picks = await res.json();
+            window.allPicks = picks; // Save global for filtering
 
-            if (picks.length === 0) {
-                picksContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No picks available today.</div>';
-                return;
-            }
+            // Render Cards (default ALL)
+            renderCards(picks);
 
-            picksContainer.innerHTML = '';
-            picks.forEach((pick, index) => {
-                const card = document.createElement('div');
-                card.className = 'pick-card glass-panel visible';
-                card.innerHTML = `
-                    <div class="pick-header">
-                        <span class="sport-tag">${pick.sport || 'General'}</span>
-                        <span style="color: var(--text-muted); font-size: 0.9rem;">${pick.time || ''}</span>
-                    </div>
-                    <div class="matchup">${pick.matchup}</div>
-                    <div class="pick-details">
-                        <div class="pick-detail-item">
-                            <span class="label">Pick</span>
-                            <span class="value">${pick.pick}</span>
-                        </div>
-                        <div class="pick-detail-item">
-                            <span class="label">Odds</span>
-                            <span class="value">${pick.odds}</span>
-                        </div>
-                        <div class="pick-detail-item">
-                            <span class="label">Units</span>
-                            <span class="value" style="color: var(--primary);">${pick.units || '1u'}</span>
-                        </div>
-                    </div>
-                    ${pick.analysis ? `
-                    <div style="grid-column: 1 / -1; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
-                        <strong style="color:white; display:block; margin-bottom: 0.5rem;">REPORT // ${pick.bet_type || 'INTEL'}</strong>
-                        ${pick.analysis}
-                    </div>` : ''}
-                    
-                    ${window.location.pathname.includes('warroom.html') ? `
-                    <div class="pick-calc" style="grid-column: 1 / -1;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">EDGE CALCULATOR</span>
-                            <div style="font-size: 0.8rem;">
-                                BET $<input type="number" value="100" class="calc-input" oninput="updatePayout(this, '${pick.odds}')">
-                                → PAYOUT: <span class="calc-result">$${calculateInitialPayout(100, pick.odds)}</span>
-                            </div>
-                        </div>
-                    </div>` : ''}
-                `;
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-                picksContainer.appendChild(card);
-            });
+            // Render Chart (if on dashboard)
+            renderChart(picks);
 
             if (picks.length > 0) {
                 const latest = picks[0];
                 const tickerItem = document.querySelector('.ticker-item:nth-child(2) span');
-                if (tickerItem) {
+                if (tickerItem && latest) {
                     tickerItem.textContent = `${latest.sport} // ${latest.matchup} [${latest.result || 'PENDING'}]`;
                 }
 
                 // Update general ticker stats
                 const profitItem = document.querySelector('.ticker-item:nth-child(3) span');
-                const settled = picks.filter(p => p.result);
+                const settled = picks.filter(p => p.result && p.result !== 'PENDING');
                 let totalUnits = 0;
+
                 settled.forEach(p => {
-                    const u = parseFloat(p.units) || 0;
+                    let u = parseFloat(p.units) || 1;
+                    if (typeof p.units === 'string' && p.units.includes('u')) u = parseFloat(p.units.replace('u', ''));
+
                     const o = parseFloat(p.odds);
-                    if (p.result === 'WIN') totalUnits += (o > 0) ? (u * o / 100) : (u * 100 / Math.abs(o));
-                    else if (p.result === 'LOSS') totalUnits -= u;
+                    let profit = 0;
+
+                    let multiplier = 0;
+                    if (!isNaN(o)) {
+                        if (o > 0) multiplier = o / 100;
+                        else multiplier = 100 / Math.abs(o);
+                    } else { multiplier = 0.91; }
+
+                    if (p.result === 'WIN') profit = u * multiplier;
+                    else if (p.result === 'LOSS') profit = -u;
+                    totalUnits += profit;
                 });
+
                 if (profitItem) profitItem.textContent = (totalUnits >= 0 ? '+' : '') + totalUnits.toFixed(1) + ' UNITS';
 
                 // Update War Room specific stats
                 if (document.getElementById('war-active')) {
-                    document.getElementById('war-active').textContent = picks.filter(p => !p.result).length;
+                    document.getElementById('war-active').textContent = picks.filter(p => !p.result || p.result === 'PENDING').length;
                     document.getElementById('war-profit').textContent = (totalUnits >= 0 ? '+' : '') + totalUnits.toFixed(1) + 'u';
                 }
             }
@@ -736,4 +703,187 @@ async function testEmailRelay() {
         btn.disabled = false;
         btn.textContent = 'Test Email Relay';
     }
+}
+
+// --- DASHBOARD FEATURES ---
+// Filter Logic
+function filterPicks(sport) {
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(b => {
+        if (b.textContent === sport) b.classList.add('active');
+        else b.classList.remove('active');
+        // Handle "ALL" styling specially?
+        if (sport === 'ALL' && b.textContent === 'ALL') b.classList.add('active');
+    });
+
+    if (!window.allPicks) return;
+
+    if (sport === 'ALL') {
+        renderCards(window.allPicks);
+    } else {
+        const filtered = window.allPicks.filter(p => p.sport === sport);
+        renderCards(filtered);
+    }
+}
+
+// Chart Logic
+function renderChart(picks) {
+    const ctx = document.getElementById('profitChart');
+    if (!ctx) return;
+
+    // Destroy previous instance if exists to avoid overlay
+    const existingChart = Chart.getChart("profitChart");
+    if (existingChart) existingChart.destroy();
+
+    const settled = picks.filter(p => p.result && p.result !== 'PENDING').reverse(); // Oldest first
+
+    let cumulative = 0;
+    const dataPoints = settled.map(p => {
+        let u = parseFloat(p.units) || 1;
+        // Normalize units text "1u" -> 1
+        if (typeof p.units === 'string' && p.units.includes('u')) u = parseFloat(p.units.replace('u', ''));
+
+        let profit = 0;
+        let o = parseInt(p.odds);
+
+        let multiplier = 0;
+        if (!isNaN(o)) {
+            if (o > 0) multiplier = o / 100;
+            else multiplier = 100 / Math.abs(o);
+        } else {
+            multiplier = 0.91;
+        }
+
+        if (p.result === 'WIN') profit = u * multiplier;
+        else if (p.result === 'LOSS') profit = -u;
+
+        cumulative += profit;
+        return cumulative;
+    });
+
+    const labels = settled.map(p => {
+        const d = new Date(p.time);
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+    });
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Profit (Units)',
+                data: dataPoints,
+                borderColor: '#00f3ff',
+                backgroundColor: 'rgba(0, 243, 255, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 1,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function (context) {
+                            return 'Profit: ' + context.parsed.y.toFixed(2) + 'u';
+                        }
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#888' }
+                },
+                x: {
+                    display: false,
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// Render Cards Logic (Extracted)
+function renderCards(picks) {
+    const container = document.getElementById('picks-container');
+    if (!container) return;
+
+    if (picks.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">No signals found for this filter.</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    picks.forEach((pick, index) => {
+        const card = document.createElement('div');
+        card.className = 'pick-card glass-panel visible';
+
+        // CSS Animation Delay
+        card.style.animationDelay = `${index * 0.05}s`;
+
+        // Status Color Logic
+        let statusColor = '#888';
+        if (pick.result === 'WIN') statusColor = '#4ade80';
+        if (pick.result === 'LOSS') statusColor = '#ef4444';
+
+        card.innerHTML = `
+            <div class="pick-header">
+                <span class="sport-tag">${pick.sport || 'General'}</span>
+                <span style="color: var(--text-muted); font-size: 0.9rem;">${new Date(pick.time).toLocaleString([], { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div class="matchup">${pick.matchup}</div>
+            <div class="pick-details">
+                <div class="pick-detail-item">
+                    <span class="label">Pick</span>
+                    <span class="value">${pick.pick}</span>
+                </div>
+                <div class="pick-detail-item">
+                    <span class="label">Odds</span>
+                    <span class="value">${pick.odds}</span>
+                </div>
+                <div class="pick-detail-item">
+                    <span class="label">Units</span>
+                    <span class="value" style="color: var(--primary);">${pick.units || '1u'}</span>
+                </div>
+            </div>
+            
+             ${pick.result ? `
+            <div style="margin-top: 10px; border: 1px solid ${statusColor}; color: ${statusColor}; text-align: center; border-radius: 4px; padding: 5px; font-weight: bold; font-family: var(--font-mono);">
+                ${pick.result}
+            </div>` : ''}
+
+            ${pick.analysis ? `
+            <div style="grid-column: 1 / -1; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                <strong style="color:white; display:block; margin-bottom: 0.5rem;">REPORT // ${pick.bet_type || 'INTEL'}</strong>
+                ${pick.analysis}
+            </div>` : ''}
+            
+            ${window.location.pathname.includes('warroom.html') && !pick.result ? `
+            <div class="pick-calc" style="grid-column: 1 / -1; border-top: 1px solid #333; margin-top: 10px; padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">EDGE CALCULATOR</span>
+                    <div style="font-size: 0.8rem;">
+                        BET $<input type="number" value="100" class="calc-input" style="width: 50px; background: #222; border: 1px solid #444; color: white; padding: 2px;" oninput="updatePayout(this, '${pick.odds}')">
+                        → EST: <span class="calc-result" style="color: var(--accent);">$${calculateInitialPayout(100, pick.odds)}</span>
+                    </div>
+                </div>
+            </div>` : ''}
+        `;
+        container.appendChild(card);
+        // Force reflow for animation
+        setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, index * 50);
+    });
 }
