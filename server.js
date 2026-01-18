@@ -568,7 +568,7 @@ app.get('/api/admin/odds/:sport', authenticateToken, requireAdmin, async (req, r
 });
 
 // PUBLIC: Get Live Lines (Cached 60min)
-app.get('/api/public/lines/:sport', authenticateToken, async (req, res) => {
+app.get('/api/public/lines/:sport', async (req, res) => {
     const { sport } = req.params;
     const apiKey = process.env.ODDS_API_KEY;
 
