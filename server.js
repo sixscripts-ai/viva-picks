@@ -23,6 +23,7 @@ const pool = new Pool({
 });
 
 // Middleware
+let oddsCache = {}; // Cache for Odds API to save calls
 app.use(cors());
 app.use(cookieParser());
 
@@ -549,6 +550,91 @@ app.get('/api/admin/odds/:sport', authenticateToken, requireAdmin, async (req, r
         });
 
         res.json(games);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUBLIC: Get Live Lines (Cached 60min)
+app.get('/api/public/lines/:sport', authenticateToken, async (req, res) => {
+    const { sport } = req.params;
+    const apiKey = process.env.ODDS_API_KEY;
+
+    // Simple Cache Check
+    const now = Date.now();
+    const CACHE_TTL = 60 * 60 * 1000; // 1 Hour
+    if (oddsCache[sport] && (now - oddsCache[sport].timestamp < CACHE_TTL)) {
+        return res.json({ source: 'cache', data: oddsCache[sport].data });
+    }
+
+    const sportKeys = {
+        'NBA': 'basketball_nba',
+        'NFL': 'americanfootball_nfl',
+        'MLB': 'baseball_mlb',
+        'NHL': 'icehockey_nhl',
+        'UFC': 'mma_mixed_martial_arts',
+        'NCAAF': 'americanfootball_ncaaf',
+        'NCAAB': 'basketball_ncaab',
+        'WNBA': 'basketball_wnba',
+        'MLS': 'soccer_usa_mls',
+        'EPL': 'soccer_epl',
+    };
+
+    const sportKey = sportKeys[sport];
+    if (!sportKey) return res.status(400).json({ error: 'Sport not supported' });
+
+    try {
+        const url = `https://api.the-odds-api.com/v4/sports/${sportKey}/odds/?apiKey=${apiKey}&regions=us&markets=h2h,spreads&oddsFormat=american&bookmakers=draftkings,fanduel`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch odds');
+
+        // Simplify
+        const games = data.map(game => {
+            const book = game.bookmakers[0]; // Take first book primarily
+            if (!book) return null;
+
+            // H2H
+            const h2hMarket = book.markets.find(m => m.key === 'h2h');
+            let homeMoney = 'N/A', awayMoney = 'N/A';
+            if (h2hMarket) {
+                const h = h2hMarket.outcomes.find(o => o.name === game.home_team);
+                const a = h2hMarket.outcomes.find(o => o.name === game.away_team);
+                homeMoney = h ? (h.price > 0 ? `+${h.price}` : h.price) : 'N/A';
+                awayMoney = a ? (a.price > 0 ? `+${a.price}` : a.price) : 'N/A';
+            }
+
+            // Spread
+            const spreadMarket = book.markets.find(m => m.key === 'spreads');
+            let homeSpread = 'N/A', awaySpread = 'N/A';
+            if (spreadMarket) {
+                const h = spreadMarket.outcomes.find(o => o.name === game.home_team);
+                const a = spreadMarket.outcomes.find(o => o.name === game.away_team);
+                // Format: -4.5 (-110)
+                homeSpread = h ? `${h.point > 0 ? '+' : ''}${h.point} (${h.price})` : 'N/A';
+                awaySpread = a ? `${a.point > 0 ? '+' : ''}${a.point} (${a.price})` : 'N/A';
+            }
+
+            return {
+                id: game.id,
+                time: game.commence_time,
+                matchup: `${game.away_team} @ ${game.home_team}`,
+                home_team: game.home_team,
+                away_team: game.away_team,
+                home_money: homeMoney,
+                away_money: awayMoney,
+                home_spread: homeSpread,
+                away_spread: awaySpread
+            };
+        }).filter(g => g !== null);
+
+        // Update Cache
+        oddsCache[sport] = { timestamp: now, data: games };
+
+        res.json({ source: 'live', data: games });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
