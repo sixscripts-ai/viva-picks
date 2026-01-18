@@ -38,6 +38,7 @@
         </aside>
 
         <main class="main-content">
+            <!-- CONTROLS -->
             <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
                 <div
                     style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
@@ -46,7 +47,7 @@
                         <p style="color: var(--text-muted); margin:0; font-size:0.9rem;">Real-time Odds & Spreads
                             (Consensus)</p>
                     </div>
-                    <div style="display:flex; gap:10px;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
                         <select id="line-sport-select" class="form-control"
                             style="width: auto; background:#111; color:white; border:1px solid #333;">
                             <option value="NBA">NBA</option>
@@ -59,7 +60,9 @@
                             <option value="EPL">EPL</option>
                         </select>
                         <button onclick="fetchPublicLines()" class="btn btn-primary"
-                            style="font-size:0.8rem; padding: 0.8rem 1.5rem;">LOAD LINES</button>
+                            style="font-size:0.8rem; padding: 0.8rem 1.5rem;">LOAD LIVE</button>
+                        <button onclick="saveSnapshot()" class="btn btn-outline"
+                            style="font-size:0.8rem; padding: 0.8rem 1.5rem;">💾 SAVE REPORT</button>
                     </div>
                 </div>
                 <div id="lines-status"
@@ -67,28 +70,51 @@
                 </div>
             </div>
 
+            <!-- ARCHIVES FOLDER -->
+            <div id="archives-panel" class="glass-panel"
+                style="padding: 1rem; margin-bottom: 2rem; border-left: 2px solid var(--accent); background:rgba(0,0,0,0.6);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 style="margin:0; font-size:0.9rem; color:var(--accent); font-family:var(--font-mono);">📁 SAVED
+                        REPORTS (ARCHIVE)</h3>
+                    <button onclick="loadSavedReports()"
+                        style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.7rem;">REFRESH
+                        LIST</button>
+                </div>
+                <div id="saved-reports-list"
+                    style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px; align-items:center;">
+                    <span style="color:#666; font-size:0.8rem; font-style:italic; padding:10px;">Loading
+                        archives...</span>
+                </div>
+            </div>
+
+            <!-- GRID -->
             <div id="lines-grid"
                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
-                <!-- Cards will go here -->
                 <div
                     style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted); border:1px dashed #333; border-radius:8px;">
-                    Select a sport and click LOAD LINES to view live spreads and money lines.
+                    Select a sport and click LOAD LIVE to view live spreads. <br>
+                    Or select a Saved Report from the folder above.
                 </div>
             </div>
 
             <div style="margin-top: 2rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
-                Data Source: The Odds API (Simulated Consensus). Caches for 60m to optimize performance.
+                Data Source: The Odds API (Consensus). Snapshots are stored permanently.
             </div>
         </main>
     </div>
 
     <script src="script.js"></script>
     <script>
+        // Store current data to enable saving
+        let currentData = null;
+        let currentSport = null;
+
         async function fetchPublicLines() {
             const sport = document.getElementById('line-sport-select').value;
             const grid = document.getElementById('lines-grid');
             const status = document.getElementById('lines-status');
 
+            currentSport = sport;
             grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem;"><div class="ticker-item"><span>LOADING MARKET DATA...</span></div></div>';
             status.textContent = 'Fetching...';
 
@@ -98,51 +124,126 @@
 
                 if (!res.ok) throw new Error(json.error || 'Failed to fetch');
 
+                currentData = json.data; // Store for saving
                 status.textContent = `Data Source: ${json.source === 'cache' ? 'Cached (Fast)' : 'Live API (Fresh)'}`;
                 status.style.color = json.source === 'cache' ? 'var(--text-muted)' : 'var(--accent)';
 
-                if (json.data.length === 0) {
-                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">No lines available right now for this sport.</div>';
-                    return;
-                }
+                renderGrid(currentData, sport);
 
-                grid.innerHTML = '';
-                json.data.forEach(game => {
-                    const card = document.createElement('div');
-                    card.className = 'glass-panel';
-                    card.style.padding = '1.2rem';
-                    card.style.position = 'relative';
+            } catch (e) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#ff5252; padding:3rem; border:1px solid #ff5252;">Error: ${e.message}</div>`;
+            }
+        }
 
-                    // Simple animation
-                    card.style.animation = 'fadeIn 0.5s ease';
+        function renderGrid(data, sport) {
+            const grid = document.getElementById('lines-grid');
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">No data available.</div>';
+                return;
+            }
 
-                    card.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:10px;">
-                            <span style="color:#888; font-size:0.75rem; font-family:var(--font-mono);">${new Date(game.time).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                             <span style="color:var(--primary); font-family:var(--font-mono); font-size:0.75rem; font-weight:bold;">${sport}</span>
+            grid.innerHTML = '';
+            data.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'glass-panel';
+                card.style.padding = '1.2rem';
+                card.style.position = 'relative';
+                card.style.animation = 'fadeIn 0.5s ease';
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:10px;">
+                        <span style="color:#888; font-size:0.75rem; font-family:var(--font-mono);">${new Date(game.time).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                         <span style="color:var(--primary); font-family:var(--font-mono); font-size:0.75rem; font-weight:bold;">${sport}</span>
+                    </div>
+                    <div style="margin-bottom:1.2rem;">
+                        <div style="font-weight:700; font-size:1.1rem; color:white; margin-bottom:5px;">${game.away_team}</div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-family:var(--font-mono); background:rgba(255,255,255,0.05); padding:8px; border-radius:4px;">
+                            <span style="color:#aaa;">ML: <span style="color:white; font-weight:bold;">${game.away_money}</span></span>
+                            <span style="color:#aaa;">Spr: <span style="color:${game.away_spread.includes('-') ? '#f97316' : 'white'}; font-weight:bold;">${game.away_spread}</span></span>
                         </div>
-                        <div style="margin-bottom:1.2rem;">
-                            <div style="font-weight:700; font-size:1.1rem; color:white; margin-bottom:5px;">${game.away_team}</div>
-                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-family:var(--font-mono); background:rgba(255,255,255,0.05); padding:8px; border-radius:4px;">
-                                <span style="color:#aaa;">ML: <span style="color:white; font-weight:bold;">${game.away_money}</span></span>
-                                <span style="color:#aaa;">Spr: <span style="color:${game.away_spread.includes('-') ? '#f97316' : 'white'}; font-weight:bold;">${game.away_spread}</span></span>
-                            </div>
-                        </div>
-                         <div>
+                    </div>
+                     <div>
                             <div style="font-weight:700; font-size:1.1rem; color:white; margin-bottom:5px;">${game.home_team}</div>
                             <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-family:var(--font-mono); background:rgba(255,255,255,0.05); padding:8px; border-radius:4px;">
                                  <span style="color:#aaa;">ML: <span style="color:white; font-weight:bold;">${game.home_money}</span></span>
                                 <span style="color:#aaa;">Spr: <span style="color:${game.home_spread.includes('-') ? '#f97316' : 'white'}; font-weight:bold;">${game.home_spread}</span></span>
                             </div>
                         </div>
-                    `;
-                    grid.appendChild(card);
-                });
-
-            } catch (e) {
-                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#ff5252; padding:3rem; border:1px solid #ff5252;">Error: ${e.message}</div>`;
-            }
+                `;
+                grid.appendChild(card);
+            });
         }
+
+        async function saveSnapshot() {
+            if (!currentData) { alert('No data loaded to save!'); return; }
+
+            const name = prompt('Name this report (e.g., "Saturday Morning Lines"):');
+            if (!name) return;
+
+            try {
+                const res = await fetch('/api/saved-lines', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sport: currentSport, data: currentData, name })
+                });
+                if (res.ok) {
+                    alert('Snapshot saved to Archive!');
+                    loadSavedReports();
+                } else {
+                    alert('Failed to save.');
+                }
+            } catch (e) { console.error(e); alert('Error saving.'); }
+        }
+
+        async function loadSavedReports() {
+            const list = document.getElementById('saved-reports-list');
+            try {
+                const res = await fetch('/api/saved-lines');
+                const reports = await res.json();
+
+                if (reports.length === 0) {
+                    list.innerHTML = '<span style="color:#666; font-size:0.8rem; padding:10px;">Archive is empty. Save a report to see it here.</span>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                reports.forEach(rep => {
+                    const btn = document.createElement('button');
+                    btn.style.cssText = 'background:#222; border:1px solid #444; color:white; padding:8px 12px; border-radius:4px; cursor:pointer; font-family:var(--font-mono); font-size:0.75rem; white-space:nowrap; display:flex; align-items:center; gap:5px;';
+                    btn.innerHTML = `<span>${rep.name}</span> <span style="color:#666; font-size:0.6rem;">${new Date(rep.created_at).toLocaleDateString()}</span>`;
+
+                    btn.onclick = async () => {
+                        // Load full data
+                        const r = await fetch(`/api/saved-lines/${rep.id}`);
+                        const full = await r.json();
+                        currentData = full.data.data ? full.data.data : full.data; // Handle potential double nesting logic if any
+                        currentSport = full.sport;
+
+                        document.getElementById('lines-status').textContent = `Viewing Archive: ${full.name} (${new Date(full.created_at).toLocaleString()})`;
+                        document.getElementById('lines-status').style.color = 'var(--accent)';
+                        renderGrid(currentData, currentSport);
+                    };
+
+                    // Add delete X
+                    const del = document.createElement('span');
+                    del.innerHTML = '&times;';
+                    del.style.cssText = 'margin-left:8px; color:#555; cursor:pointer; font-weight:bold;';
+                    del.onclick = async (e) => {
+                        e.stopPropagation();
+                        if (confirm('Delete this report?')) {
+                            await fetch(`/api/saved-lines/${rep.id}`, { method: 'DELETE' });
+                            loadSavedReports();
+                        }
+                    };
+                    btn.appendChild(del);
+
+                    list.appendChild(btn);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // Init
+        loadSavedReports();
     </script>
 </body>
 

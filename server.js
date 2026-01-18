@@ -125,6 +125,17 @@ async function initDB() {
                 subscription_status = 'active'
         `, [adminEmail, hashedPassword]);
 
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS saved_odds (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER,
+                sport VARCHAR(50),
+                data JSONB,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                name VARCHAR(100)
+            );
+        `);
+
         console.log("Database initialized successfully.");
     } catch (err) {
         console.error("Error initializing database:", err);
@@ -775,6 +786,47 @@ app.post('/api/admin/test-email', authenticateToken, requireAdmin, async (req, r
     } catch (err) {
         console.error('Test email failed:', err);
         res.status(500).json({ error: err.message, stack: err.stack });
+    }
+});
+
+// --- SAVED ODDS SNAPSHOTS ---
+app.post('/api/saved-lines', authenticateToken, async (req, res) => {
+    try {
+        const { sport, data, name } = req.body;
+        const userId = req.user.id;
+        const result = await pool.query(
+            'INSERT INTO saved_odds (user_id, sport, data, name) VALUES ($1, $2, $3, $4) RETURNING *',
+            [userId, sport, JSON.stringify(data), name || `Snapshot ${new Date().toLocaleTimeString()}`]
+        );
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to save snapshot' });
+    }
+});
+
+app.get('/api/saved-lines', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const result = await pool.query(
+            'SELECT id, sport, name, created_at, data FROM saved_odds WHERE user_id = $1 ORDER BY created_at DESC',
+            [userId]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch saved lines' });
+    }
+});
+
+app.delete('/api/saved-lines/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query('DELETE FROM saved_odds WHERE id = $1', [id]);
+        res.json({ message: 'Deleted' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete' });
     }
 });
 
