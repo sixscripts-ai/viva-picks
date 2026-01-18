@@ -318,12 +318,13 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
         const newPick = result.rows[0];
 
         // Broadcast Email
-        const subsRes = await pool.query("SELECT email FROM users WHERE subscription_status = 'active'");
-        const subscribers = subsRes.rows;
+        if (req.body.notify !== false) {
+            const subsRes = await pool.query("SELECT email FROM users WHERE subscription_status = 'active'");
+            const subscribers = subsRes.rows;
 
-        if (subscribers.length > 0) {
-            console.log(`Broadcasting new pick to ${subscribers.length} subscribers...`);
-            const emailContent = `
+            if (subscribers.length > 0) {
+                console.log(`Broadcasting new pick to ${subscribers.length} subscribers...`);
+                const emailContent = `
                 <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #000000; color: #ffffff; border: 1px solid #333333;">
                     <!-- HEADER -->
                     <div style="background-color: #111111; padding: 20px; text-align: center; border-bottom: 2px solid #f97316;">
@@ -379,14 +380,15 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
                 </div>
             `;
 
-            subscribers.forEach(sub => {
-                transporter.sendMail({
-                    from: process.env.EMAIL_FROM,
-                    to: sub.email,
-                    subject: `[VIVA PICKS] NEW INTEL: ${newPick.matchup}`,
-                    html: emailContent
-                }).catch(err => console.error(`Failed to email ${sub.email}:`, err.message));
-            });
+                subscribers.forEach(sub => {
+                    transporter.sendMail({
+                        from: process.env.EMAIL_FROM,
+                        to: sub.email,
+                        subject: `[VIVA PICKS] NEW INTEL: ${newPick.matchup}`,
+                        html: emailContent
+                    }).catch(err => console.error(`Failed to email ${sub.email}:`, err.message));
+                });
+            }
         }
         res.status(201).json(newPick);
     } catch (err) {
@@ -408,7 +410,68 @@ app.put('/api/picks/:id', authenticateToken, requireAdmin, async (req, res) => {
         const result = await pool.query(query, [sport, time, matchup, pick, odds, units, bet_type, analysis, pickResult, id]);
 
         if (result.rows.length === 0) return res.status(404).json({ error: 'Pick not found' });
-        res.json(result.rows[0]);
+
+        const updatedPick = result.rows[0];
+
+        // Broadcast Email on Update (Only if explicitly checked)
+        if (req.body.notify === true) {
+            const subsRes = await pool.query("SELECT email FROM users WHERE subscription_status = 'active'");
+            const subscribers = subsRes.rows;
+
+            if (subscribers.length > 0) {
+                console.log(`Broadcasting update to ${subscribers.length} subscribers...`);
+                const emailContent = `
+                <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #000000; color: #ffffff; border: 1px solid #333333;">
+                    <div style="background-color: #111111; padding: 20px; text-align: center; border-bottom: 2px solid #f97316;">
+                        <h1 style="color: #f97316; margin: 0; font-size: 24px; letter-spacing: 2px;">VIVA PICKS</h1>
+                        <p style="color: #888; font-size: 10px; margin: 5px 0 0 0; letter-spacing: 1px;">INTELLIGENCE UPDATED</p>
+                    </div>
+
+                    <div style="padding: 30px 20px;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <span style="background-color: #f97316; color: #000; padding: 4px 8px; font-weight: bold; font-size: 11px; border-radius: 2px;">${updatedPick.sport} UPDATE</span>
+                        </div>
+
+                        <h2 style="margin: 0 0 10px 0; font-size: 20px; text-align: center; color: #ffffff;">${updatedPick.matchup}</h2>
+                        <div style="text-align: center; color: #888; font-size: 14px; margin-bottom: 25px;">${new Date(updatedPick.time).toLocaleString()}</div>
+
+                        <div style="background-color: #111; border: 1px solid #333; padding: 20px; margin-bottom: 25px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 15px;">
+                                <span style="color: #888;">PICK</span>
+                                <span style="color: #f97316; font-weight: bold; font-size: 18px;">${updatedPick.pick}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: #888;">ODDS</span>
+                                <span style="color: #fff;">${updatedPick.odds}</span>
+                            </div>
+                             <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #888;">RESULT</span>
+                                <span style="color: ${updatedPick.result === 'WIN' ? '#4ade80' : (updatedPick.result === 'LOSS' ? '#ef4444' : '#fff')}; font-weight: bold;">${updatedPick.result || 'PENDING'}</span>
+                            </div>
+                        </div>
+
+                        <div style="background-color: #1a1a1a; padding: 15px; font-size: 14px; line-height: 1.5; color: #ccc; border-left: 3px solid #f97316;">
+                            <strong style="color: #fff; display: block; margin-bottom: 5px;">ANALYSIS:</strong>
+                            ${updatedPick.analysis}
+                        </div>
+                         <div style="text-align: center; margin-top: 30px;">
+                            <a href="https://vivapicks.tech/dashboard.html" style="background-color: #f97316; color: #000000; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block;">VIEW DASHBOARD</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+                subscribers.forEach(sub => {
+                    transporter.sendMail({
+                        from: process.env.EMAIL_FROM,
+                        to: sub.email,
+                        subject: `[VIVA PICKS] UPDATE: ${updatedPick.matchup}`,
+                        html: emailContent
+                    }).catch(err => console.error(`Failed to email ${sub.email}:`, err.message));
+                });
+            }
+        }
+
+        res.json(updatedPick);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });

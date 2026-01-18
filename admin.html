@@ -112,12 +112,20 @@
                                 <option>Point Spread</option>
                                 <option>Over/Under</option>
                                 <option>Player Prop</option>
+                                <option>Parlay</option>
+                                <option>Teaser</option>
+                                <option>Future</option>
+                                <option>Live Bet</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Units</label>
                             <select id="units-select" class="form-control">
-                                <option value="1u">1u (Standard)</option>
+                                <option value="0.25u">0.25u (Sprinkle)</option>
+                                <option value="0.5u">0.5u (Lean)</option>
+                                <option value="0.75u">0.75u</option>
+                                <option value="1u" selected>1u (Standard)</option>
+                                <option value="1.5u">1.5u</option>
                                 <option value="2u">2u (Strong)</option>
                                 <option value="3u">3u (Big)</option>
                                 <option value="4u">4u (Whale)</option>
@@ -135,9 +143,33 @@
                         <textarea class="form-control" rows="4" placeholder="Explain the edge..."
                             id="analysis-input"></textarea>
                     </div>
-                    <input type="hidden" id="editing-pick-result">
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%;" id="publish-btn">🚀 Publish Pick
+                    <!-- Result Dropdown (Hidden by default, shown when editing) -->
+                    <div class="form-group" id="result-group"
+                        style="display: none; background: #222; padding: 10px; border-radius: 5px; border: 1px solid #444;">
+                        <label style="color: #f97316;">Grading Result</label>
+                        <select id="result-select" class="form-control" style="background: #111; color: #fff;">
+                            <option value="">(Pending)</option>
+                            <option value="WIN">WIN</option>
+                            <option value="LOSS">LOSS</option>
+                            <option value="PUSH">PUSH</option>
+                            <option value="VOID">VOID</option>
+                        </select>
+                    </div>
+
+                    <input type="hidden" id="editing-pick-id">
+                    <input type="hidden" id="editing-pick-result">
+                    <!-- Legacy hidden field kept for safety, but we rely on select now -->
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #ccc;">
+                            <input type="checkbox" id="notify-check" checked>
+                            <span>Send Email Notification to Subscribers</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"
+                        id="publish-btn">🚀 Publish Pick
                         & Email Subscribers</button>
                     <button type="button" id="update-btn" class="btn btn-outline"
                         style="width: 100%; margin-top: 1rem; display: none;">💾 Update Existing Pick</button>

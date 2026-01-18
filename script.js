@@ -368,7 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 bet_type: document.getElementById('bet-type').value,
                 units: document.getElementById('units-select').value,
                 analysis: document.getElementById('analysis-input').value,
-                result: document.getElementById('editing-pick-result').value || null
+                result: document.getElementById('result-select') ? document.getElementById('result-select').value : null,
+                notify: document.getElementById('notify-check') ? document.getElementById('notify-check').checked : true
             };
 
             try {
@@ -407,7 +408,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetAdminForm() {
         adminForm.reset();
         document.getElementById('editing-pick-id').value = '';
-        document.getElementById('editing-pick-result').value = ''; // Added this line
+        document.getElementById('editing-pick-result').value = '';
+        if (document.getElementById('result-group')) document.getElementById('result-group').style.display = 'none';
+        if (document.getElementById('result-select')) document.getElementById('result-select').value = '';
+        if (document.getElementById('notify-check')) document.getElementById('notify-check').checked = true;
+
         document.getElementById('publish-btn').style.display = 'block';
         document.getElementById('update-btn').style.display = 'none';
     }
@@ -501,6 +506,14 @@ function editPick(pick) {
     document.getElementById('bet-type').value = pick.bet_type || 'Moneyline';
     document.getElementById('units-select').value = pick.units || '1u';
     document.getElementById('analysis-input').value = pick.analysis;
+
+    // Handle Result Grading UI
+    if (document.getElementById('result-group')) {
+        document.getElementById('result-group').style.display = 'block';
+        document.getElementById('result-select').value = pick.result || '';
+    }
+    // Default notify to false when editing (to avoid accidental spam), but allow user to check it
+    if (document.getElementById('notify-check')) document.getElementById('notify-check').checked = false;
 
     document.getElementById('publish-btn').style.display = 'none';
     document.getElementById('update-btn').style.display = 'block';
