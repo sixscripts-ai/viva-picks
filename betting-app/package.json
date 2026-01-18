@@ -1,0 +1,51 @@
+{
+    "name": "frontend",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@craco/craco": "^7.1.0",
+        "@radix-ui/react-slot": "^1.2.4",
+        "axios": "^1.13.2",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "lucide-react": "^0.330.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^7.12.0",
+        "react-scripts": "5.0.1",
+        "sonner": "^2.0.7",
+        "tailwind-merge": "^2.6.0",
+        "tailwindcss": "^3.4.0",
+        "tailwindcss-animate": "^1.0.7",
+        "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+        "start": "concurrently \"npm run tailwind:watch\" \"craco start\"",
+        "build": "npm run tailwind:build && craco build",
+        "tailwind:watch": "tailwindcss -i src/index.css -o src/compiled.css --watch",
+        "tailwind:build": "tailwindcss -i src/index.css -o src/compiled.css --minify",
+        "test": "craco test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
+}
