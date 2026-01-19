@@ -63,6 +63,10 @@ async def root():
 async def health():
     return {"status": "healthy"}
 
+@api_router.get("/version")
+async def version():
+    return {"version": "1.0.1", "hashing_lib": "bcrypt (native)"}
+
 # --- AUTH ROUTES ---
 
 @api_router.post("/register", response_model=Token)
