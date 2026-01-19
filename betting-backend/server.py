@@ -281,7 +281,7 @@ async def health():
 
 @api_router.get("/version")
 async def version():
-    return {"version": "1.0.2", "hashing": "sha256"}
+    return {"version": "1.0.3", "hashing": "sha256"}
 
 # --- AUTH ROUTES ---
 
