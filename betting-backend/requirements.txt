@@ -7,6 +7,6 @@ aiosqlite>=0.19.0
 python-multipart>=0.0.9
 jinja2>=3.1.0
 wheel
-libsql-client>=0.0.1
+libsql-experimental>=0.0.30
 
 python-jose[cryptography]>=3.3.0

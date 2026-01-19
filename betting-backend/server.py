@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import httpx
 import aiosqlite
-import libsql_client
+import libsql_experimental as libsql
 from jose import JWTError, jwt
 
 # ==================== CONFIGURATION ====================
@@ -97,55 +97,42 @@ class WalletUpdate(BaseModel):
 class DatabaseManager:
     def __init__(self):
         self.is_turso = bool(TURSO_URL and "turso.io" in TURSO_URL)
+        self._conn = None
         if self.is_turso:
             logger.info(f"Using Turso Database: {TURSO_URL}")
         else:
             logger.info(f"Using Local SQLite: {DB_PATH}")
 
+    def _get_connection(self):
+        if self._conn is None:
+            if self.is_turso:
+                self._conn = libsql.connect(
+                    TURSO_URL,
+                    auth_token=TURSO_TOKEN
+                )
+            else:
+                self._conn = libsql.connect(str(DB_PATH))
+        return self._conn
+
     async def execute(self, query: str, params: tuple = ()):
-        if self.is_turso:
-            try:
-                async with libsql_client.create_client(TURSO_URL, auth_token=TURSO_TOKEN) as client:
-                    rs = await client.execute(query, params)
-                    # Handle different libsql_client versions
-                    if hasattr(rs, 'columns') and hasattr(rs, 'rows'):
-                        columns = rs.columns
-                        rows = [dict(zip(columns, row)) for row in rs.rows]
-                    elif hasattr(rs, 'fetchall'):
-                        rows = [dict(row) for row in rs.fetchall()]
-                    else:
-                        # Try to iterate directly
-                        rows = []
-                        for row in rs:
-                            if hasattr(row, '_asdict'):
-                                rows.append(row._asdict())
-                            elif hasattr(row, 'keys'):
-                                rows.append(dict(row))
-                            else:
-                                rows.append(row)
-                    return rows
-            except Exception as e:
-                logger.error(f"Turso execute error: {e}")
-                raise
-        else:
-            async with aiosqlite.connect(DB_PATH) as db:
-                db.row_factory = aiosqlite.Row
-                async with db.execute(query, params) as cursor:
-                    rows = await cursor.fetchall()
-                    return [dict(row) for row in rows]
+        try:
+            conn = self._get_connection()
+            result = conn.execute(query, params)
+            rows = result.fetchall()
+            columns = [desc[0] for desc in result.description] if result.description else []
+            return [dict(zip(columns, row)) for row in rows]
+        except Exception as e:
+            logger.error(f"Execute error: {e}")
+            raise
 
     async def execute_write(self, query: str, params: tuple = ()):
-        if self.is_turso:
-            try:
-                async with libsql_client.create_client(TURSO_URL, auth_token=TURSO_TOKEN) as client:
-                    await client.execute(query, params)
-            except Exception as e:
-                logger.error(f"Turso write error: {e}")
-                raise
-        else:
-            async with aiosqlite.connect(DB_PATH) as db:
-                await db.execute(query, params)
-                await db.commit()
+        try:
+            conn = self._get_connection()
+            conn.execute(query, params)
+            conn.commit()
+        except Exception as e:
+            logger.error(f"Write error: {e}")
+            raise
 
     async def fetch_one(self, query: str, params: tuple = ()):
         rows = await self.execute(query, params)
@@ -281,7 +268,7 @@ async def health():
 
 @api_router.get("/version")
 async def version():
-    return {"version": "1.0.3", "hashing": "sha256"}
+    return {"version": "1.0.4", "hashing": "sha256"}
 
 # --- AUTH ROUTES ---
 
