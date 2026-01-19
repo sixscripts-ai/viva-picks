@@ -48,6 +48,100 @@ logger = logging.getLogger(__name__)
 # Security Tools (Must be after router/app conceptually, but before dependency usage)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
 
+# ==================== CONFIG DATA ====================
+
+SUPPORTED_SPORTS = {
+    "basketball_nba": {"title": "NBA", "group": "Basketball"},
+    "americanfootball_nfl": {"title": "NFL", "group": "American Football"},
+    "icehockey_nhl": {"title": "NHL", "group": "Ice Hockey"},
+    "basketball_ncaab": {"title": "NCAAB", "group": "Basketball"}
+}
+
+# ==================== MODELS ====================
+
+class User(BaseModel):
+    id: str
+    username: str
+    email: Optional[str] = None
+    is_active: bool = True
+
+class UserCreate(BaseModel):
+    username: str
+    email: Optional[str] = None
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+
+class BetCreate(BaseModel):
+    event_id: str
+    sport_key: str
+    sport_title: str
+    home_team: str
+    away_team: str
+    selected_team: str
+    bet_type: str
+    odds: float
+    amount: float
+    potential_payout: float
+    commence_time: Optional[str] = None
+
+class WalletUpdate(BaseModel):
+    amount: float
+    action: str  # deposit, withdraw
+
+# ==================== DB MANAGER ====================
+
+# (Re-asserting DB Manager here just in case, though it looked present in previous check, I want to be safe about order)
+class DatabaseManager:
+    """
+    Abstracts the difference between local aiosqlite and remote Turso/libsql.
+    """
+    def __init__(self):
+        self.is_turso = bool(TURSO_URL and "turso.io" in TURSO_URL)
+        if self.is_turso:
+            logger.info(f"Using Turso Database: {TURSO_URL}")
+        else:
+            logger.info(f"Using Local SQLite: {DB_PATH}")
+
+    async def execute(self, query: str, params: tuple = ()):
+        """Execute a query and return (rows, lastrowid). Handles both clients."""
+        if self.is_turso:
+            async with libsql_client.create_client(TURSO_URL, auth_token=TURSO_TOKEN) as client:
+                rs = await client.execute(query, params)
+                columns = rs.columns
+                rows = [dict(zip(columns, row)) for row in rs.rows]
+                return rows
+        else:
+            # Local SQLite
+            async with aiosqlite.connect(DB_PATH) as db:
+                db.row_factory = aiosqlite.Row
+                async with db.execute(query, params) as cursor:
+                    rows = await cursor.fetchall()
+                    return [dict(row) for row in rows]
+
+    async def execute_write(self, query: str, params: tuple = ()):
+        """Execute a write operation (INSERT/UPDATE/DELETE)."""
+        if self.is_turso:
+            async with libsql_client.create_client(TURSO_URL, auth_token=TURSO_TOKEN) as client:
+                await client.execute(query, params)
+        else:
+            # Local SQLite
+            async with aiosqlite.connect(DB_PATH) as db:
+                await db.execute(query, params)
+                await db.commit()
+
+    async def fetch_one(self, query: str, params: tuple = ()):
+        """Fetch a single row."""
+        rows = await self.execute(query, params)
+        return rows[0] if rows else None
+
+db_manager = DatabaseManager()
+
 @api_router.get("/")
 async def root():
     return {"message": "Viva Picks API", "status": "CONNECTED // OPTIMAL"}
