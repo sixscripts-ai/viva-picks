@@ -530,12 +530,7 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=[
-        "http://localhost:3000", 
-        "https://vivapicks.vercel.app", 
-        "https://bet.vivapicks.tech", 
-        "https://www.bet.vivapicks.tech"
-    ],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
