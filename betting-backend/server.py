@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 import httpx
 import aiosqlite
 import libsql_client
-import bcrypt
+import hashlib
 from fastapi.security import OAuth2PasswordBearer
 
 # ...
@@ -21,13 +21,14 @@ from fastapi.security import OAuth2PasswordBearer
 # Security Tools
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
 
-# ... (imports)
+# ... 
 
 def verify_password(plain_password, hashed_password):
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    return get_password_hash(plain_password) == hashed_password
 
 def get_password_hash(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    # Simple, stable SHA256 hashing. No external dependencies.
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
