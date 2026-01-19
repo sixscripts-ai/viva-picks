@@ -34,7 +34,7 @@ const Header = ({ wallet, cacheInfo, onRefreshOdds, refreshing }) => {
                         </div>
                     )}
 
-                    {['adminash', 'ashadmin'].includes(user?.username?.toLowerCase()) && (
+                    {user && user.username && (
                         <button
                             onClick={onRefreshOdds}
                             disabled={refreshing}
