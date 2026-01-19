@@ -14,6 +14,12 @@ import httpx
 import aiosqlite
 import libsql_client
 import bcrypt
+from fastapi.security import OAuth2PasswordBearer
+
+# ...
+
+# Security Tools
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
 
 # ... (imports)
 
