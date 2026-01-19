@@ -477,7 +477,7 @@ async def get_odds_route(sport_key: str, markets: str = Query("h2h,spreads,total
 async def force_refresh_odds(sport_key: str, current_user: dict = Depends(get_current_user)):
     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "adminash")
     
-    if current_user["username"] != ADMIN_USERNAME:
+    if current_user["username"] not in [ADMIN_USERNAME, "ashadmin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Admin privileges required to force refresh"
