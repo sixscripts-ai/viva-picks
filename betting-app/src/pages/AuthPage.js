@@ -29,7 +29,8 @@ const AuthPage = () => {
             toast.success("Welcome back to the War Room.");
             navigate("/");
         } catch (error) {
-            toast.error(error.message);
+            console.error("Login Error:", error);
+            toast.error(String(error.message || "An unknown error occurred"));
         } finally {
             setLoading(false);
         }
@@ -43,7 +44,8 @@ const AuthPage = () => {
             toast.success("Account created. Welcome to Viva Picks.");
             navigate("/");
         } catch (error) {
-            toast.error(error.message);
+            console.error("Register Error:", error);
+            toast.error(String(error.message || "An unknown error occurred"));
         } finally {
             setLoading(false);
         }
