@@ -51,8 +51,18 @@ export const AuthProvider = ({ children }) => {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Login failed');
+            let errorMessage = 'Login failed';
+            try {
+                const errorData = await response.json();
+                if (typeof errorData.detail === 'string') {
+                    errorMessage = errorData.detail;
+                } else if (Array.isArray(errorData.detail)) {
+                    errorMessage = errorData.detail.map(err => err.msg).join(', ');
+                }
+            } catch (e) {
+                console.error("Login error parsing failed", e);
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -72,8 +82,18 @@ export const AuthProvider = ({ children }) => {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Registration failed');
+            let errorMessage = 'Registration failed';
+            try {
+                const errorData = await response.json();
+                if (typeof errorData.detail === 'string') {
+                    errorMessage = errorData.detail;
+                } else if (Array.isArray(errorData.detail)) {
+                    errorMessage = errorData.detail.map(err => err.msg).join(', ');
+                }
+            } catch (e) {
+                console.error("Registration error parsing failed", e);
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
