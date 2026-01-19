@@ -144,7 +144,7 @@ db_manager = DatabaseManager()
 
 async def init_db():
     await db_manager.execute_write("""
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS users_v2 (
             id TEXT PRIMARY KEY,
             username TEXT UNIQUE,
             email TEXT,
@@ -154,9 +154,8 @@ async def init_db():
         )
     """)
     
-    # Create new wallet table with user_id
     await db_manager.execute_write("""
-        CREATE TABLE IF NOT EXISTS wallet (
+        CREATE TABLE IF NOT EXISTS wallet_v2 (
             id TEXT PRIMARY KEY,
             user_id TEXT UNIQUE,
             balance REAL DEFAULT 1000.0,
@@ -167,17 +166,8 @@ async def init_db():
         )
     """)
     
-    # Migration: Add user_id column if it doesn't exist (for old tables)
-    try:
-        await db_manager.execute_write("ALTER TABLE wallet ADD COLUMN user_id TEXT")
-        logger.info("Added user_id column to wallet table")
-    except Exception as e:
-        # Column already exists or other error - ignore
-        if "duplicate column" not in str(e).lower() and "already exists" not in str(e).lower():
-            logger.warning(f"Wallet migration note: {e}")
-    
     await db_manager.execute_write("""
-        CREATE TABLE IF NOT EXISTS bets (
+        CREATE TABLE IF NOT EXISTS bets_v2 (
             id TEXT PRIMARY KEY,
             user_id TEXT,
             event_id TEXT,
@@ -197,7 +187,7 @@ async def init_db():
     """)
     
     await db_manager.execute_write("""
-        CREATE TABLE IF NOT EXISTS odds_cache (
+        CREATE TABLE IF NOT EXISTS odds_cache_v2 (
             cache_key TEXT PRIMARY KEY,
             data TEXT,
             cached_at TEXT,
@@ -205,7 +195,7 @@ async def init_db():
         )
     """)
     
-    logger.info("Database initialized successfully")
+    logger.info("Database initialized successfully (v2)")
 
 # ==================== AUTH UTILITIES ====================
 
@@ -240,7 +230,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
         
-    user = await db_manager.fetch_one("SELECT * FROM users WHERE username = ?", (token_data.username,))
+    user = await db_manager.fetch_one("SELECT * FROM users_v2 WHERE username = ?", (token_data.username,))
     if user is None:
         raise credentials_exception
     return user
@@ -278,13 +268,13 @@ async def health():
 
 @api_router.get("/version")
 async def version():
-    return {"version": "1.0.5", "hashing": "sha256"}
+    return {"version": "2.0.0", "hashing": "sha256"}
 
 # --- AUTH ROUTES ---
 
 @api_router.post("/register", response_model=Token)
 async def register(user: UserCreate):
-    existing_user = await db_manager.fetch_one("SELECT * FROM users WHERE username = ?", (user.username,))
+    existing_user = await db_manager.fetch_one("SELECT * FROM users_v2 WHERE username = ?", (user.username,))
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     
@@ -293,13 +283,13 @@ async def register(user: UserCreate):
         hashed_password = get_password_hash(user.password)
         
         await db_manager.execute_write(
-            "INSERT INTO users (id, username, email, hashed_password, created_at) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO users_v2 (id, username, email, hashed_password, created_at) VALUES (?, ?, ?, ?, ?)",
             (user_id, user.username, user.email, hashed_password, datetime.now(timezone.utc).isoformat())
         )
         
         wallet_id = str(uuid.uuid4())
         await db_manager.execute_write(
-            "INSERT INTO wallet (id, user_id, balance, updated_at) VALUES (?, ?, ?, ?)",
+            "INSERT INTO wallet_v2 (id, user_id, balance, updated_at) VALUES (?, ?, ?, ?)",
             (wallet_id, user_id, 1000.0, datetime.now(timezone.utc).isoformat())
         )
     except Exception as e:
@@ -314,7 +304,7 @@ async def register(user: UserCreate):
 
 @api_router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await db_manager.fetch_one("SELECT * FROM users WHERE username = ?", (form_data.username,))
+    user = await db_manager.fetch_one("SELECT * FROM users_v2 WHERE username = ?", (form_data.username,))
     if not user or not verify_password(form_data.password, user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -342,14 +332,14 @@ async def read_users_me(current_user: dict = Depends(get_current_user)):
 @api_router.get("/wallet")
 async def get_wallet_route(current_user: dict = Depends(get_current_user)):
     user_id = current_user["id"]
-    wallet = await db_manager.fetch_one("SELECT * FROM wallet WHERE user_id = ?", (user_id,))
+    wallet = await db_manager.fetch_one("SELECT * FROM wallet_v2 WHERE user_id = ?", (user_id,))
     if not wallet:
         wallet_id = str(uuid.uuid4())
         await db_manager.execute_write(
-            "INSERT INTO wallet (id, user_id, balance, updated_at) VALUES (?, ?, ?, ?)",
+            "INSERT INTO wallet_v2 (id, user_id, balance, updated_at) VALUES (?, ?, ?, ?)",
             (wallet_id, user_id, 1000.0, datetime.now(timezone.utc).isoformat())
         )
-        wallet = await db_manager.fetch_one("SELECT * FROM wallet WHERE user_id = ?", (user_id,))
+        wallet = await db_manager.fetch_one("SELECT * FROM wallet_v2 WHERE user_id = ?", (user_id,))
     return wallet
 
 @api_router.post("/wallet/update")
@@ -368,7 +358,7 @@ async def update_wallet_route(update: WalletUpdate, current_user: dict = Depends
         raise HTTPException(status_code=400, detail="Invalid action")
     
     await db_manager.execute_write(
-        "UPDATE wallet SET balance = ?, updated_at = ? WHERE user_id = ?",
+        "UPDATE wallet_v2 SET balance = ?, updated_at = ? WHERE user_id = ?",
         (new_balance, datetime.now(timezone.utc).isoformat(), user_id)
     )
     
@@ -388,7 +378,7 @@ async def place_bet(bet: BetCreate, current_user: dict = Depends(get_current_use
     created_at = datetime.now(timezone.utc).isoformat()
     
     await db_manager.execute_write("""
-        INSERT INTO bets (id, user_id, event_id, sport_key, sport_title, home_team, away_team,
+        INSERT INTO bets_v2 (id, user_id, event_id, sport_key, sport_title, home_team, away_team,
                         selected_team, bet_type, odds, amount, potential_payout, status,
                         created_at, commence_time)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
@@ -402,7 +392,7 @@ async def place_bet(bet: BetCreate, current_user: dict = Depends(get_current_use
     total_wagered = (wallet.get("total_wagered") or 0) + bet.amount
     
     await db_manager.execute_write(
-        "UPDATE wallet SET balance = ?, total_wagered = ? WHERE user_id = ?",
+        "UPDATE wallet_v2 SET balance = ?, total_wagered = ? WHERE user_id = ?",
         (new_balance, total_wagered, user_id)
     )
     
@@ -411,7 +401,7 @@ async def place_bet(bet: BetCreate, current_user: dict = Depends(get_current_use
 @api_router.get("/bets")
 async def get_bets(bet_status: Optional[str] = None, current_user: dict = Depends(get_current_user)):
     user_id = current_user["id"]
-    query = "SELECT * FROM bets WHERE user_id = ?"
+    query = "SELECT * FROM bets_v2 WHERE user_id = ?"
     params = [user_id]
     
     if bet_status:
@@ -428,13 +418,13 @@ async def get_stats(current_user: dict = Depends(get_current_user)):
     user_id = current_user["id"]
     wallet = await get_wallet_route(current_user)
     
-    total_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets WHERE user_id = ?", (user_id,))
+    total_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets_v2 WHERE user_id = ?", (user_id,))
     total_bets = total_bets_row["count"] if total_bets_row else 0
     
-    won_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets WHERE user_id = ? AND status = 'won'", (user_id,))
+    won_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets_v2 WHERE user_id = ? AND status = 'won'", (user_id,))
     won_bets = won_bets_row["count"] if won_bets_row else 0
     
-    lost_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets WHERE user_id = ? AND status = 'lost'", (user_id,))
+    lost_bets_row = await db_manager.fetch_one("SELECT COUNT(*) as count FROM bets_v2 WHERE user_id = ? AND status = 'lost'", (user_id,))
     lost_bets = lost_bets_row["count"] if lost_bets_row else 0
     
     pending_bets = total_bets - (won_bets + lost_bets)
@@ -462,7 +452,7 @@ async def get_supported_sports():
 async def get_odds_route(sport_key: str, markets: str = Query("h2h,spreads,totals")):
     cache_key = f"odds_{sport_key}_{markets}"
     
-    row = await db_manager.fetch_one("SELECT * FROM odds_cache WHERE cache_key = ?", (cache_key,))
+    row = await db_manager.fetch_one("SELECT * FROM odds_cache_v2 WHERE cache_key = ?", (cache_key,))
     if row and row.get("expires_at"):
         expires_at = datetime.fromisoformat(row["expires_at"].replace('Z', '+00:00'))
         if expires_at > datetime.now(timezone.utc):
@@ -472,7 +462,7 @@ async def get_odds_route(sport_key: str, markets: str = Query("h2h,spreads,total
     odds_data = await fetch_odds_from_api(sport_key, markets)
     
     await db_manager.execute_write("""
-        INSERT OR REPLACE INTO odds_cache (cache_key, data, cached_at, expires_at)
+        INSERT OR REPLACE INTO odds_cache_v2 (cache_key, data, cached_at, expires_at)
         VALUES (?, ?, ?, ?)
     """, (
         cache_key,
@@ -496,12 +486,12 @@ async def force_refresh_odds(sport_key: str, current_user: dict = Depends(get_cu
     markets = "h2h,spreads,totals"
     cache_key = f"odds_{sport_key}_{markets}"
     
-    await db_manager.execute_write("DELETE FROM odds_cache WHERE cache_key = ?", (cache_key,))
+    await db_manager.execute_write("DELETE FROM odds_cache_v2 WHERE cache_key = ?", (cache_key,))
     
     odds_data = await fetch_odds_from_api(sport_key, markets)
     
     await db_manager.execute_write("""
-        INSERT OR REPLACE INTO odds_cache (cache_key, data, cached_at, expires_at)
+        INSERT OR REPLACE INTO odds_cache_v2 (cache_key, data, cached_at, expires_at)
         VALUES (?, ?, ?, ?)
     """, (
         cache_key,
