@@ -34,12 +34,12 @@ const Header = ({ wallet, cacheInfo, onRefreshOdds, refreshing }) => {
                         </div>
                     )}
 
-                    {['adminash', 'ashadmin'].includes(user?.username) && (
+                    {['adminash', 'ashadmin'].includes(user?.username?.toLowerCase()) && (
                         <button
                             onClick={onRefreshOdds}
                             disabled={refreshing}
-                            className="font-mono text-xs px-3 py-2 bg-[#111111] border border-[#333333] text-[#808080] hover:border-[#39FF14]/50 hover:text-[#39FF14] disabled:opacity-50 transition-all hidden sm:block"
-                            title="Refresh odds (Admin Only)"
+                            className="font-mono text-xs px-3 py-2 bg-[#111111] border border-[#333333] text-[#808080] hover:border-[#39FF14]/50 hover:text-[#39FF14] disabled:opacity-50 transition-all"
+                            title="Refresh odds"
                         >
                             {refreshing ? 'REFRESHING...' : 'REFRESH ODDS'}
                         </button>
