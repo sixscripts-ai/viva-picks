@@ -251,21 +251,25 @@ async def register(user: UserCreate):
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     
-    # Create User
-    user_id = str(uuid.uuid4())
-    hashed_password = get_password_hash(user.password)
-    
-    await db_manager.execute_write(
-        "INSERT INTO users (id, username, email, hashed_password, created_at) VALUES (?, ?, ?, ?, ?)",
-        (user_id, user.username, user.email, hashed_password, datetime.now(timezone.utc).isoformat())
-    )
-    
-    # Create Initial Wallet
-    wallet_id = str(uuid.uuid4())
-    await db_manager.execute_write(
-        "INSERT INTO wallet (id, user_id, balance, updated_at) VALUES (?, ?, ?, ?)",
-        (wallet_id, user_id, 1000.0, datetime.now(timezone.utc).isoformat())
-    )
+    try:
+        # Create User
+        user_id = str(uuid.uuid4())
+        hashed_password = get_password_hash(user.password)
+        
+        await db_manager.execute_write(
+            "INSERT INTO users (id, username, email, hashed_password, created_at) VALUES (?, ?, ?, ?, ?)",
+            (user_id, user.username, user.email, hashed_password, datetime.now(timezone.utc).isoformat())
+        )
+        
+        # Create Initial Wallet
+        wallet_id = str(uuid.uuid4())
+        await db_manager.execute_write(
+            "INSERT INTO wallet (id, user_id, balance, updated_at) VALUES (?, ?, ?, ?)",
+            (wallet_id, user_id, 1000.0, datetime.now(timezone.utc).isoformat())
+        )
+    except Exception as e:
+        logger.error(f"Registration Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Database Error: {str(e)}")
     
     # Generate Token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
