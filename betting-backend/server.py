@@ -154,6 +154,7 @@ async def init_db():
         )
     """)
     
+    # Create new wallet table with user_id
     await db_manager.execute_write("""
         CREATE TABLE IF NOT EXISTS wallet (
             id TEXT PRIMARY KEY,
@@ -165,6 +166,15 @@ async def init_db():
             updated_at TEXT
         )
     """)
+    
+    # Migration: Add user_id column if it doesn't exist (for old tables)
+    try:
+        await db_manager.execute_write("ALTER TABLE wallet ADD COLUMN user_id TEXT")
+        logger.info("Added user_id column to wallet table")
+    except Exception as e:
+        # Column already exists or other error - ignore
+        if "duplicate column" not in str(e).lower() and "already exists" not in str(e).lower():
+            logger.warning(f"Wallet migration note: {e}")
     
     await db_manager.execute_write("""
         CREATE TABLE IF NOT EXISTS bets (
@@ -268,7 +278,7 @@ async def health():
 
 @api_router.get("/version")
 async def version():
-    return {"version": "1.0.4", "hashing": "sha256"}
+    return {"version": "1.0.5", "hashing": "sha256"}
 
 # --- AUTH ROUTES ---
 
