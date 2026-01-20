@@ -60,6 +60,8 @@ app.get('/linetracker', (req, res) => res.sendFile(path.join(__dirname, 'linetra
 app.get('/account', (req, res) => res.sendFile(path.join(__dirname, 'account.html')));
 app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
 app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+app.get('/access', (req, res) => res.sendFile(path.join(__dirname, 'access.html')));
+app.get('/performance', (req, res) => res.sendFile(path.join(__dirname, 'performance.html')));
 
 app.use(express.static('.'));
 
@@ -211,7 +213,7 @@ app.post('/api/auth/register', async (req, res) => {
                         <li>Watch for daily signals</li>
                     </ul>
                 </div>
-                <a href="https://vivapicks.tech/login.html" style="background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">ACCESS DASHBOARD</a>
+                <a href="https://vivapicks.tech/login" style="background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">ACCESS DASHBOARD</a>
                 <p style="margin-top: 30px; font-size: 0.8rem; color: #666;">
                     System Message // Automated Generation<br>
                     Viva Picks Intelligence
@@ -390,16 +392,16 @@ app.post('/api/picks', authenticateToken, requireAdmin, async (req, res) => {
                         </div>
 
                         <div style="text-align: center; margin-top: 30px;">
-                            <a href="https://vivapicks.tech/dashboard.html" style="background-color: #f97316; color: #000000; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block;">ACCESS WAR ROOM</a>
+                            <a href="https://vivapicks.tech/dashboard" style="background-color: #f97316; color: #000000; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block;">ACCESS WAR ROOM</a>
                         </div>
                     </div>
 
                     <!-- FOOTER -->
                     <div style="background-color: #111; padding: 20px; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #333;">
                         <p style="margin-bottom: 10px;">VIVA PICKS &copy; 2026</p>
-                        <a href="https://vivapicks.tech/account.html" style="color: #666; text-decoration: none;">Manage Subscription</a>
+                        <a href="https://vivapicks.tech/account" style="color: #666; text-decoration: none;">Manage Subscription</a>
                          &bull; 
-                        <a href="https://vivapicks.tech/privacy.html" style="color: #666; text-decoration: none;">Privacy</a>
+                        <a href="https://vivapicks.tech/privacy" style="color: #666; text-decoration: none;">Privacy</a>
                     </div>
                 </div>
             `;
@@ -479,7 +481,7 @@ app.put('/api/picks/:id', authenticateToken, requireAdmin, async (req, res) => {
                             ${updatedPick.analysis}
                         </div>
                          <div style="text-align: center; margin-top: 30px;">
-                            <a href="https://vivapicks.tech/dashboard.html" style="background-color: #f97316; color: #000000; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block;">VIEW DASHBOARD</a>
+                            <a href="https://vivapicks.tech/dashboard" style="background-color: #f97316; color: #000000; padding: 15px 30px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block;">VIEW DASHBOARD</a>
                         </div>
                     </div>
                 </div>
@@ -730,8 +732,8 @@ app.post('/api/create-checkout-session', authenticateToken, async (req, res) => 
             line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
             mode: 'subscription',
             allow_promotion_codes: true,
-            success_url: `https://vivapicks.tech/dashboard.html?subscription=success`,
-            cancel_url: `https://vivapicks.tech/index.html?subscription=canceled`,
+            success_url: `https://vivapicks.tech/dashboard?subscription=success`,
+            cancel_url: `https://vivapicks.tech/?subscription=canceled`,
         });
         res.json({ url: session.url });
     } catch (error) {
@@ -751,7 +753,7 @@ app.post('/api/create-portal-session', authenticateToken, async (req, res) => {
 
         const session = await stripe.billingPortal.sessions.create({
             customer: user.stripe_customer_id,
-            return_url: `https://vivapicks.tech/account.html`,
+            return_url: `https://vivapicks.tech/account`,
         });
 
         res.json({ url: session.url });

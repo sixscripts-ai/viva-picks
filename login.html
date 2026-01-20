@@ -83,7 +83,7 @@
             btn.textContent = 'AUTHENTICATING...';
 
             if (window.location.protocol === 'file:') {
-                alert('CRITICAL: You are opening the HTML file directly. You MUST navigate to http://localhost:3000/login.html in your browser for the login to function.');
+                alert('CRITICAL: You are opening the HTML file directly. You MUST navigate to http://localhost:3000/login in your browser for the login to function.');
                 btn.disabled = false;
                 btn.textContent = 'Sign In';
                 return;
@@ -104,9 +104,9 @@
                     alert('Login Success! Redirecting...');
                     // Redirect based on role
                     if (data.role === 'admin') {
-                        window.location.href = 'admin.html';
+                        window.location.href = 'admin';
                     } else {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = 'dashboard';
                     }
                 } else {
                     errorDiv.textContent = data.error || 'Login failed';
@@ -128,8 +128,8 @@
             style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
             <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
             <p style="margin-top: 1rem;"><a href="privacy"
-                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a
-                    href="terms" style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
             </p>
         </div>
     </footer>

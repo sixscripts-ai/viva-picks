@@ -140,8 +140,8 @@
             </div>
             <div class="nav-links">
                 <a href="/">Intel</a>
-                <a href="performance.html">Performance</a>
-                <a href="access.html" class="active">Access</a>
+                <a href="performance">Performance</a>
+                <a href="access" class="active">Access</a>
             </div>
             <div style="display: flex; gap: 1rem;">
                 <a href="login" class="btn btn-outline" style="border: none;">LOG IN</a>
@@ -230,8 +230,8 @@
             style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
             <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
             <p style="margin-top: 1rem;"><a href="privacy"
-                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a
-                    href="terms" style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
             </p>
         </div>
     </footer>
@@ -253,7 +253,7 @@
                     const response = await fetch('/api/create-checkout-session', { method: 'POST' });
 
                     if (response.status === 401 || response.status === 403) {
-                        window.location.href = 'signup.html';
+                        window.location.href = 'signup';
                         return;
                     }
 

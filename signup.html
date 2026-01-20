@@ -93,7 +93,7 @@
                 if (res.ok) {
                     // Auto login or redirect to login
                     alert('Account created! Please log in.');
-                    window.location.href = 'login.html';
+                    window.location.href = 'login';
                 } else {
                     errorDiv.textContent = data.error || 'Registration failed';
                     errorDiv.style.display = 'block';
