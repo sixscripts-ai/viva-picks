@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateTicker, 60000);
     loadHeroStats();
     loadPerformanceLedger();
+    setupMobileNav();
 });
 
 // --- GLOBAL FUNCTIONS (Exposed for HTML attributes) ---
@@ -459,3 +460,53 @@ window.fillForm = (game) => {
     document.getElementById('time-input').value = localIso;
     document.getElementById('odds-modal').remove();
 };
+
+function setupMobileNav() {
+    const nav = document.querySelector('nav .container');
+    if (!nav) return;
+
+    // Create Hamburger Button
+    const btn = document.createElement('button');
+    btn.className = 'mobile-menu-btn';
+    btn.innerHTML = `
+        <span style="display:block; width:25px; height:2px; background:white; margin:5px 0;"></span>
+        <span style="display:block; width:25px; height:2px; background:white; margin:5px 0;"></span>
+        <span style="display:block; width:25px; height:2px; background:white; margin:5px 0;"></span>
+    `;
+    btn.style.cssText = 'background:none; border:none; cursor:pointer; display:none; z-index:1001;';
+
+    // Insert before the last element (usually the CTA buttons) or append
+    nav.insertBefore(btn, nav.lastElementChild);
+
+    // Create Overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'mobile-nav-overlay';
+    overlay.innerHTML = `
+        <div style="padding: 2rem; display:flex; flex-direction:column; gap:2rem; text-align:center; padding-top:100px;">
+            <a href="/" style="font-size:1.5rem; color:white; text-decoration:none; font-weight:bold;">HOME</a>
+            <a href="dashboard" style="font-size:1.5rem; color:white; text-decoration:none; font-weight:bold;">FEED</a>
+            <a href="performance" style="font-size:1.5rem; color:white; text-decoration:none; font-weight:bold;">PERFORMANCE</a>
+            <a href="access" style="font-size:1.5rem; color:white; text-decoration:none; font-weight:bold;">ACCESS</a>
+            <div style="width:50px; height:1px; background:#333; margin:0 auto;"></div>
+            <a href="login" style="font-size:1.2rem; color:var(--primary); text-decoration:none;">LOGIN</a>
+        </div>
+    `;
+    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100vh; background:rgba(0,0,0,0.95); z-index:1000; display:none; flex-direction:column; backdrop-filter:blur(10px);';
+
+    document.body.appendChild(overlay);
+
+    // Logic
+    btn.addEventListener('click', () => {
+        const isOpen = overlay.style.display === 'flex';
+        overlay.style.display = isOpen ? 'none' : 'flex';
+        document.body.style.overflow = isOpen ? 'auto' : 'hidden'; // Prevent scroll
+    });
+
+    // Close on click
+    overlay.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    });
+}

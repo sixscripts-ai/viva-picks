@@ -327,6 +327,26 @@ nav .container {
 }
 
 @media (max-width: 768px) {
+
+    /* Navbar Mobile */
+    .nav-links,
+    nav .container>div:last-child {
+        display: none !important;
+    }
+
+    .mobile-menu-btn {
+        display: block !important;
+    }
+
+    .logo {
+        font-size: 1.2rem;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    /* Layout Adjustments */
     .dashboard-container {
         grid-template-columns: 1fr;
         padding-top: 1rem;
@@ -379,18 +399,17 @@ nav .container {
         color: var(--primary);
     }
 
-    /* Adjust Main Content */
+    /* Adjust Main Content & Typography */
     .main-content {
         padding: 0 0.5rem;
     }
 
-    /* Hide standard nav links */
-    .nav-links {
-        display: none;
+    h1 {
+        font-size: 2rem !important;
     }
 
-    .logo {
-        font-size: 1.2rem;
+    h2 {
+        font-size: 1.5rem !important;
     }
 
     .pick-card {
@@ -399,21 +418,38 @@ nav .container {
         padding: 1rem;
     }
 
+    .pick-card div:last-child {
+        text-align: left !important;
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     .card-grid {
         grid-template-columns: 1fr;
     }
 
     .ledger-stats {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr 1fr !important;
     }
 
-    .hero h1 {
-        font-size: 2rem;
+    .pricing-hero h1 {
+        font-size: 2.5rem !important;
+    }
+
+    .access-card div {
+        font-size: 2.5rem !important;
+    }
+
+    .compare-grid {
+        grid-template-columns: 1fr;
     }
 
     /* Calculators */
     .glass-panel {
         padding: 1rem;
+        overflow-x: auto !important;
     }
 }
 
@@ -578,11 +614,20 @@ nav .container {
     gap: 1rem;
     margin-bottom: 2rem;
 }
+
 /* Loading Pulse Animation */
 @keyframes loadingPulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
 }
 
 .loading-pulse {
@@ -596,6 +641,11 @@ nav .container {
 }
 
 @keyframes skeletonLoading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
