@@ -345,7 +345,10 @@ nav .container {
     }
 
     .container {
-        padding: 0 1rem;
+        padding: 0 1.5rem;
+        /* Increased padding to crunch it in */
+        width: 100%;
+        max-width: 100%;
     }
 
     /* Layout Adjustments */
@@ -479,13 +482,19 @@ nav .container {
 
     /* Calculators */
     .glass-panel {
-        padding: 1rem;
+        padding: 1.5rem;
+        /* More breathing room */
         width: 100% !important;
         overflow-x: auto !important;
-        max-width: 100vw !important;
-        /* Force constraint */
+        max-width: 100% !important;
         box-sizing: border-box;
-        /* Include padding in width */
+    }
+
+    input,
+    select,
+    textarea {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     /* Fix Hero Section Stacking */
