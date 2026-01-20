@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             if (path.includes('account')) renderAccountData(user);
-            if (path.includes('admin')) { fetchAdminStats(); fetchPicksHistory(); }
+            if (path.includes('admin')) { fetchAdminStats(); fetchPicksHistory(); setupAdminListeners(); }
 
         } catch (err) { console.error('Auth Check Failed', err); }
     }
@@ -351,3 +351,111 @@ function renderChart(picks) {
     });
     new Chart(ctx, { type: 'line', data: { labels: settled.map(p => new Date(p.time).toLocaleDateString()), datasets: [{ data, borderColor: '#f97316', fill: true, tension: 0.4 }] }, options: { plugins: { legend: { display: false } } } });
 }
+
+function setupAdminListeners() {
+    const publishBtn = document.getElementById('publish-btn');
+    if (publishBtn) {
+        publishBtn.addEventListener('click', (e) => { e.preventDefault(); submitPick('POST'); });
+    }
+    const updateBtn = document.getElementById('update-btn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', (e) => { e.preventDefault(); submitPick('PUT'); });
+    }
+    const getLinesBtn = document.getElementById('get-lines-btn');
+    if (getLinesBtn) {
+        getLinesBtn.addEventListener('click', fetchLinesForAdmin);
+    }
+}
+
+async function submitPick(method) {
+    const isUpdate = method === 'PUT';
+    const id = document.getElementById('editing-pick-id').value;
+
+    // Get values
+    const sport = document.getElementById('sport-select').value;
+    const time = document.getElementById('time-input').value;
+    const matchup = document.getElementById('matchup-input').value;
+    const pick = document.getElementById('pick-input').value;
+    const odds = document.getElementById('odds-input').value;
+    const units = document.getElementById('units-select').value;
+    const bet_type = document.getElementById('bet-type').value;
+    const analysis = document.getElementById('analysis-input').value;
+    const result = document.getElementById('result-select').value;
+    const notify = document.getElementById('notify-check').checked;
+
+    if (!matchup || !pick) {
+        alert('Matchup and Pick are required');
+        return;
+    }
+
+    const payload = { sport, time, matchup, pick, odds, units, bet_type, analysis, result: result || null, notify };
+    const url = isUpdate ? `/api/picks/${id}` : '/api/picks';
+
+    try {
+        const res = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(isUpdate ? 'Pick updated successfully' : 'Pick published successfully');
+            window.location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Request failed');
+    }
+}
+
+async function fetchLinesForAdmin() {
+    const sport = document.getElementById('sport-select').value;
+    const btn = document.getElementById('get-lines-btn');
+    btn.textContent = 'Loading...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(`/api/admin/odds/${sport}`);
+        const games = await res.json();
+        if (games.error) throw new Error(games.error);
+
+        if (games.length === 0) { alert('No games found'); return; }
+
+        const existing = document.getElementById('odds-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'odds-modal';
+        modal.className = 'glass-panel';
+        modal.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; max-height:80vh; overflow-y:auto; width:90%; max-width:500px; background:#000; border:1px solid var(--primary); padding:20px;';
+
+        let html = '<h3 style="color:var(--primary); margin-top:0;">Select Game</h3>';
+        games.forEach(g => {
+            html += `<div onclick='fillForm(${JSON.stringify(g).replace(/'/g, "&#39;")})' style="padding:10px; border-bottom:1px solid #333; cursor:pointer;" onmouseover="this.style.background='#111'" onmouseout="this.style.background='transparent'">
+                <div style="font-weight:bold;">${g.matchup}</div>
+                <div style="font-size:0.8rem; color:#888;">${new Date(g.time).toLocaleString()}</div>
+            </div>`;
+        });
+        html += '<button onclick="this.parentElement.remove()" style="margin-top:20px; width:100%;" class="btn btn-outline">Close</button>';
+
+        modal.innerHTML = html;
+        document.body.appendChild(modal);
+
+    } catch (e) {
+        alert('Error: ' + e.message);
+    } finally {
+        btn.textContent = 'Get Lines';
+        btn.disabled = false;
+    }
+}
+
+window.fillForm = (game) => {
+    document.getElementById('matchup-input').value = game.matchup;
+    // Format time for datetime-local
+    const date = new Date(game.time);
+    const localIso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+    document.getElementById('time-input').value = localIso;
+    document.getElementById('odds-modal').remove();
+};
