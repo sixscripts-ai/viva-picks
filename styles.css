@@ -358,50 +358,58 @@ nav .container {
         gap: 1rem;
     }
 
-    /* Convert Sidebar to Horizontal Nav Scroll */
+    /* Dashboard Mobile Sidebar Dropdown */
+    .dashboard-menu-toggle {
+        display: flex !important;
+        margin-bottom: 1rem;
+    }
+
     .sidebar {
-        position: sticky;
-        top: 60px;
-        /* Below Navbar */
-        z-index: 900;
-        background: var(--bg-dark);
-        margin: 0 -2rem;
-        /* Bleed to edges */
-        padding: 0.5rem 2rem;
-        border-bottom: 1px solid var(--border);
+        position: relative !important;
+        top: 0 !important;
+        z-index: 10;
+        background: transparent !important;
+        margin: 0 !important;
+        padding: 0 0 1rem 0 !important;
+        border-bottom: none !important;
+        width: 100%;
     }
 
     .sidebar-menu {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 0;
-        gap: 1rem;
-        -webkit-overflow-scrolling: touch;
-        /* Smooth scroll */
-        scrollbar-width: none;
-        /* Hide scrollbar Firefox */
+        display: none;
+        /* Hidden by default */
+        flex-direction: column !important;
+        width: 100%;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-top: none;
+        overflow: hidden;
     }
 
-    .sidebar-menu::-webkit-scrollbar {
-        display: none;
-        /* Hide scrollbar Chrome */
+    .sidebar-menu.active {
+        display: flex !important;
     }
 
     .sidebar-menu a {
         background: transparent;
-        border-left: none;
-        border-bottom: 2px solid transparent;
-        padding: 0.8rem 0.5rem;
-        font-size: 0.8rem;
-        white-space: nowrap;
+        border-left: 2px solid transparent;
+        border-bottom: 1px solid var(--border);
+        padding: 1rem;
+        font-size: 0.9rem;
+        width: 100%;
+        text-align: left;
+    }
+
+    .sidebar-menu a:last-child {
+        border-bottom: none;
     }
 
     .sidebar-menu a:hover,
     .sidebar-menu a.active {
-        background: transparent;
-        border-left: none;
-        border-bottom: 2px solid var(--primary);
-        color: var(--primary);
+        background: #1f1f1f;
+        border-left: 2px solid var(--primary);
+        border-bottom: 1px solid var(--border);
+        color: white;
     }
 
     /* Adjust Main Content & Typography */

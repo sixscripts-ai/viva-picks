@@ -97,7 +97,63 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHeroStats();
     loadPerformanceLedger();
     setupMobileNav();
+    setupDashboardMenus();
 });
+
+// ... (existing global functions) ...
+
+function setupDashboardMenus() {
+    const sidebar = document.querySelector('.sidebar');
+    const menu = document.querySelector('.sidebar-menu');
+    if (!sidebar || !menu) return;
+
+    // Create Toggle Button
+    const toggle = document.createElement('button');
+    toggle.className = 'dashboard-menu-toggle';
+    // Get current active text if any
+    const activeLink = menu.querySelector('a.active');
+    const activeText = activeLink ? activeLink.innerText : 'DASHBOARD MENU';
+
+    toggle.innerHTML = `<span>☰ ${activeText}</span> <span class="arrow" style="font-size: 0.8rem;">▼</span>`;
+    toggle.style.cssText = `
+        width: 100%;
+        padding: 1rem;
+        background: var(--bg-card);
+        color: var(--primary);
+        border: 1px solid var(--border);
+        font-family: var(--font-heading);
+        text-align: left;
+        cursor: pointer;
+        display: none; /* Hidden on desktop via CSS, but we set flex in CSS for mobile */
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1rem;
+        letter-spacing: 1px;
+    `;
+
+    // Insert at top of sidebar
+    sidebar.insertBefore(toggle, menu);
+
+    // CSS class handles display: flex on mobile for .dashboard-menu-toggle
+    // We just need to ensure it's hidden on desktop, which styles.css should handle if we didn't add it.
+    // Actually, let's add the media query rule for this button in styles.css if not present.
+    // Wait, I didn't add the rule for .dashboard-menu-toggle in the previous step, I only relied on JS inline style display:none?
+    // No, I set display:none in inline style. I need to override it in CSS or just manage it here.
+    // Proper way: Set class, let CSS handle responsiveness.
+    // But since I can't edit CSS again right now easily without another step, let's just rely on the fact that 
+    // the previous CSS block I wrote didn't explicitly select .dashboard-menu-toggle to show it.
+    // I need to add that rule.
+    // Actually I can just set it to display: none and use a media query in the JS or just rely on CSS.
+    // Let's add the CSS rule for .dashboard-menu-toggle in the next step to be sure. 
+    // For now, let's put the logic.
+
+    toggle.addEventListener('click', () => {
+        menu.classList.toggle('active');
+        const isActive = menu.classList.contains('active');
+        toggle.querySelector('.arrow').innerText = isActive ? '▲' : '▼';
+    });
+}
+
 
 // --- GLOBAL FUNCTIONS (Exposed for HTML attributes) ---
 
