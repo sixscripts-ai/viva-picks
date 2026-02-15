@@ -1,0 +1,87 @@
+{% extends "core/base.html" %}
+
+{% block title %}Health · Admin{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-4xl">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight">Admin health</h1>
+        <p class="mt-2 text-sm text-slate-400">Verify Stripe, webhook, and email configuration.</p>
+      </div>
+      <div class="flex gap-3">
+        <a href="{% url 'admin_email_test' %}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
+          Test email
+        </a>
+        <a href="{% url 'admin_dashboard' %}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
+          Back
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-2">
+      <section class="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <h2 class="text-lg font-semibold">Stripe</h2>
+        <div class="mt-4 space-y-3 text-sm">
+          {% for k, ok in stripe_keys.items %}
+            <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+              <div class="font-semibold text-slate-200">{{ k }}</div>
+              <div class="rounded-full px-3 py-1 text-xs font-semibold {% if ok %}bg-emerald-500/15 text-emerald-300{% else %}bg-rose-500/15 text-rose-300{% endif %}">
+                {% if ok %}SET{% else %}MISSING{% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="mt-5 rounded-2xl border border-white/10 bg-black/20 px-4 py-4 text-sm text-slate-300">
+          <div class="font-semibold text-slate-200">Webhook URL</div>
+          <div class="mt-1 break-all text-slate-300">{{ public_domain }}{{ webhook_path }}</div>
+        </div>
+      </section>
+
+      <section class="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <h2 class="text-lg font-semibold">Email</h2>
+        <div class="mt-4 space-y-3 text-sm">
+          <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">EMAIL_BACKEND</div>
+            <div class="mt-1 break-all text-sm font-semibold text-slate-200">{{ email_keys.EMAIL_BACKEND }}</div>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">DEFAULT_FROM_EMAIL</div>
+            <div class="mt-1 break-all text-sm font-semibold text-slate-200">{{ email_keys.DEFAULT_FROM_EMAIL }}</div>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">EMAIL_HOST</div>
+              <div class="mt-1 text-sm font-semibold {% if email_keys.EMAIL_HOST %}text-emerald-300{% else %}text-rose-300{% endif %}">
+                {% if email_keys.EMAIL_HOST %}SET{% else %}MISSING{% endif %}
+              </div>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">EMAIL_HOST_USER</div>
+              <div class="mt-1 text-sm font-semibold {% if email_keys.EMAIL_HOST_USER %}text-emerald-300{% else %}text-rose-300{% endif %}">
+                {% if email_keys.EMAIL_HOST_USER %}SET{% else %}MISSING{% endif %}
+              </div>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">EMAIL_PORT</div>
+              <div class="mt-1 text-sm font-semibold text-slate-200">{{ email_keys.EMAIL_PORT }}</div>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">TLS / SSL</div>
+              <div class="mt-1 text-sm font-semibold text-slate-200">
+                TLS {{ email_keys.EMAIL_USE_TLS }} · SSL {{ email_keys.EMAIL_USE_SSL }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 text-sm text-slate-400">
+          Use the Test email page to verify end-to-end delivery.
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}
+

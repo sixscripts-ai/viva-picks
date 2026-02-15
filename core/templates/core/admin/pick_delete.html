@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+
+{% block title %}Delete pick · Admin{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <div class="rounded-3xl border border-rose-500/30 bg-rose-500/10 p-6 sm:p-8">
+      <h1 class="text-2xl font-semibold tracking-tight text-rose-100">Delete pick</h1>
+      <p class="mt-2 text-sm text-rose-200/80">
+        This will permanently remove the pick from the dashboard.
+      </p>
+
+      <div class="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5">
+        <div class="text-sm font-semibold text-white">{{ pick.title }}</div>
+        <div class="mt-1 text-sm text-slate-300">{{ pick.sport }}{% if pick.league %} · {{ pick.league }}{% endif %}</div>
+      </div>
+
+      <form method="post" class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+        {% csrf_token %}
+        <a href="{% url 'admin_dashboard' %}" class="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-white/10">Cancel</a>
+        <button type="submit" class="rounded-xl bg-rose-200 px-5 py-3 text-sm font-semibold text-rose-950 hover:bg-rose-100">
+          Delete
+        </button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+

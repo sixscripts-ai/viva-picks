@@ -1,0 +1,70 @@
+{% extends "core/base.html" %}
+
+{% block title %}Viva Picks{% endblock %}
+
+{% block content %}
+  <section class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/[0.03] to-transparent p-8 sm:p-12">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.2),transparent_45%),radial-gradient(circle_at_bottom,rgba(139,92,246,0.18),transparent_50%)]"></div>
+    <div class="relative">
+      <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+        New picks posted daily
+      </div>
+      <h1 class="mt-6 text-3xl font-semibold tracking-tight sm:text-5xl">
+        Modern sports betting picks, delivered with discipline.
+      </h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
+        Subscribe to access our curated picks, clean bankroll guidance, and a member dashboard built for clarity. No noise, no hype.
+      </p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href="{% url 'pricing' %}" class="rounded-xl bg-white px-5 py-3 text-center text-sm font-semibold text-slate-900 hover:bg-slate-200">See pricing</a>
+        <a href="{% url 'member_dashboard' %}" class="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-white/10">View member dashboard</a>
+      </div>
+
+      <div class="mt-10 grid gap-4 sm:grid-cols-3">
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-5">
+          <div class="text-sm font-semibold">Premium picks</div>
+          <div class="mt-1 text-sm text-slate-300">Clear bet, odds, units, and quick rationale.</div>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-5">
+          <div class="text-sm font-semibold">Subscription access</div>
+          <div class="mt-1 text-sm text-slate-300">Stripe billing with self-serve portal.</div>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-5">
+          <div class="text-sm font-semibold">Admin controls</div>
+          <div class="mt-1 text-sm text-slate-300">Post and manage picks in minutes.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-12">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-semibold tracking-tight">Latest picks (preview)</h2>
+        <p class="mt-1 text-sm text-slate-400">Subscribe to unlock the full card and analysis.</p>
+      </div>
+      <a href="{% url 'pricing' %}" class="text-sm font-semibold text-brand-400 hover:text-brand-300">Unlock access</a>
+    </div>
+
+    <div class="mt-6 grid gap-4">
+      {% for pick in latest_picks %}
+        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <div class="text-sm text-slate-400">{{ pick.sport }}{% if pick.league %} · {{ pick.league }}{% endif %}</div>
+              <div class="mt-1 text-base font-semibold">{{ pick.title }}</div>
+            </div>
+            <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
+              Locked
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm text-slate-300">
+          No picks posted yet. Use the admin dashboard to publish your first card.
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

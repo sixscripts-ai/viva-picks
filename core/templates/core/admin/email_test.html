@@ -1,0 +1,72 @@
+{% extends "core/base.html" %}
+
+{% block title %}Email test · Admin{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight">Send test email</h1>
+        <p class="mt-2 text-sm text-slate-400">Verify SMTP/provider is configured correctly.</p>
+      </div>
+      <div class="flex gap-3">
+        <a href="{% url 'admin_health' %}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
+          Health
+        </a>
+        <a href="{% url 'admin_dashboard' %}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
+          Back
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300">To email</label>
+          <div class="mt-2">{{ form.to_email }}</div>
+          {% if form.to_email.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.to_email.errors }}</div>{% endif %}
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-300">Subject</label>
+          <div class="mt-2">{{ form.subject }}</div>
+          {% if form.subject.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.subject.errors }}</div>{% endif %}
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-300">Message</label>
+          <div class="mt-2">{{ form.message }}</div>
+          {% if form.message.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.message.errors }}</div>{% endif %}
+        </div>
+
+        <div class="flex justify-end">
+          <button type="submit" class="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-200">
+            Send
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const classes = [
+      "w-full",
+      "rounded-xl",
+      "border",
+      "border-white/10",
+      "bg-white/5",
+      "px-4",
+      "py-3",
+      "text-sm",
+      "text-white",
+      "placeholder:text-slate-500",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-brand-500"
+    ];
+    for (const el of document.querySelectorAll("input, textarea")) {
+      el.classList.add(...classes);
+    }
+  </script>
+{% endblock %}
+

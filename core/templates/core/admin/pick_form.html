@@ -1,0 +1,116 @@
+{% extends "core/base.html" %}
+
+{% block title %}{% if mode == "edit" %}Edit pick{% else %}New pick{% endif %} · Admin{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-3xl">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight">
+          {% if mode == "edit" %}Edit pick{% else %}Create pick{% endif %}
+        </h1>
+        <p class="mt-2 text-sm text-slate-400">Publish clean, structured picks to the member dashboard.</p>
+      </div>
+      <a href="{% url 'admin_dashboard' %}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
+        Back
+      </a>
+    </div>
+
+    <div class="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}<div class="text-sm text-rose-300">{{ form.non_field_errors }}</div>{% endif %}
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="text-xs font-semibold text-slate-300">Title</label>
+            <div class="mt-2">{{ form.title }}</div>
+            {% if form.title.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.title.errors }}</div>{% endif %}
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300">Sport</label>
+            <div class="mt-2">{{ form.sport }}</div>
+            {% if form.sport.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.sport.errors }}</div>{% endif %}
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300">League</label>
+            <div class="mt-2">{{ form.league }}</div>
+            {% if form.league.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.league.errors }}</div>{% endif %}
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300">Event time</label>
+            <div class="mt-2">{{ form.event_datetime }}</div>
+            {% if form.event_datetime.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.event_datetime.errors }}</div>{% endif %}
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300">Result</label>
+            <div class="mt-2">{{ form.result }}</div>
+            {% if form.result.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.result.errors }}</div>{% endif %}
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-xs font-semibold text-slate-300">Bet</label>
+            <div class="mt-2">{{ form.bet }}</div>
+            {% if form.bet.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.bet.errors }}</div>{% endif %}
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300">Odds</label>
+            <div class="mt-2">{{ form.odds }}</div>
+            {% if form.odds.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.odds.errors }}</div>{% endif %}
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300">Units</label>
+            <div class="mt-2">{{ form.units }}</div>
+            {% if form.units.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.units.errors }}</div>{% endif %}
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-xs font-semibold text-slate-300">Analysis</label>
+            <div class="mt-2">{{ form.analysis }}</div>
+            {% if form.analysis.errors %}<div class="mt-2 text-xs text-rose-300">{{ form.analysis.errors }}</div>{% endif %}
+          </div>
+          <div class="sm:col-span-2 flex items-center justify-between rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+            <div>
+              <div class="text-sm font-semibold">Premium</div>
+              <div class="text-xs text-slate-400">Show this pick in the member dashboard.</div>
+            </div>
+            <div>{{ form.is_premium }}</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+          <button type="submit" class="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-200">
+            {% if mode == "edit" %}Save changes{% else %}Create pick{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const classes = [
+      "w-full",
+      "rounded-xl",
+      "border",
+      "border-white/10",
+      "bg-white/5",
+      "px-4",
+      "py-3",
+      "text-sm",
+      "text-white",
+      "placeholder:text-slate-500",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-brand-500"
+    ];
+    for (const el of document.querySelectorAll("input:not([type=checkbox]), textarea, select")) {
+      el.classList.add(...classes);
+    }
+    for (const el of document.querySelectorAll("select")) {
+      el.classList.add("appearance-none");
+    }
+    for (const el of document.querySelectorAll("input[type=checkbox]")) {
+      el.classList.add("h-5", "w-5", "rounded", "border-white/20", "bg-white/10", "text-brand-500");
+    }
+  </script>
+{% endblock %}
+
