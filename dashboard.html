@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">V</div>
+                Viva Picks
+            </div>
+            <div class="nav-links">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 35px; height: 35px; background: #333; border-radius: 50%;"></div>
+                        <span>Welcome, User</span>
+                    </div>
+                    <button onclick="logout()" class="btn btn-outline"
+                        style="padding: 5px 15px; font-size: 0.85rem; border-color: #333; color: #888;">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="ticker-wrap">
+        <div id="live-ticker" class="ticker">
+            <div class="ticker-item">VIVA PROTOCOL: <span>INITIALIZING INTEL STREAM...</span></div>
+            <div class="ticker-item">SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span></div>
+        </div>
+    </div>
+
+    <div class="dashboard-container container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard" class="active">📊 SIGNAL FEED</a></li>
+                <li><a href="warroom" style="color: var(--primary);">📡 WAR ROOM</a></li>
+                <li><a href="linetracker">📈 LINE TRACKER</a></li>
+                <li><a href="account">💳 ACCOUNT STATUS</a></li>
+                <!-- <li><a href="#">📜 HISTORY logs</a></li> -->
+                <li id="admin-link" style="display: none;"><a href="admin"
+                        style="color: var(--primary); border-color: var(--primary);">🔒 OPERATOR PANEL</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <h1 style="margin-bottom: 2rem;">Today's Action</h1>
+
+            <div class="card-grid" id="picks-container">
+                <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
+                    Loading picks from server...
+                </div>
+            </div>
+            <div class="disclaimer-banner">
+                // RESULTS DISCLAIMER: SPORTS BETTING INVOLVES SIGNIFICANT RISK. ALL PICKS ARE FOR ENTERTAINMENT AND
+                INFORMATION PURPOSES ONLY. PAST PERFORMANCE DOES NOT GUARANTEE FUTURE RESULTS. VIVA PICKS IS NOT A
+                GAMBLING PLATFORM AND DOES NOT ACCEPT WAGERS. PLEASE BET RESPONSIBLY.
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    <footer
+        style="padding: 3rem 0; border-top: 1px solid var(--border); background: var(--bg-card); margin-top: 100px;">
+        <div class="container"
+            style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
+            <p style="margin-top: 1rem;"><a href="privacy"
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

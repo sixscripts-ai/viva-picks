@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Access | Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .pricing-hero {
+            padding: 120px 0 80px;
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000 70%);
+            text-align: center;
+        }
+
+        .access-card {
+            background: #0a0a0c;
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(249, 115, 22, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .access-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .feature-list {
+            list-style: none;
+            text-align: left;
+            margin: 3rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+        }
+
+        .feature-item span {
+            color: var(--primary);
+            font-weight: 900;
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 2rem;
+            margin-top: 80px;
+            border-top: 1px solid var(--border);
+            padding-top: 60px;
+        }
+
+        .check-icon {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .cross-icon {
+            color: #444;
+        }
+
+        .faq-item {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-item h4 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .faq-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-hero {
+                padding: 80px 0 40px;
+            }
+
+            .access-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .access-card h2 {
+                font-size: 2rem;
+            }
+
+            .access-card div {
+                font-size: 3rem !important;
+            }
+
+            .compare-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                text-align: left;
+            }
+
+            .compare-grid div {
+                border-bottom: 1px solid #111;
+                padding: 0.5rem 0;
+            }
+
+            .compare-grid div:nth-child(3n+1) {
+                background: #000;
+                color: white;
+                font-weight: bold;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">V</div>
+                VIVA PICKS
+            </div>
+            <div class="nav-links">
+                <a href="/">Intel</a>
+                <a href="performance">Performance</a>
+                <a href="access" class="active">Access</a>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <a href="login" class="btn btn-outline" style="border: none;">LOG IN</a>
+                <a href="signup" class="btn btn-primary">SIGN UP</a>
+            </div>
+        </div>
+    </nav>
+    <div class="ticker-wrap">
+        <div id="live-ticker" class="ticker">
+            <div class="ticker-item">VIVA PROTOCOL: <span>INITIALIZING INTEL STREAM...</span></div>
+            <div class="ticker-item">SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span></div>
+        </div>
+    </div>
+
+    <header class="pricing-hero">
+        <div class="container">
+            <div style="font-family: var(--font-mono); color: var(--primary); margin-bottom: 1.5rem;">[ ACCESS PROTOCOL
+                ]</div>
+            <h1 style="font-size: 4rem; margin-bottom: 2rem; letter-spacing: -2px;">UNLEASH THE EDGE.</h1>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 4rem; font-size: 1.1rem;">
+                Stop betting with your emotions. Start betting with our algorithm. Join 1,200+ operators dominating the
+                market today.
+            </p>
+
+            <div class="access-card">
+                <div
+                    style="font-family: var(--font-mono); color: var(--primary); font-size: 0.8rem; margin-bottom: 1rem;">
+                    // FULL OPERATOR PASS</div>
+                <h2 style="font-size: 3rem; margin-bottom: 1rem;">OPERATOR</h2>
+                <div style="font-size: 4rem; font-weight: 800; color: white;">$29.99<span
+                        style="font-size: 1.2rem; color: var(--text-muted); font-weight: 300;">/mo</span></div>
+
+                <ul class="feature-list">
+                    <li class="feature-item"><span>[✓]</span> UNLIMITED DAILY SIGNALS (ALL SPORTS)</li>
+                    <li class="feature-item"><span>[✓]</span> FULL DATA-DRIVEN ANALYSIS REPORTS</li>
+                    <li class="feature-item"><span>[✓]</span> UNIT ALLOCATION RECOMMENDATIONS</li>
+                    <li class="feature-item"><span>[✓]</span> INSTANT EMAIL & DASHBOARD ALERTS</li>
+                    <li class="feature-item"><span>[✓]</span> PRIVATE COMMUNITY ACCESS</li>
+                </ul>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; font-size: 0.8rem; color: var(--text-muted); text-align: left;">
+                        <input type="checkbox" id="checkout-opt-in" required style="margin-top: 0.2rem;">
+                        <span>I understand that this is a recurring subscription. I agree to receive emails and accept
+                            the <a href="privacy" target="_blank" style="color: var(--primary);">Privacy Policy</a>
+                            and <a href="terms" target="_blank" style="color: var(--primary);">Terms</a>.</span>
+                    </label>
+                </div>
+
+                <button id="checkout-btn" class="btn btn-primary"
+                    style="width: 100%; padding: 1.5rem; font-size: 1.1rem;">DEPLOY CAPITAL →</button>
+                <div
+                    style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono);">
+                    SECURE ENCRYPTED CHECKOUT</div>
+            </div>
+        </div>
+    </header>
+
+    <section style="padding: 100px 0; background: var(--bg-card);">
+        <div class="container" style="max-width: 800px;">
+            <h2 style="margin-bottom: 3rem; text-align: center;">FREQUENTLY ASKED</h2>
+
+            <div class="faq-item">
+                <h4>What sports do you cover?</h4>
+                <p>Our algorithm identifies value across the NBA, NFL, NHL, and Major League Baseball, with occasional
+                    signals for high-profile UFC and Football (Soccer) events.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>How do I receive the signals?</h4>
+                <p>Instantly. Signals are pushed to your private dashboard and delivered via email the millisecond our
+                    models confirm an edge.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>Can I cancel my subscription?</h4>
+                <p>Yes, at any time. We don't believe in locking users into contracts. If the edge isn't there for you,
+                    you're free to leave with one click.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer style="padding: 3rem 0; border-top: 1px solid var(--border); background: #000;">
+        <div class="container"
+            style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
+            <p style="margin-top: 1rem;"><a href="privacy"
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const checkoutBtn = document.getElementById('checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', async () => {
+                const optIn = document.getElementById('checkout-opt-in');
+                if (!optIn.checked) {
+                    alert('Please agree to the Terms and Privacy Policy to proceed.');
+                    return;
+                }
+                const btn = checkoutBtn;
+                btn.innerText = 'PROCESSING...';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/create-checkout-session', { method: 'POST' });
+
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = 'signup';
+                        return;
+                    }
+
+                    const data = await response.json();
+                    if (data.url) {
+                        window.location.href = data.url;
+                    } else {
+                        alert('Error: ' + (data.error || 'Unknown error'));
+                        btn.innerText = 'DEPLOY CAPITAL →';
+                        btn.disabled = false;
+                    }
+                } catch (err) {
+                    alert('Connection error. Try logging in first.');
+                    btn.innerText = 'DEPLOY CAPITAL →';
+                    btn.disabled = false;
+                }
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

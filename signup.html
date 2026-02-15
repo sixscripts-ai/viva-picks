@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+
+    <nav>
+        <div class="container">
+            <a href="/" class="logo" style="text-decoration: none;">
+                <div class="logo-icon">V</div>
+                Viva Picks
+            </a>
+            <div class="nav-links">
+                <a href="login">Log In</a>
+            </div>
+        </div>
+    </nav>
+    <div class="ticker-wrap">
+        <div id="live-ticker" class="ticker">
+            <div class="ticker-item">VIVA PROTOCOL: <span>INITIALIZING INTEL STREAM...</span></div>
+            <div class="ticker-item">SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span></div>
+        </div>
+    </div>
+
+    <div class="container"
+        style="flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 80px;">
+        <div class="glass-panel" style="width: 100%; max-width: 400px; padding: 2.5rem;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Create Account</h1>
+                <p style="color: var(--text-muted);">Join the community and start winning.</p>
+            </div>
+
+            <form id="signup-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Create a strong password"
+                        required>
+                </div>
+
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); text-transform: none; font-family: var(--font-body);">
+                        <input type="checkbox" id="opt-in" required style="margin-top: 0.3rem;">
+                        <span>I agree to receive emails and accept the <a href="privacy" target="_blank"
+                                style="color: var(--primary); text-decoration: underline;">Privacy Policy</a> and <a
+                                href="terms" target="_blank"
+                                style="color: var(--primary); text-decoration: underline;">Terms &
+                                Conditions</a>.</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+
+            <div id="error-msg" style="color: #ff5252; text-align: center; margin-top: 1rem; display: none;"></div>
+
+            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                Already have an account? <a href="login" style="color: var(--accent); text-decoration: none;">Log
+                    In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error-msg');
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Auto login or redirect to login
+                    alert('Account created! Please log in.');
+                    window.location.href = 'login';
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Server connection error';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+    <footer style="padding: 3rem 0; border-top: 1px solid var(--border); background: var(--bg-card); margin-top: auto;">
+        <div class="container"
+            style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
+            <p style="margin-top: 1rem;"><a href="privacy"
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

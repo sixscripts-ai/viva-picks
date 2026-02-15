@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon" style="background: #ff5252;">A</div>
+                Viva Admin
+            </div>
+            <div class="nav-links">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="dashboard" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none;">View
+                        User Dashboard</a>
+                    <button onclick="logout()" class="btn btn-outline"
+                        style="padding: 5px 15px; font-size: 0.85rem; border-color: #333; color: #888;">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="ticker-wrap">
+        <div id="live-ticker" class="ticker">
+            <div class="ticker-item">VIVA PROTOCOL: <span>INITIALIZING INTEL STREAM...</span></div>
+            <div class="ticker-item">SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span></div>
+        </div>
+    </div>
+
+    <div class="dashboard-container container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="admin" class="active">📝 POST PICKS</a></li>
+                <li><a href="dashboard">📊 SIGNAL FEED</a></li>
+                <li><a href="warroom" style="color: var(--primary);">📡 WAR ROOM</a></li>
+                <li><a href="linetracker">📈 LINE TRACKER</a></li>
+                <li><a href="account">💳 ACCOUNT STATUS</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <!-- Stats Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Total Users</h3>
+                    <div id="stat-total-users" style="font-size: 2.5rem; font-weight: 700; color: white;">-</div>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Active Subs</h3>
+                    <div id="stat-active-subs" style="font-size: 2.5rem; font-weight: 700; color: var(--accent);">-
+                    </div>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Est. Revenue
+                    </h3>
+                    <div id="stat-revenue" style="font-size: 2.5rem; font-weight: 700; color: #4ade80;">-</div>
+                </div>
+            </div>
+
+            <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--border);">
+                <h3 style="margin-top: 0; color: var(--text-muted); font-size: 0.9rem;">SYSTEM DIAGNOSTICS</h3>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+                    <input type="email" id="test-email-input" placeholder="Enter email address" class="form-control"
+                        style="width: 250px;">
+                    <button class="btn btn-secondary" onclick="testEmailRelay()">Test Email Relay</button>
+                    <span id="test-email-status" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+                </div>
+            </div>
+
+            <h1 style="margin-bottom: 2rem;">Post New Pick</h1>
+
+            <div class="glass-panel" style="padding: 2rem; max-width: 800px;">
+                <!-- Form Content (Keeping as is, handled by script.js) -->
+                <form onsubmit="event.preventDefault();">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label>Sport</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select class="form-control" id="sport-select">
+                                    <option>NBA</option>
+                                    <option>NFL</option>
+                                    <option>MLB</option>
+                                    <option>NHL</option>
+                                    <option>UFC</option>
+                                    <option>NCAAF</option>
+                                    <option>NCAAB</option>
+                                    <option>WNBA</option>
+                                    <option>SOCCER</option>
+                                    <option>EPL</option>
+                                    <option>MLS</option>
+                                    <option>TENNIS</option>
+                                    <option>GOLF</option>
+                                    <option>BOXING</option>
+                                    <option>F1</option>
+                                    <option>ESPORTS</option>
+                                </select>
+                                <button type="button" class="btn btn-outline" id="get-lines-btn"
+                                    style="padding: 0 15px; white-space: nowrap;">Get Lines</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="datetime-local" class="form-control" id="time-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Matchup (e.g., Lakers vs Heat)</label>
+                        <input type="text" class="form-control" placeholder="Home vs Away" id="matchup-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pick</label>
+                        <input type="text" class="form-control" placeholder="e.g. Lakers -5" id="pick-input">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label>Bet Type</label>
+                            <select id="bet-type" class="form-control">
+                                <option>Moneyline</option>
+                                <option>Point Spread</option>
+                                <option>Over/Under</option>
+                                <option>Player Prop</option>
+                                <option>Parlay</option>
+                                <option>Teaser</option>
+                                <option>Future</option>
+                                <option>Live Bet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Units</label>
+                            <select id="units-select" class="form-control">
+                                <option value="0.25u">0.25u (Sprinkle)</option>
+                                <option value="0.5u">0.5u (Lean)</option>
+                                <option value="0.75u">0.75u</option>
+                                <option value="1u" selected>1u (Standard)</option>
+                                <option value="1.5u">1.5u</option>
+                                <option value="2u">2u (Strong)</option>
+                                <option value="3u">3u (Big)</option>
+                                <option value="4u">4u (Whale)</option>
+                                <option value="5u">5u (MAX)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Odds</label>
+                            <input type="text" class="form-control" placeholder="-110" id="odds-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Analysis / Writeup</label>
+                        <textarea class="form-control" rows="4" placeholder="Explain the edge..."
+                            id="analysis-input"></textarea>
+                    </div>
+
+                    <!-- Result Dropdown (Hidden by default, shown when editing) -->
+                    <div class="form-group" id="result-group"
+                        style="display: none; background: #222; padding: 10px; border-radius: 5px; border: 1px solid #444;">
+                        <label style="color: #f97316;">Grading Result</label>
+                        <select id="result-select" class="form-control" style="background: #111; color: #fff;">
+                            <option value="">(Pending)</option>
+                            <option value="WIN">WIN</option>
+                            <option value="LOSS">LOSS</option>
+                            <option value="PUSH">PUSH</option>
+                            <option value="VOID">VOID</option>
+                        </select>
+                    </div>
+
+                    <input type="hidden" id="editing-pick-id">
+                    <input type="hidden" id="editing-pick-result">
+                    <!-- Legacy hidden field kept for safety, but we rely on select now -->
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #ccc;">
+                            <input type="checkbox" id="notify-check" checked>
+                            <span>Send Email Notification to Subscribers</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"
+                        id="publish-btn">🚀 Publish Pick
+                        & Email Subscribers</button>
+                    <button type="button" id="update-btn" class="btn btn-outline"
+                        style="width: 100%; margin-top: 1rem; display: none;">💾 Update Existing Pick</button>
+                    <input type="hidden" id="editing-pick-id">
+                </form>
+            </div>
+
+            <h2 style="margin: 3rem 0 1.5rem 0;">Signal History / Book</h2>
+            <div class="glass-panel" style="padding: 0; overflow: hidden; margin-bottom: 3rem;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: rgba(255,255,255,0.05);">
+                        <tr>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">MATCHUP</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">PICK</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">PROFIT/STATUS</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="picks-history-table">
+                        <tr>
+                            <td colspan="4" style="padding: 1rem; text-align: center;">Loading history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 style="margin: 3rem 0 1.5rem 0;">User Database</h2>
+            <div class="glass-panel" style="padding: 0; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: rgba(255,255,255,0.05);">
+                        <tr>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Email</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Role</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Status</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 500;">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table">
+                        <!-- Dynamic Content -->
+                        <tr>
+                            <td colspan="4" style="padding: 1rem; text-align: center;">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

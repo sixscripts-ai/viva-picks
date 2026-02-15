@@ -1,0 +1,268 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --void: #050505;
+    --surface: #0A0A0A;
+    --panel: #111111;
+    --neon-lime: #39FF14;
+    --dim-lime: rgba(57, 255, 20, 0.1);
+    --cyber-red: #FF003C;
+    --dim-red: rgba(255, 0, 60, 0.1);
+    --electric-cyan: #00F0FF;
+    --dim-cyan: rgba(0, 240, 255, 0.1);
+    --text-primary: #E0E0E0;
+    --text-secondary: #808080;
+    --text-muted: #404040;
+    --border-default: #333333;
+    --border-active: #39FF14;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--void);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+}
+
+/* Typography */
+.font-heading {
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Scanline effect */
+.scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 3px
+    );
+}
+
+/* Grid background */
+.grid-bg {
+    background-image: 
+        linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+/* Neon glow effects */
+.neon-glow {
+    filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.5));
+}
+
+.neon-text {
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.7);
+}
+
+/* Card hover */
+.card-hover {
+    transition: border-color 0.3s ease, transform 0.2s ease;
+}
+
+.card-hover:hover {
+    border-color: rgba(57, 255, 20, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Glitch animation */
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+.glitch-hover:hover {
+    animation: glitch 0.3s ease infinite;
+}
+
+/* Pulse animation for live */
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.pulse-live {
+    animation: pulse-live 1.5s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--void);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-lime);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--neon-lime);
+    color: #000;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+    background-color: #32CC12;
+    transform: scale(1.02);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--neon-lime);
+    color: var(--neon-lime);
+    transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--dim-lime);
+}
+
+/* Sport tabs */
+.sport-tab {
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.sport-tab:hover {
+    color: var(--neon-lime);
+}
+
+.sport-tab.active {
+    color: var(--neon-lime);
+    border-bottom-color: var(--neon-lime);
+}
+
+/* Odds badge */
+.odds-positive {
+    color: var(--neon-lime);
+}
+
+.odds-negative {
+    color: var(--text-primary);
+}
+
+/* Status badges */
+.status-pending {
+    background-color: var(--dim-cyan);
+    color: var(--electric-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.status-won {
+    background-color: var(--dim-lime);
+    color: var(--neon-lime);
+    border: 1px solid rgba(57, 255, 20, 0.3);
+}
+
+.status-lost {
+    background-color: var(--dim-red);
+    color: var(--cyber-red);
+    border: 1px solid rgba(255, 0, 60, 0.3);
+}
+
+/* Input styles */
+input[type="number"],
+input[type="text"] {
+    background-color: var(--void);
+    border: 1px solid var(--border-default);
+    color: var(--neon-lime);
+    font-family: 'JetBrains Mono', monospace;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus {
+    border-color: var(--neon-lime);
+}
+
+/* Remove number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Tailwind base overrides */
+@layer base {
+    :root {
+        --background: 0 0% 2%;
+        --foreground: 0 0% 88%;
+        --card: 0 0% 4%;
+        --card-foreground: 0 0% 88%;
+        --popover: 0 0% 4%;
+        --popover-foreground: 0 0% 88%;
+        --primary: 106 100% 54%;
+        --primary-foreground: 0 0% 0%;
+        --secondary: 0 0% 7%;
+        --secondary-foreground: 0 0% 88%;
+        --muted: 0 0% 7%;
+        --muted-foreground: 0 0% 50%;
+        --accent: 0 0% 7%;
+        --accent-foreground: 0 0% 88%;
+        --destructive: 347 100% 50%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 20%;
+        --input: 0 0% 20%;
+        --ring: 106 100% 54%;
+        --radius: 0;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}

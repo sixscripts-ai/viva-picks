@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account | Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">V</div>
+                Viva Picks
+            </div>
+            <div class="nav-links">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 35px; height: 35px; background: #333; border-radius: 50%;"></div>
+                        <span>Welcome, User</span>
+                    </div>
+                    <button onclick="logout()" class="btn btn-outline"
+                        style="padding: 5px 15px; font-size: 0.85rem; border-color: #333; color: #888;">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="ticker-wrap">
+        <div id="live-ticker" class="ticker">
+            <div class="ticker-item">VIVA PROTOCOL: <span>INITIALIZING INTEL STREAM...</span></div>
+            <div class="ticker-item">SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span></div>
+        </div>
+    </div>
+
+    <div class="dashboard-container container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard">📊 SIGNAL FEED</a></li>
+                <li><a href="warroom" style="color: var(--primary);">📡 WAR ROOM</a></li>
+                <li><a href="linetracker">📈 LINE TRACKER</a></li>
+                <li><a href="account" class="active">💳 ACCOUNT STATUS</a></li>
+                <!-- <li><a href="#">📜 HISTORY logs</a></li> -->
+                <li id="admin-link" style="display: none;"><a href="admin"
+                        style="color: var(--primary); border-color: var(--primary);">🔒 OPERATOR PANEL</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <h1 style="margin-bottom: 2rem;">OPERATIVE PROFILE</h1>
+
+            <div class="card-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+
+                <!-- Identity Card -->
+                <div class="glass-panel">
+                    <h3 style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">IDENTITY MATRIX</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div>
+                            <span
+                                style="display: block; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">CODE
+                                NAME (EMAIL)</span>
+                            <span id="profile-email" style="font-size: 1.2rem; font-weight: 700;">Loading...</span>
+                        </div>
+                        <div>
+                            <span
+                                style="display: block; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">CLEARANCE
+                                LEVEL</span>
+                            <span id="profile-role"
+                                style="font-family: var(--font-mono); color: var(--primary); border: 1px solid var(--primary); padding: 0.2rem 0.6rem; font-size: 0.8rem;">...</span>
+                        </div>
+                        <div>
+                            <span
+                                style="display: block; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">OPERATIVE
+                                SINCE</span>
+                            <span id="profile-joined" style="font-size: 1.1rem;">...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Status Card -->
+                <div class="glass-panel">
+                    <h3 style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">ACCESS STATUS</h3>
+
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div id="sub-status-indicator"
+                            style="display: inline-block; width: 15px; height: 15px; border-radius: 50%; background: #333; margin-right: 10px;">
+                        </div>
+                        <span id="profile-sub-status" style="font-size: 2rem; font-weight: 700;">CHECKING...</span>
+                    </div>
+
+                    <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
+                        Manage your billing, payment methods, and subscription tier via the secure portal.
+                    </p>
+
+                    <button id="manage-billing-btn" class="btn btn-primary" style="width: 100%;">ACCESS BILLING
+                        PORTAL</button>
+                    <!-- Fallback for inactive users -->
+                    <button id="account-subscribe-btn" class="btn btn-outline"
+                        style="width: 100%; display: none; margin-top: 1rem;">INITIATE SUBSCRIPTION</button>
+                </div>
+
+                <!-- Notifications (Mock) -->
+                <div class="glass-panel" style="grid-column: 1/-1;">
+                    <h3 style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">COMMUNICATION
+                        PROTOCOLS</h3>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <div style="font-weight: 700;">EMAIL ALERTS</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Receive immediate intel on new
+                                signals.</div>
+                        </div>
+                        <div style="color: var(--accent); font-family: var(--font-mono);">[ACTIVE - LOCKED]</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-muted);">SMS ALERTS</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Direct to device text messages.
+                            </div>
+                        </div>
+                        <div
+                            style="color: var(--text-muted); font-family: var(--font-mono); border: 1px solid var(--border); padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+                            COMING SOON</div>
+                    </div>
+                    <!-- Data Management -->
+                    <div class="glass-panel"
+                        style="grid-column: 1/-1; border-color: rgba(239, 68, 68, 0.3); margin-top: 1rem;">
+                        <h3 style="color: #ef4444; margin-bottom: 1rem; font-size: 0.9rem;">DANGER ZONE</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700;">DELETE ACCOUNT</div>
+                                <div style="font-size: 0.9rem; color: var(--text-muted);">Permanently remove all data
+                                    and terminate access. This cannot be undone.</div>
+                            </div>
+                            <button id="delete-account-btn" class="btn btn-outline"
+                                style="border-color: #ef4444; color: #ef4444;">TERMINATE ACCOUNT</button>
+                        </div>
+                    </div>
+
+                </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    <footer
+        style="padding: 3rem 0; border-top: 1px solid var(--border); background: var(--bg-card); margin-top: 100px;">
+        <div class="container"
+            style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
+            <p style="margin-top: 1rem;"><a href="privacy"
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

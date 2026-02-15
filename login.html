@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Viva Picks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+
+    <nav>
+        <div class="container">
+            <a href="/" class="logo" style="text-decoration: none;">
+                <div class="logo-icon">V</div>
+                Viva Picks
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="signup">Join Now</a>
+            </div>
+        </div>
+    </nav>
+    <div class="ticker-wrap">
+        <div id="live-ticker" class="ticker">
+            <div class="ticker-item">VIVA PROTOCOL: <span>INITIALIZING INTEL STREAM...</span></div>
+            <div class="ticker-item">SYSTEM STATUS: <span>CONNECTED // OPTIMAL</span></div>
+        </div>
+    </div>
+
+    <div class="container"
+        style="flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 80px;">
+        <div class="glass-panel" style="width: 100%; max-width: 400px; padding: 2.5rem;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Welcome Back</h1>
+                <p style="color: var(--text-muted);">Enter your credentials to access the intelligence.</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" style="accent-color: var(--primary);"> Remember me
+                    </label>
+                    <a href="#" style="color: var(--primary); text-decoration: none;">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Sign
+                    In</button>
+            </form>
+
+            <div id="error-msg" style="color: #ff5252; text-align: center; margin-top: 1rem; display: none;"></div>
+
+            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                Don't have an account? <a href="signup" style="color: var(--accent); text-decoration: none;">Start
+                    Winning</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('Login form submitted...');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error-msg');
+            const btn = e.target.querySelector('button');
+
+            btn.disabled = true;
+            btn.textContent = 'AUTHENTICATING...';
+
+            if (window.location.protocol === 'file:') {
+                alert('CRITICAL: You are opening the HTML file directly. You MUST navigate to http://localhost:3000/login in your browser for the login to function.');
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+                return;
+            }
+
+            try {
+                console.log('Fetching auth endpoint...');
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                console.log('Response data:', data);
+
+                if (res.ok) {
+                    alert('Login Success! Redirecting...');
+                    // Redirect based on role
+                    if (data.role === 'admin') {
+                        window.location.href = 'admin';
+                    } else {
+                        window.location.href = 'dashboard';
+                    }
+                } else {
+                    errorDiv.textContent = data.error || 'Login failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                alert('CONNECTION ERROR: ' + err.message);
+                errorDiv.textContent = 'Server connection error';
+                errorDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        });
+    </script>
+    <footer style="padding: 3rem 0; border-top: 1px solid var(--border); background: var(--bg-card); margin-top: auto;">
+        <div class="container"
+            style="text-align: center; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+            <p>&copy; 2026 VIVA PICKS. ALL RIGHTS RESERVED.</p>
+            <p style="margin-top: 1rem;"><a href="privacy"
+                    style="color: var(--text-muted); text-decoration: underline;">Privacy Policy</a> | <a href="terms"
+                    style="color: var(--text-muted); text-decoration: underline;">Terms of Service</a>
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>
